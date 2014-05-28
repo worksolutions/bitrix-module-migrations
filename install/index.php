@@ -1,4 +1,8 @@
 <?
+require_once __DIR__.'/../lib/module.php';
+require_once __DIR__.'/../lib/localization.php';
+require_once __DIR__.'/../lib/options.php';
+
 Class ws_migrations extends CModule {
     const MODULE_ID = 'ws.migrations';
     var $MODULE_ID = 'ws.migrations';
