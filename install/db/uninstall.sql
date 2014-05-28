@@ -1,0 +1,1 @@
+DROP TABLE if exists ws_migrations_log;
