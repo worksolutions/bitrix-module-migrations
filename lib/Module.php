@@ -1,6 +1,8 @@
 <?php
 
 namespace WS\Migrations;
+use Bitrix\Main\EventManager;
+use WS\Migrations\Handlers\Iblock\IblockAdd;
 
 /**
  * Class Module (Singletone)
@@ -8,6 +10,10 @@ namespace WS\Migrations;
  * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
  */
 class Module {
+
+    const FIX_CHANGES_BEFORE_KEY = 'before';
+    const FIX_CHANGES_AFTER_KEY = 'after';
+    const FIX_CHANGES_KEY = 'change';
 
     private $localizePath = null,
             $localizations = array();
@@ -46,7 +52,21 @@ class Module {
     }
 
     static public function listen(){
-        
+        $self = self::getInstance();
+        $bxEventManager = EventManager::getInstance();
+        foreach ($self->handlers() as $class => $events) {
+            foreach ($events as $eventKey => $eventData) {
+                $bxEventManager->addEventHandler($eventData[0], $eventData[1], new Callback(function () {
+                    $params = func_get_args();
+                    $module = array_shift($params);
+                    $handlerClass = array_shift($params);
+                    $eventKey = array_shift($params);
+
+                    $module->handle($handlerClass, $eventKey, $params);
+
+                }, $self, $class, $eventKey));
+            }
+        }
     }
 
     /**
@@ -64,4 +84,54 @@ class Module {
         }
         return $this->localizations[$path];
     }
+
+    /**
+     * Meta description uses handlers, been register
+     * @return array
+     */
+    protected function handlers() {
+        return array(
+            IblockAdd::className() => array(
+                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockAdd'),
+                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockAdd')
+            )
+        );
+    }
+
+    /**
+     * @param $class
+     * @return ChangeHandler
+     */
+    private function _getHandler($class) {
+
+    }
+
+    /**
+     * @param ChangeHandler $handler
+     * @return Catcher
+     */
+    private function _createCatcher($handler) {
+    }
+
+    public function handle($handlerClass, $eventKey, $params) {
+        $handlers = $this->handlers();
+        if ( ! $eventKey =  $handlers[$handlerClass][$eventKey]) {
+            return false;
+        }
+        $handler = $this->_getHandler($handlerClass);
+        switch ($eventKey) {
+            case self::FIX_CHANGES_BEFORE_KEY:
+                $handler->beforeChange($params);
+                break;
+            case self::FIX_CHANGES_AFTER_KEY:
+                $catcher = $this->_createCatcher($handler);
+                $handler->afterChange($params, $catcher);
+                break;
+            case self::FIX_CHANGES_KEY:
+                $catcher = $this->_createCatcher($handler);
+                $handler->change($params, $catcher);
+                break;
+        }
+    }
+
 }
