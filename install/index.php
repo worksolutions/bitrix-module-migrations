@@ -1,10 +1,10 @@
 <?
 use Bitrix\Main\Application;
 
-require_once __DIR__.'/../lib/module.php';
-require_once __DIR__.'/../lib/localization.php';
-require_once __DIR__.'/../lib/options.php';
-require_once __DIR__.'/../lib/moduleoptions.php';
+require_once __DIR__.'/../lib/Module.php';
+require_once __DIR__.'/../lib/Localization.php';
+require_once __DIR__.'/../lib/Options.php';
+require_once __DIR__.'/../lib/ModuleOptions.php';
 
 Class ws_migrations extends CModule {
     const MODULE_ID = 'ws.migrations';
