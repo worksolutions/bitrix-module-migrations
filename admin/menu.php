@@ -6,7 +6,7 @@ if (!$USER->isAdmin()) {
 $inputUri = '/bitrix/admin/ws_migrations.php?q=';
 return array(
     array(
-        'parent_menu' => 'global_menu_store',
+        'parent_menu' => 'global_menu_settings',
         'sort' => 500,
         'text' => 'Миграции данных',
         'title' => 'Миграции данных',
