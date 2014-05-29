@@ -1,6 +1,7 @@
 <?php
 namespace WS\Migrations;
 /**
+ * @property string $catalogPath
  * @author <sokolovsky@worksolutions.ru>
  */
 final class ModuleOptions {
