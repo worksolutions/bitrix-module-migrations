@@ -6,11 +6,18 @@
 namespace WS\Migrations\Handlers\Iblock;
 
 
+use WS\Migrations\Catcher;
 use WS\Migrations\ChangeHandler;
 
 class IblockAdd extends ChangeHandler {
 
     public function getName() {
         return $this->getLocalization()->getDataByPath('iblockAdd.name');
+    }
+
+    public function change($data, Catcher $catcher) {
+    }
+
+    public function update(Catcher $catcher) {
     }
 }

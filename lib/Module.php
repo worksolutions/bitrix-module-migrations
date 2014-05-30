@@ -3,6 +3,7 @@
 namespace WS\Migrations;
 use Bitrix\Main\EventManager;
 use WS\Migrations\Handlers\Iblock\IblockAdd;
+use WS\Migrations\Handlers\Iblock\IblockUpdate;
 
 /**
  * Class Module (Singletone)
@@ -92,8 +93,11 @@ class Module {
     protected function handlers() {
         return array(
             IblockAdd::className() => array(
-                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockAdd'),
-                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockAdd')
+                self::FIX_CHANGES_KEY => array('iblock', 'OnAfterIBlockAdd')
+            ),
+            IblockUpdate::className() => array(
+                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockUpdate'),
+                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockUpdate'),
             )
         );
     }
