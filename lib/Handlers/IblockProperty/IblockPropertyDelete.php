@@ -5,7 +5,6 @@
 
 namespace WS\Migrations\Handlers\IblockProperty;
 
-
 use WS\Migrations\Catcher;
 use WS\Migrations\ChangeHandler;
 
@@ -22,13 +21,18 @@ class IblockPropertyDelete extends ChangeHandler {
     }
 
     public function beforeChange($data) {
-        $this->_beforeChangeData = $data;
+        $propertyId = $data[0];
+        $propResult = \CIBlockProperty::GetByID($propertyId);
+        if ($data = $propResult->Fetch()) {
+            $this->_beforeChangeData[$propertyId] = $data;
+        }
     }
 
     public function afterChange($data, Catcher $catcher) {
+        $propertyId = $data[0];
         $catcher->fixChangeData(array(
-            'before' => $this->_beforeChangeData,
-            'after' => $data
+            'before' => $this->_beforeChangeData[$propertyId],
+            'after' => $data[0]
         ));
     }
 

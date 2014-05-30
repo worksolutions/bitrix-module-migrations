@@ -27,8 +27,9 @@ class IblockUpdate extends ChangeHandler{
     }
 
     public function afterChange($data, Catcher $catcher) {
+        $iblockId = $data[0]['ID'];
         $catcher->fixChangeData(array(
-            'before' => $this->_beforeChangeData,
+            'before' => $this->_beforeChangeData[$iblockId],
             'after' => $data[0]
         ));
     }

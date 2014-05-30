@@ -115,7 +115,7 @@ class Module {
                 self::FIX_CHANGES_KEY => array('iblock', 'OnAfterIBlockPropertyAdd')
             ),
             IblockPropertyUpdate::className() => array(
-                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockElementUpdate'),
+                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockPropertyUpdate'),
                 self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockPropertyUpdate'),
             ),
             IblockPropertyDelete::className() => array(

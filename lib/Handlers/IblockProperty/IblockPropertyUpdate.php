@@ -21,13 +21,18 @@ class IblockPropertyUpdate extends ChangeHandler{
     }
 
     public function beforeChange($data) {
-        $this->_beforeChange = $data;
+        $propertyId = $data[0]['ID'];
+        $propResult = \CIBlockProperty::GetByID($propertyId);
+        if ($data = $propResult->Fetch()) {
+            $this->_beforeChange[$propertyId] = $data;
+        }
     }
 
     public function afterChange($data, Catcher $catcher) {
+        $propertyId = $data[0]['ID'];
         $catcher->fixChangeData(array(
-            'before' => $this->_beforeChange,
-            'after' => $data
+            'before' => $this->_beforeChange[$propertyId],
+            'after' => $data[0]
         ));
     }
 
