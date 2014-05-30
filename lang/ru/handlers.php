@@ -5,5 +5,8 @@ return array(
     ),
     'iblockUpdate' => array(
         'name' => 'Изменение полей инфоблока'
+    ),
+    'iblockDelete' => array(
+        'name' => 'Удаление инфоблока'
     )
 );

@@ -4,6 +4,7 @@ namespace WS\Migrations;
 use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
 use WS\Migrations\Handlers\Iblock\IblockAdd;
+use WS\Migrations\Handlers\Iblock\IblockDelete;
 use WS\Migrations\Handlers\Iblock\IblockUpdate;
 
 /**
@@ -102,6 +103,10 @@ class Module {
             IblockUpdate::className() => array(
                 self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockUpdate'),
                 self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockUpdate'),
+            ),
+            IblockDelete::className() => array(
+                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockDelete'),
+                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnIBlockDelete'),
             )
         );
     }

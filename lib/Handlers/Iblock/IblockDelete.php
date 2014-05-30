@@ -9,27 +9,36 @@ namespace WS\Migrations\Handlers\Iblock;
 use WS\Migrations\Catcher;
 use WS\Migrations\ChangeHandler;
 
-class IblockUpdate extends ChangeHandler{
-    private $_beforeChangeData = array();
+class IblockDelete extends ChangeHandler {
+    private $_beforeChangeData;
 
     /**
      * Name of Handler in Web interface
      * @return string
      */
     public function getName() {
-        $this->getLocalization()->getDataByPath('name');
+        $this->getLocalization()->getDataByPath('iblockDelete.name');
     }
 
     public function beforeChange($data) {
         $iblockId = $data[0]['ID'];
-        $data = \CIBlock::GetArrayByID($iblockId);
-        $this->_beforeChangeData[$iblockId] = $data;
+        $iblockData = \CIBlock::GetArrayByID($iblockId);
+        $this->_beforeChangeData[$iblockId] = $iblockData;
     }
 
     public function afterChange($data, Catcher $catcher) {
+        $iblockId = $data[0];
         $catcher->fixChangeData(array(
-            'before' => $this->_beforeChangeData,
-            'after' => $data[0]
+            'before' => $this->_beforeChangeData[$iblockId],
+            'id' => $iblockId
         ));
     }
+
+    public function update(Catcher $catcher) {
+    }
+
+    public function rollback(Catcher $catcher) {
+    }
+
+
 }
