@@ -45,6 +45,7 @@ abstract class ChangeHandler {
      * @param Catcher $catcher
      */
     public function change($data, Catcher $catcher) {
+        $catcher->fixChangeData($data);
     }
 
     /**
@@ -52,6 +53,7 @@ abstract class ChangeHandler {
      * @param Catcher $catcher
      */
     public function update(Catcher $catcher) {
+        $data = $catcher->getChangeData();
     }
 
     /**
@@ -59,5 +61,6 @@ abstract class ChangeHandler {
      * @param Catcher $catcher
      */
     public function rollback(Catcher $catcher) {
+        $catcher->getOriginalData();
     }
 }
