@@ -8,5 +8,14 @@ return array(
     ),
     'iblockDelete' => array(
         'name' => 'Удаление инфоблока'
-    )
+    ),
+    'iblockPropertyAdd' => array(
+        'name' => 'Добавление свойства инфоблока'
+    ),
+    'iblockPropertyUpdate' => array(
+        'name' => 'Изменение свойства инфоблока'
+    ),
+    'iblockPropertyDelete' => array(
+        'name' => 'Удаление свойства инфоблока'
+    ),
 );

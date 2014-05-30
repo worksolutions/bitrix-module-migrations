@@ -6,6 +6,9 @@ use Bitrix\Main\EventManager;
 use WS\Migrations\Handlers\Iblock\IblockAdd;
 use WS\Migrations\Handlers\Iblock\IblockDelete;
 use WS\Migrations\Handlers\Iblock\IblockUpdate;
+use WS\Migrations\Handlers\IblockProperty\IblockPropertyAdd;
+use WS\Migrations\Handlers\IblockProperty\IblockPropertyDelete;
+use WS\Migrations\Handlers\IblockProperty\IblockPropertyUpdate;
 
 /**
  * Class Module (Singletone)
@@ -107,6 +110,17 @@ class Module {
             IblockDelete::className() => array(
                 self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockDelete'),
                 self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnIBlockDelete'),
+            ),
+            IblockPropertyAdd::className() => array(
+                self::FIX_CHANGES_KEY => array('iblock', 'OnAfterIBlockPropertyAdd')
+            ),
+            IblockPropertyUpdate::className() => array(
+                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockElementUpdate'),
+                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockPropertyUpdate'),
+            ),
+            IblockPropertyDelete::className() => array(
+                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockPropertyDelete'),
+                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnIBlockPropertyDelete'),
             )
         );
     }

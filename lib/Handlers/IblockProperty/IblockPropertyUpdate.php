@@ -3,34 +3,31 @@
  * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
  */
 
-namespace WS\Migrations\Handlers\Iblock;
+namespace WS\Migrations\Handlers\IblockProperty;
 
 
 use WS\Migrations\Catcher;
 use WS\Migrations\ChangeHandler;
 
-class IblockDelete extends ChangeHandler {
-    private $_beforeChangeData;
+class IblockPropertyUpdate extends ChangeHandler{
+    private $_beforeChange = array();
 
     /**
      * Name of Handler in Web interface
      * @return string
      */
     public function getName() {
-        $this->getLocalization()->getDataByPath('iblockDelete.name');
+        return $this->getLocalization()->getDataByPath('iblockPropertyUpdate.name');
     }
 
     public function beforeChange($data) {
-        $iblockId = $data[0];
-        $iblockData = \CIBlock::GetArrayByID($iblockId);
-        $this->_beforeChangeData[$iblockId] = $iblockData;
+        $this->_beforeChange = $data;
     }
 
     public function afterChange($data, Catcher $catcher) {
-        $iblockId = $data[0];
         $catcher->fixChangeData(array(
-            'before' => $this->_beforeChangeData[$iblockId],
-            'id' => $iblockId
+            'before' => $this->_beforeChange,
+            'after' => $data
         ));
     }
 
@@ -39,6 +36,4 @@ class IblockDelete extends ChangeHandler {
 
     public function rollback(Catcher $catcher) {
     }
-
-
 }
