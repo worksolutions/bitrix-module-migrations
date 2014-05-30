@@ -1,6 +1,7 @@
 <?php
 
 namespace WS\Migrations;
+use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
 use WS\Migrations\Handlers\Iblock\IblockAdd;
 use WS\Migrations\Handlers\Iblock\IblockUpdate;
@@ -20,6 +21,8 @@ class Module {
             $localizations = array();
 
     private static $name = 'ws.migrations';
+
+    private $_handlers = array();
 
     private function __construct() {
         $this->localizePath = __DIR__.'/../lang/'.LANGUAGE_ID;
@@ -107,7 +110,19 @@ class Module {
      * @return ChangeHandler
      */
     private function _getHandler($class) {
-
+        if (! class_exists($class)) {
+            foreach (array_keys($this->handlers()) as $handlerClass) {
+                $arClassName = explode('\\', $handlerClass);
+                if ($class == array_pop($arClassName)) {
+                    $class = $handlerClass;
+                    break;
+                }
+            }
+        }
+        if (!$this->_handlers[$class]) {
+            $this->_handlers[$class] = new $class;
+        }
+        return $this->_handlers[$class];
     }
 
     /**
@@ -115,6 +130,7 @@ class Module {
      * @return Catcher
      */
     private function _createCatcher($handler) {
+        return Catcher::createByHandler($this->_getFixFilesDir(), $handler);
     }
 
     public function handle($handlerClass, $eventKey, $params) {
@@ -138,4 +154,11 @@ class Module {
         }
     }
 
+    /**
+     * Directory location fixed files
+     * @return string
+     */
+    private function _getFixFilesDir() {
+        return Application::getDocumentRoot().DIRECTORY_SEPARATOR.$this->getOptions()->catalogPath;
+    }
 }

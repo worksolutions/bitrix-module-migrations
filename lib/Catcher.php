@@ -5,10 +5,29 @@
 
 namespace WS\Migrations;
 
+use Bitrix\Main\IO\File;
 
 class Catcher {
+    /**
+     * @var File
+     */
+    private $_file;
 
-    public function __construct() {
+    private function __construct(File $file, $log = null) {
+        $this->_file = $file;
+    }
+
+    static public function createByFile($path) {
+        return new static(new File($path));
+    }
+
+    static public function createByHandler($rootPath, $class) {
+        $handlerClassName = explode('\\', $class);
+        $filePath = $rootPath.'/'.time().array_pop($handlerClassName);
+        return new static(new File($filePath));
+    }
+
+    public function createByLog() {
     }
 
     /**
@@ -16,12 +35,15 @@ class Catcher {
      * @return $this
      */
     public function fixChangeData(array $value = null) {
+        $this->_file->putContents(json_encode($value));
+        return $this;
     }
 
     /**
      * @return array | null
      */
     public function getChangeData() {
+        return json_decode($this->_file->getContents(), true);
     }
 
     /**

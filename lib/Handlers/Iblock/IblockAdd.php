@@ -16,6 +16,7 @@ class IblockAdd extends ChangeHandler {
     }
 
     public function change($data, Catcher $catcher) {
+        $catcher->fixChangeData($data);
     }
 
     public function update(Catcher $catcher) {
