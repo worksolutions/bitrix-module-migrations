@@ -35,6 +35,8 @@ class Catcher {
      * @return $this
      */
     public function fixChangeData(array $value = null) {
+        global $APPLICATION;
+        $value = $APPLICATION->ConvertCharsetArray($value, LANG_CHARSET, "UTF-8");
         $this->_file->putContents(json_encode($value));
         return $this;
     }
@@ -43,7 +45,10 @@ class Catcher {
      * @return array | null
      */
     public function getChangeData() {
-        return json_decode($this->_file->getContents(), true);
+        global $APPLICATION;
+        $value = json_decode($this->_file->getContents(), true);
+        $value = $APPLICATION->ConvertCharsetArray($value, "UTF-8", LANG_CHARSET);
+        return $value;
     }
 
     /**
