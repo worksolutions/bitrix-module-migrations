@@ -23,7 +23,7 @@ class Catcher {
 
     static public function createByHandler($rootPath, $class) {
         $handlerClassName = explode('\\', $class);
-        $filePath = $rootPath.'/'.time().array_pop($handlerClassName);
+        $filePath = $rootPath.'/'.time().'_'.array_pop($handlerClassName).'.json';
         return new static(new File($filePath));
     }
 

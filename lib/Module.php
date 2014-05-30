@@ -66,6 +66,7 @@ class Module {
                     $handlerClass = array_shift($params);
                     $eventKey = array_shift($params);
 
+                    /** @var $module Module */
                     $module->handle($handlerClass, $eventKey, $params);
 
                 }, $self, $class, $eventKey));
@@ -130,12 +131,12 @@ class Module {
      * @return Catcher
      */
     private function _createCatcher($handler) {
-        return Catcher::createByHandler($this->_getFixFilesDir(), $handler);
+        return Catcher::createByHandler($this->_getFixFilesDir(), get_class($handler));
     }
 
     public function handle($handlerClass, $eventKey, $params) {
         $handlers = $this->handlers();
-        if ( ! $eventKey =  $handlers[$handlerClass][$eventKey]) {
+        if ( !$handlers[$handlerClass][$eventKey]) {
             return false;
         }
         $handler = $this->_getHandler($handlerClass);
