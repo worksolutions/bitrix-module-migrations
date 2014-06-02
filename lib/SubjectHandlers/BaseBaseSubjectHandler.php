@@ -3,10 +3,10 @@
  * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
  */
 
-namespace WS\Migrations;
+namespace WS\Migrations\SubjectHandlers;
 
 
-abstract class SubjectHandler {
+abstract class BaseSubjectHandler {
     static public function className() {
         return get_called_class();
     }
@@ -24,6 +24,11 @@ abstract class SubjectHandler {
      */
     abstract public function getName();
 
+    /**
+     * @param $method
+     * @param array $data
+     * @return scalar
+     */
     abstract public function getIdByChangeMethod($method, $data = array());
 
     abstract public function getSnapshot($id);

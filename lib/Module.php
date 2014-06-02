@@ -11,15 +11,16 @@ use WS\Migrations\Handlers\IblockProperty\IblockPropertyDelete;
 use WS\Migrations\Handlers\IblockProperty\IblockPropertyUpdate;
 
 /**
- * Class Module (Singletone)
+ * Class Module (Singleton)
  *
  * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
  */
 class Module {
 
-    const FIX_CHANGES_BEFORE_KEY = 'before';
-    const FIX_CHANGES_AFTER_KEY = 'after';
-    const FIX_CHANGES_KEY = 'change';
+    const FIX_CHANGES_BEFORE_CHANGE_KEY = 'beforeChange';
+    const FIX_CHANGES_AFTER_CHANGE_KEY = 'afterChange';
+    const FIX_CHANGES_ADD_KEY = 'add';
+    const FIX_CHANGES_DELETE_KEY = 'delete';
 
     private $localizePath = null,
             $localizations = array();
@@ -48,7 +49,6 @@ class Module {
     }
 
     /**
-     * @staticvar self $self
      * @return Module
      */
     static public function getInstance() {
@@ -127,7 +127,7 @@ class Module {
 
     /**
      * @param $class
-     * @return ChangeHandler
+     * @return SubjectHandler
      */
     private function _getHandler($class) {
         if (! class_exists($class)) {
@@ -146,7 +146,7 @@ class Module {
     }
 
     /**
-     * @param ChangeHandler $handler
+     * @param SubjectHandler $handler
      * @return Catcher
      */
     private function _createCatcher($handler) {
