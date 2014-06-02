@@ -3,13 +3,12 @@
  * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
  */
 
-namespace WS\Migrations\Handlers\Iblock;
+namespace WS\Migrations\Handlers\IblockType;
 
 
-use WS\Migrations\Catcher;
 use WS\Migrations\ChangeHandler;
 
-class IblockUpdate extends ChangeHandler{
+class IblockTypeUpdate extends ChangeHandler {
     private $_beforeChangeData = array();
 
     /**
@@ -17,20 +16,20 @@ class IblockUpdate extends ChangeHandler{
      * @return string
      */
     public function getName() {
-        $this->getLocalization()->getDataByPath('iblockUpdate.name');
+        $this->getLocalization()->getDataByPath('iblockTypeUpdate.name');
     }
 
     public function beforeChange($data) {
-        $iblockId = $data[0]['ID'];
-        $data = \CIBlock::GetArrayByID($iblockId);
-        $this->_beforeChangeData[$iblockId] = $data;
+        $id = $data[0]['ID'];
+        $data = \CIBlockType::GetByID($id)->Fetch();
+        $this->_beforeChangeData[$id] = $data;
     }
 
     public function afterChange($data, Catcher $catcher) {
-        $iblockId = $data[0]['ID'];
+        $id = $data[0]['ID'];
         $catcher->fixChangeData(array(
-            'before' => $this->_beforeChangeData[$iblockId],
+            'before' => $this->_beforeChangeData[$id],
             'after' => $data[0]
         ));
     }
-}
+} 
