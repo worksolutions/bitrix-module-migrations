@@ -7,9 +7,9 @@ namespace WS\Migrations\Handlers\Iblock;
 
 
 use WS\Migrations\Catcher;
-use WS\Migrations\ChangeHandler;
+use WS\Migrations\SubjectHandler;
 
-class IblockUpdate extends ChangeHandler{
+class IblockUpdate extends SubjectHandler{
     private $_beforeChangeData = array();
 
     /**

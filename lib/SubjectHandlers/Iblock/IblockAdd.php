@@ -7,9 +7,9 @@ namespace WS\Migrations\Handlers\Iblock;
 
 
 use WS\Migrations\Catcher;
-use WS\Migrations\ChangeHandler;
+use WS\Migrations\SubjectHandler;
 
-class IblockAdd extends ChangeHandler {
+class IblockAdd extends SubjectHandler {
 
     public function getName() {
         return $this->getLocalization()->getDataByPath('iblockAdd.name');
