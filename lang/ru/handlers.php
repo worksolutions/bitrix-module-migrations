@@ -8,8 +8,5 @@ return array(
     ),
     'iblockSection' => array(
         'name' => 'Раздел информационного блока'
-    ),
-    'iblockType' => array(
-        'name' => 'Тип информационного блока'
     )
 );

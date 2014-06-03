@@ -8,7 +8,7 @@ namespace WS\Migrations\SubjectHandlers;
 
 use WS\Migrations\Module;
 
-class IblockHandlerBase extends BaseSubjectHandler  {
+class IblockHandler extends BaseSubjectHandler  {
 
     /**
      * Name of Handler in Web interface
@@ -24,22 +24,44 @@ class IblockHandlerBase extends BaseSubjectHandler  {
             case Module::FIX_CHANGES_BEFORE_CHANGE_KEY:
             case Module::FIX_CHANGES_AFTER_CHANGE_KEY:
                 return $data[0]['ID'];
-            case Module::FIX_CHANGES_DELETE_KEY:
+            case Module::FIX_CHANGES_BEFORE_DELETE_KEY:
+            case Module::FIX_CHANGES_AFTER_DELETE_KEY:
                 return $data[0];
         }
         return null;
     }
 
     public function getSnapshot($id) {
-        return \CIBlock::GetArrayByID($id);
+        $iblock = \CIBlock::GetArrayByID($id);
+        $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
+        return array(
+            'iblock' => $iblock,
+            'type' => $type
+        );
     }
 
     public function applySnapshot($data) {
-        $ib = new \CIBlock();
-        if (!\CIBlock::GetArrayByID($data['ID'])) {
-            $ib->Add($data);
+        $iblockData = $data['iblock'];
+        $typeData = $data['type'];
+
+        $type = new \CIBlockType();
+        if (!\CIBlockType::GetByID($typeData['ID'])->Fetch()) {
+            $type->Add($typeData);
         } else {
-            $ib->Update($data['ID'], $data);
+            $type->Update($typeData['ID'], $typeData);
         }
+        if ($type->LAST_ERROR) {
+            return false;
+        }
+        $iblock = new \CIBlock();
+        if (!\CIBlock::GetArrayByID($iblockData['ID'])) {
+            $iblock->Add($iblockData);
+        } else {
+            $iblock->Update($iblockData['ID'], $iblockData);
+        }
+        if ($iblock->LAST_ERROR) {
+            return false;
+        }
+        return true;
     }
 }
