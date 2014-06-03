@@ -49,6 +49,9 @@ class CollectorFix {
      * @return $this
      */
     public function setSubject($subject) {
+        if (is_object($subject)) {
+            $subject = get_class($subject);
+        }
         $this->_subject = $subject;
         return $this;
     }
@@ -58,6 +61,9 @@ class CollectorFix {
      * @return $this
      */
     public function setProcess($process) {
+        if (is_object($process)) {
+            $process = get_class($process);
+        }
         $this->_process = $process;
         return $this;
     }

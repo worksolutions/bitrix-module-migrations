@@ -6,11 +6,32 @@
 namespace WS\Migrations\Processes;
 
 
-class DeleteProcess extends BaseProcess {
+use WS\Migrations\ChangeDataCollector\CollectorFix;
+use WS\Migrations\Module;
+use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 
-    public function update($log) {
+class DeleteProcess extends BaseProcess {
+    private $_beforeChangesSnapshots = array();
+
+    public function update(CollectorFix $fix) {
     }
 
     public function rollback($log) {
+    }
+
+    public function beforeChange(BaseSubjectHandler $subjectHandler, $data) {
+        $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_BEFORE_DELETE_KEY, $data);
+        $this->_beforeChangesSnapshots[$id] = $snapshot = $subjectHandler->getSnapshot($id);
+    }
+
+    public function afterChange(BaseSubjectHandler $subjectHandler, CollectorFix $fix, $data) {
+        $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_AFTER_DELETE_KEY, $data);
+        $fix
+            ->setSubject($subjectHandler)
+            ->setProcess($this)
+            ->setData(array(
+                'snapshot' => $this->_beforeChangesSnapshots[$id],
+                'id' => $id
+            ));
     }
 }
