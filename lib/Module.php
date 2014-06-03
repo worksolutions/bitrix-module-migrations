@@ -3,6 +3,11 @@
 namespace WS\Migrations;
 use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
+use WS\Migrations\ChangeDataCollector\Collector;
+use WS\Migrations\Processes\AddProcess;
+use WS\Migrations\Processes\DeleteProcess;
+use WS\Migrations\Processes\UpdateProcess;
+use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 use WS\Migrations\SubjectHandlers\IblockHandler;
 use WS\Migrations\SubjectHandlers\IblockPropertyHandler;
 use WS\Migrations\SubjectHandlers\IblockSectionHandler;
@@ -14,9 +19,9 @@ use WS\Migrations\SubjectHandlers\IblockSectionHandler;
  */
 class Module {
 
+    const FIX_CHANGES_ADD_KEY = 'add';
     const FIX_CHANGES_BEFORE_CHANGE_KEY = 'beforeChange';
     const FIX_CHANGES_AFTER_CHANGE_KEY = 'afterChange';
-    const FIX_CHANGES_ADD_KEY = 'add';
     const FIX_CHANGES_BEFORE_DELETE_KEY = 'beforeDelete';
     const FIX_CHANGES_AFTER_DELETE_KEY = 'afterDelete';
 
@@ -26,6 +31,12 @@ class Module {
     private static $name = 'ws.migrations';
 
     private $_handlers = array();
+
+    private $_dutyCollector = null;
+
+    private $_processAdd;
+    private $_processUpdate;
+    private $_processDelete;
 
     private function __construct() {
         $this->localizePath = __DIR__.'/../lang/'.LANGUAGE_ID;
@@ -76,6 +87,14 @@ class Module {
         }
     }
 
+    static public function commitDutyChanger() {
+        $self = self::getInstance();
+        if ($self->_dutyCollector) {
+            return null;
+        }
+        $self->_getDutyCollector()->commit();
+    }
+
     /**
      * @param str $path
      * @throws \Exception
@@ -124,9 +143,9 @@ class Module {
 
     /**
      * @param $class
-     * @return SubjectHandler
+     * @return BaseSubjectHandler
      */
-    private function _getHandler($class) {
+    private function _getSubjectHandler($class) {
         if (! class_exists($class)) {
             foreach (array_keys($this->handlers()) as $handlerClass) {
                 $arClassName = explode('\\', $handlerClass);
@@ -150,25 +169,75 @@ class Module {
         return Catcher::createByHandler($this->_getFixFilesDir(), get_class($handler));
     }
 
+    /**
+     * @return AddProcess
+     */
+    private function _getProcessAdd() {
+        if (!$this->_processAdd) {
+            $this->_processAdd = new AddProcess();
+        }
+        return $this->_processAdd;
+    }
+
+    /**
+     * @return UpdateProcess
+     */
+    private function _getProcessUpdate() {
+        if (!$this->_processUpdate) {
+            $this->_processUpdate = new UpdateProcess();
+        }
+        return $this->_processUpdate;
+    }
+
+    /**
+     * @return DeleteProcess
+     */
+    private function _getProcessDelete() {
+        if (!$this->_processDelete) {
+            $this->_processDelete = new DeleteProcess();
+        }
+        return $this->_processDelete;
+    }
+
     public function handle($handlerClass, $eventKey, $params) {
         $handlers = $this->handlers();
         if ( !$handlers[$handlerClass][$eventKey]) {
             return false;
         }
-        $handler = $this->_getHandler($handlerClass);
+        $collector = $this->_getDutyCollector();
+        $handler = $this->_getSubjectHandler($handlerClass);
         switch ($eventKey) {
-            case self::FIX_CHANGES_BEFORE_KEY:
-                $handler->beforeChange($params);
+            case self::FIX_CHANGES_ADD_KEY:
+                $process = $this->_getProcessAdd();
+                $process->change($handler, $collector->getFix(), $params);
                 break;
-            case self::FIX_CHANGES_AFTER_KEY:
-                $catcher = $this->_createCatcher($handler);
-                $handler->afterChange($params, $catcher);
+            case self::FIX_CHANGES_BEFORE_CHANGE_KEY:
+                $process = $this->_getProcessUpdate();
+                $process->beforeChange($handler, $params);
                 break;
-            case self::FIX_CHANGES_KEY:
-                $catcher = $this->_createCatcher($handler);
-                $handler->change($params, $catcher);
+            case self::FIX_CHANGES_AFTER_CHANGE_KEY:
+                $process = $this->_getProcessUpdate();
+                $process->afterChange($handler, $collector->getFix(), $params);
+                break;
+            case self::FIX_CHANGES_BEFORE_DELETE_KEY:
+                $process = $this->_getProcessDelete();
+                $process->beforeChange($handler, $params);
+                break;
+            case self::FIX_CHANGES_AFTER_DELETE_KEY:
+                $process = $this->_getProcessDelete();
+                $process->afterChange($handler, $collector->getFix(), $params);
                 break;
         }
+    }
+
+    /**
+     * @return Collector
+     */
+    private function _getDutyCollector() {
+        if (is_null($this->_dutyCollector)) {
+            $this->_dutyCollector = Collector::createInstance($this->_getFixFilesDir());
+        }
+        return $this->_dutyCollector;
     }
 
     /**
