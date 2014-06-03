@@ -6,7 +6,7 @@
 namespace WS\Migrations\SubjectHandlers;
 
 
-class IblockSectionHandlerBase extends BaseSubjectHandler {
+class IblockSectionHandler extends BaseSubjectHandler {
 
     /**
      * Name of Handler in Web interface
@@ -22,7 +22,8 @@ class IblockSectionHandlerBase extends BaseSubjectHandler {
             case Module::FIX_CHANGES_BEFORE_CHANGE_KEY:
             case Module::FIX_CHANGES_AFTER_CHANGE_KEY:
                 return $data[0]['ID'];
-            case Module::FIX_CHANGES_DELETE_KEY:
+            case Module::FIX_CHANGES_BEFORE_DELETE_KEY:
+            case Module::FIX_CHANGES_AFTER_DELETE_KEY:
                 return $data[0];
         }
         return null;
