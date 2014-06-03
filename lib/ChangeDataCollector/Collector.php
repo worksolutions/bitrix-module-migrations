@@ -46,6 +46,15 @@ class Collector {
     }
 
     /**
+     * @return CollectorFix
+     */
+    public function getFix() {
+        $fix = new CollectorFix();
+        $this->_fixes[] = $fix;
+        return $fix;
+    }
+
+    /**
      * @return array | null
      */
     private function _getSavedData() {
