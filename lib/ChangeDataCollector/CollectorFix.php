@@ -67,6 +67,7 @@ class CollectorFix {
      * @return $this
      */
     public function setData($data) {
+        $this->take();
         $this->_data = $data;
         return $this;
     }
