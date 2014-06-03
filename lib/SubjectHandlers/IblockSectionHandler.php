@@ -6,6 +6,8 @@
 namespace WS\Migrations\SubjectHandlers;
 
 
+use WS\Migrations\Module;
+
 class IblockSectionHandler extends BaseSubjectHandler {
 
     /**

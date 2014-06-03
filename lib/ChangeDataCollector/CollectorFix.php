@@ -24,7 +24,7 @@ class CollectorFix {
      * @return bool
      */
     public function isUses() {
-        return true;
+        return $this->_isUses;
     }
 
 

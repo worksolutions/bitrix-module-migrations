@@ -5,6 +5,8 @@
 
 namespace WS\Migrations\SubjectHandlers;
 
+use WS\Migrations\Module;
+
 class IblockPropertyHandler extends BaseSubjectHandler {
 
     /**

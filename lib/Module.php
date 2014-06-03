@@ -3,6 +3,7 @@
 namespace WS\Migrations;
 use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\IO\File;
 use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\Processes\AddProcess;
 use WS\Migrations\Processes\DeleteProcess;
@@ -69,6 +70,8 @@ class Module {
     }
 
     static public function listen(){
+        EventManager::getInstance()
+            ->addEventHandler('main', 'OnBeforeLocalRedirect', array(get_called_class(), 'commitDutyChanges'));
         $self = self::getInstance();
         $bxEventManager = EventManager::getInstance();
         foreach ($self->handlers() as $class => $events) {
@@ -89,7 +92,7 @@ class Module {
 
     static public function commitDutyChanges() {
         $self = self::getInstance();
-        if ($self->_dutyCollector) {
+        if (!$self->_dutyCollector) {
             return null;
         }
         $self->_getDutyCollector()->commit();
@@ -162,14 +165,6 @@ class Module {
     }
 
     /**
-     * @param SubjectHandler $handler
-     * @return Catcher
-     */
-    private function _createCatcher($handler) {
-        return Catcher::createByHandler($this->_getFixFilesDir(), get_class($handler));
-    }
-
-    /**
      * @return AddProcess
      */
     private function _getProcessAdd() {
@@ -234,7 +229,7 @@ class Module {
      * @return Collector
      */
     private function _getDutyCollector() {
-        if (is_null($this->_dutyCollector)) {
+        if (!$this->_dutyCollector) {
             $this->_dutyCollector = Collector::createInstance($this->_getFixFilesDir());
         }
         return $this->_dutyCollector;
