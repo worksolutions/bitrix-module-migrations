@@ -87,7 +87,7 @@ class Module {
         }
     }
 
-    static public function commitDutyChanger() {
+    static public function commitDutyChanges() {
         $self = self::getInstance();
         if ($self->_dutyCollector) {
             return null;
