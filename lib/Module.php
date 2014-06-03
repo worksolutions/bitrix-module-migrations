@@ -3,12 +3,9 @@
 namespace WS\Migrations;
 use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
-use WS\Migrations\Handlers\Iblock\IblockAdd;
-use WS\Migrations\Handlers\Iblock\IblockDelete;
-use WS\Migrations\Handlers\Iblock\IblockUpdate;
-use WS\Migrations\Handlers\IblockProperty\IblockPropertyAdd;
-use WS\Migrations\Handlers\IblockProperty\IblockPropertyDelete;
-use WS\Migrations\Handlers\IblockProperty\IblockPropertyUpdate;
+use WS\Migrations\SubjectHandlers\IblockHandler;
+use WS\Migrations\SubjectHandlers\IblockPropertyHandler;
+use WS\Migrations\SubjectHandlers\IblockSectionHandler;
 
 /**
  * Class Module (Singleton)
@@ -20,7 +17,8 @@ class Module {
     const FIX_CHANGES_BEFORE_CHANGE_KEY = 'beforeChange';
     const FIX_CHANGES_AFTER_CHANGE_KEY = 'afterChange';
     const FIX_CHANGES_ADD_KEY = 'add';
-    const FIX_CHANGES_DELETE_KEY = 'delete';
+    const FIX_CHANGES_BEFORE_DELETE_KEY = 'beforeDelete';
+    const FIX_CHANGES_AFTER_DELETE_KEY = 'afterDelete';
 
     private $localizePath = null,
             $localizations = array();
@@ -100,27 +98,26 @@ class Module {
      */
     protected function handlers() {
         return array(
-            IblockAdd::className() => array(
-                self::FIX_CHANGES_KEY => array('iblock', 'OnAfterIBlockAdd')
+            IblockHandler::className() => array(
+                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockAdd'),
+                self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockUpdate'),
+                self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockUpdate'),
+                self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockDelete'),
+                self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockDelete'),
             ),
-            IblockUpdate::className() => array(
-                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockUpdate'),
-                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockUpdate'),
+            IblockPropertyHandler::className() => array(
+                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockPropertyAdd'),
+                self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockPropertyUpdate'),
+                self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockPropertyUpdate'),
+                self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockPropertyDelete'),
+                self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockPropertyDelete')
             ),
-            IblockDelete::className() => array(
-                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockDelete'),
-                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnIBlockDelete'),
-            ),
-            IblockPropertyAdd::className() => array(
-                self::FIX_CHANGES_KEY => array('iblock', 'OnAfterIBlockPropertyAdd')
-            ),
-            IblockPropertyUpdate::className() => array(
-                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockPropertyUpdate'),
-                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnAfterIBlockPropertyUpdate'),
-            ),
-            IblockPropertyDelete::className() => array(
-                self::FIX_CHANGES_BEFORE_KEY => array('iblock', 'OnBeforeIBlockPropertyDelete'),
-                self::FIX_CHANGES_AFTER_KEY => array('iblock', 'OnIBlockPropertyDelete'),
+            IblockSectionHandler::className() => array(
+                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockSectionAdd'),
+                self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockSectionUpdate'),
+                self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockSectionUpdate'),
+                self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockSectionDelete'),
+                self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnAfterIBlockSectionDelete')
             )
         );
     }
