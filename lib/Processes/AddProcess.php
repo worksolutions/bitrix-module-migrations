@@ -12,7 +12,21 @@ use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 
 class AddProcess extends BaseProcess {
 
-    public function update(CollectorFix $fix) {
+    public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix) {
+        $data = $fix->getData();
+        $result = $subjectHandler->applySnapshot($data);
+        $id = $subjectHandler->getIdByChangeMethod($data);
+
+        $applyLog = new AppliedChangesLogModel();
+        $applyLog->subjectName = get_class($subjectHandler);
+        $applyLog->processName = get_class($this);
+        $applyLog->description = $subjectHandler->getName().' - '.$id;
+        $applyLog->originalData = array();
+        $applyLog->updateData = $data;
+        $applyLog->groupLabel = $fix->getLabel();
+        $applyLog->save();
+
+        return $result;
     }
 
     public function rollback(AppliedChangesLogModel $log) {

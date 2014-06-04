@@ -8,6 +8,7 @@ namespace WS\Migrations\Processes;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
+use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 
 abstract class BaseProcess {
     public function getLocalization() {
@@ -20,7 +21,7 @@ abstract class BaseProcess {
 
     abstract public function getName();
 
-    abstract public function update(CollectorFix $fix);
+    abstract public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix);
 
     abstract public function rollback(AppliedChangesLogModel $log);
 }

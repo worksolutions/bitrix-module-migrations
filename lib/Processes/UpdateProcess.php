@@ -15,7 +15,7 @@ class UpdateProcess extends BaseProcess {
 
     private $_beforeChangesSnapshots = array();
 
-    public function update(CollectorFix $fix) {
+    public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix) {
     }
 
     public function rollback(AppliedChangesLogModel $log) {

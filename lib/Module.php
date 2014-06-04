@@ -311,6 +311,8 @@ class Module {
      * @return bool
      */
     public function fixApply(CollectorFix $fix) {
-        return (bool)rand(0,1);
+        $process = $this->getProcess($fix->getProcess());
+        $subject = $this->getSubjectHandler($fix->getSubject());
+        return $process->update($subject, $fix);
     }
 }
