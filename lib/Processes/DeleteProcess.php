@@ -34,5 +34,15 @@ class DeleteProcess extends BaseProcess {
                 'snapshot' => $this->_beforeChangesSnapshots[$id],
                 'id' => $id
             ));
+
+        $applyLog = new AppliedChangesLog();
+        $applyLog->subjectName = get_class($subjectHandler);
+        $applyLog->processName = get_class($this);
+        $applyLog->description = $subjectHandler->getName().' - '.$id;
+        $applyLog->originalData = $this->_beforeChangesSnapshots[$id];
+        $applyLog->updateData = $id;
+        $applyLog->groupLabel = $fix->getLabel();
+        $applyLog->save();
+
     }
 }
