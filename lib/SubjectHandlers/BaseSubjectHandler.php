@@ -6,6 +6,8 @@
 namespace WS\Migrations\SubjectHandlers;
 
 
+use WS\Migrations\Module;
+
 abstract class BaseSubjectHandler {
     static public function className() {
         return get_called_class();
