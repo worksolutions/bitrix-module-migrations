@@ -7,6 +7,7 @@ namespace WS\Migrations\Processes;
 
 
 use WS\Migrations\ChangeDataCollector\CollectorFix;
+use WS\Migrations\Entities\AppliedChangesLog;
 use WS\Migrations\Module;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 
@@ -16,7 +17,7 @@ class DeleteProcess extends BaseProcess {
     public function update(CollectorFix $fix) {
     }
 
-    public function rollback($log) {
+    public function rollback(AppliedChangesLog $log) {
     }
 
     public function beforeChange(BaseSubjectHandler $subjectHandler, $data) {

@@ -7,6 +7,7 @@ namespace WS\Migrations\Processes;
 
 
 use WS\Migrations\ChangeDataCollector\CollectorFix;
+use WS\Migrations\Entities\AppliedChangesLog;
 use WS\Migrations\Module;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 
@@ -17,7 +18,7 @@ class UpdateProcess extends BaseProcess {
     public function update(CollectorFix $fix) {
     }
 
-    public function rollback($log) {
+    public function rollback(AppliedChangesLog $log) {
     }
 
     public function beforeChange(BaseSubjectHandler $subjectHandler, $data) {
@@ -33,5 +34,14 @@ class UpdateProcess extends BaseProcess {
             ->setSubject(get_class($subjectHandler))
             ->setProcess(get_class($this))
             ->setData($data);
+
+        $applyLog = new AppliedChangesLog();
+        $applyLog->subjectName = get_class($subjectHandler);
+        $applyLog->processName = get_class($this);
+        $applyLog->description = $subjectHandler->getName().' - '.$id;
+        $applyLog->originalData = $this->_beforeChangesSnapshots[$id];
+        $applyLog->updateData = $data;
+        $applyLog->groupLabel = $fix->getLabel();
+        $applyLog->save();
     }
 }

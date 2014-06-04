@@ -15,7 +15,7 @@ class AddProcess extends BaseProcess {
     public function update(CollectorFix $fix) {
     }
 
-    public function rollback($log) {
+    public function rollback(AppliedChangesLog $log) {
     }
 
     public function change(BaseSubjectHandler $subjectHandler, CollectorFix $fix, $data = array()) {
