@@ -6,6 +6,7 @@
 namespace WS\Migrations\ChangeDataCollector;
 
 use Bitrix\Main\IO\File;
+use WS\Migrations\Module;
 
 class Collector {
     /**
@@ -20,21 +21,29 @@ class Collector {
 
     private $_label;
 
-    private function __construct(File $file, $log = null) {
+    private function __construct(File $file, Module $module) {
         $this->_file = $file;
         $this->_label = $file->getName();
+        $savedData = $this->_getSavedData();
+        foreach ($savedData as $arFix) {
+            $fix = $this->getFix();
+            $fix
+                ->setData($arFix['data'])
+                ->setSubject($module->getSubjectHandler($arFix['subject']))
+                ->setProcess($module->getProcess($arFix['process']));
+        }
     }
 
-    static public function createByFile($path) {
-        return new static(new File($path));
+    static public function createByFile($path, Module $module) {
+        return new static(new File($path), $module);
     }
 
-    static public function createInstance($dir) {
+    static public function createInstance($dir, Module $module) {
         if (!file_exists($dir)) {
             throw new \Exception("Dir `$dir` not exists");
         }
         $fileName = time().'.json';
-        return self::createByFile($dir.DIRECTORY_SEPARATOR.$fileName);
+        return self::createByFile($dir.DIRECTORY_SEPARATOR.$fileName,$module);
     }
 
     /**
@@ -74,8 +83,8 @@ class Collector {
                 continue;
             }
             $fixesData[] = array(
-                'process' => $fix->getProcess(),
-                'subject' => $fix->getSubject(),
+                'process' => get_class($fix->getProcess()),
+                'subject' => get_class($fix->getSubject()),
                 'data' => $fix->getData()
             );
         }
@@ -85,6 +94,13 @@ class Collector {
         }
         $this->_saveData($fixesData);
         return true;
+    }
+
+    /**
+     * @return CollectorFix[]
+     */
+    public function getFixes() {
+        return $this->_fixes;
     }
 
 }

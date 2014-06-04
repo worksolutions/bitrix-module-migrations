@@ -45,4 +45,8 @@ class DeleteProcess extends BaseProcess {
         $applyLog->save();
 
     }
+
+    public function getName() {
+        return $this->getLocalization()->getDataByPath('delete');
+    }
 }

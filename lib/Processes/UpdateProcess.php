@@ -31,8 +31,8 @@ class UpdateProcess extends BaseProcess {
         $actualData = $subjectHandler->getSnapshot($id);
         $data = $subjectHandler->analysisOfChanges($actualData, $this->_beforeChangesSnapshots[$id]);
         $fix
-            ->setSubject(get_class($subjectHandler))
-            ->setProcess(get_class($this))
+            ->setSubject($subjectHandler)
+            ->setProcess($this)
             ->setData($data);
 
         $applyLog = new AppliedChangesLogModel();
@@ -43,5 +43,9 @@ class UpdateProcess extends BaseProcess {
         $applyLog->updateData = $data;
         $applyLog->groupLabel = $fix->getLabel();
         $applyLog->save();
+    }
+
+    public function getName() {
+        return $this->getLocalization()->getDataByPath('update');
     }
 }

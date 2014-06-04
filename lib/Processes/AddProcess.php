@@ -22,8 +22,8 @@ class AddProcess extends BaseProcess {
         $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_ADD_KEY, $data);
         $snapshot = $subjectHandler->getSnapshot($id);
         $fix
-            ->setProcess(get_class($this))
-            ->setSubject(get_class($subjectHandler))
+            ->setProcess($this)
+            ->setSubject($subjectHandler)
             ->setData($snapshot);
 
         $applyLog = new AppliedChangesLogModel();
@@ -34,5 +34,9 @@ class AddProcess extends BaseProcess {
         $applyLog->updateData = $snapshot;
         $applyLog->groupLabel = $fix->getLabel();
         $applyLog->save();
+    }
+
+    public function getName() {
+        return $this->getLocalization()->getDataByPath('add');
     }
 }

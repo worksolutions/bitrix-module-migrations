@@ -3,9 +3,14 @@
 namespace WS\Migrations;
 use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
 use WS\Migrations\ChangeDataCollector\Collector;
+use WS\Migrations\ChangeDataCollector\CollectorFix;
+use WS\Migrations\Entities\AppliedChangesLogModel;
+use WS\Migrations\Entities\AppliedChangesLogTable;
 use WS\Migrations\Processes\AddProcess;
+use WS\Migrations\Processes\BaseProcess;
 use WS\Migrations\Processes\DeleteProcess;
 use WS\Migrations\Processes\UpdateProcess;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
@@ -99,7 +104,7 @@ class Module {
     }
 
     /**
-     * @param str $path
+     * @param $path
      * @throws \Exception
      * @return Localization
      */
@@ -148,7 +153,7 @@ class Module {
      * @param $class
      * @return BaseSubjectHandler
      */
-    private function _getSubjectHandler($class) {
+    public function getSubjectHandler($class) {
         if (! class_exists($class)) {
             foreach (array_keys($this->handlers()) as $handlerClass) {
                 $arClassName = explode('\\', $handlerClass);
@@ -194,13 +199,31 @@ class Module {
         return $this->_processDelete;
     }
 
+    /**
+     * @param $class
+     * @return BaseProcess
+     */
+    public function getProcess($class) {
+        switch ($class) {
+            case AddProcess::className():
+                return $this->_getProcessAdd();
+                break;
+            case UpdateProcess::className():
+                return $this->_getProcessUpdate();
+                break;
+            case DeleteProcess::className():
+                return $this->_getProcessDelete();
+                break;
+        }
+    }
+
     public function handle($handlerClass, $eventKey, $params) {
         $handlers = $this->handlers();
         if ( !$handlers[$handlerClass][$eventKey]) {
             return false;
         }
         $collector = $this->_getDutyCollector();
-        $handler = $this->_getSubjectHandler($handlerClass);
+        $handler = $this->getSubjectHandler($handlerClass);
         switch ($eventKey) {
             case self::FIX_CHANGES_ADD_KEY:
                 $process = $this->_getProcessAdd();
@@ -230,7 +253,7 @@ class Module {
      */
     private function _getDutyCollector() {
         if (!$this->_dutyCollector) {
-            $this->_dutyCollector = Collector::createInstance($this->_getFixFilesDir());
+            $this->_dutyCollector = Collector::createInstance($this->_getFixFilesDir(), $this);
         }
         return $this->_dutyCollector;
     }
@@ -241,5 +264,31 @@ class Module {
      */
     private function _getFixFilesDir() {
         return Application::getDocumentRoot().DIRECTORY_SEPARATOR.$this->getOptions()->catalogPath;
+    }
+
+    /**
+     * @return Collector[]
+     */
+    public function getNotAppliedCollectors() {
+
+        $result = AppliedChangesLogTable::getList(array(
+            'select' => array('GROUP_LABEL'),
+            'group' => array('GROUP_LABEL')
+        ));
+        $usesGroups = array_map(function ($row) {
+            return $row['GROUP_LABEL'];
+        }, $result->fetchAll());
+        $dir = new Directory($this->_getFixFilesDir());
+        $collectors = array();
+        foreach ($dir->getChildren() as $file) {
+            if ($file->isDirectory()) {
+                continue;
+            }
+            if (in_array($file->getName(), $usesGroups)) {
+                //continue;
+            }
+            $collectors[] = Collector::createByFile($file->getPath(), $this);
+        }
+        return $collectors;
     }
 }

@@ -6,6 +6,9 @@
 namespace WS\Migrations\ChangeDataCollector;
 
 
+use WS\Migrations\Processes\BaseProcess;
+use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
+
 class CollectorFix {
     private $_subject;
     private $_process;
@@ -34,11 +37,17 @@ class CollectorFix {
     }
 
 
+    /**
+     * @return BaseProcess
+     */
     public function getProcess() {
         return $this->_process;
     }
 
 
+    /**
+     * @return BaseSubjectHandler
+     */
     public function getSubject() {
         return $this->_subject;
     }
@@ -54,10 +63,7 @@ class CollectorFix {
      * @param mixed $subject
      * @return $this
      */
-    public function setSubject($subject) {
-        if (is_object($subject)) {
-            $subject = get_class($subject);
-        }
+    public function setSubject(BaseSubjectHandler $subject) {
         $this->_subject = $subject;
         return $this;
     }
@@ -66,10 +72,7 @@ class CollectorFix {
      * @param mixed $process
      * @return $this
      */
-    public function setProcess($process) {
-        if (is_object($process)) {
-            $process = get_class($process);
-        }
+    public function setProcess(BaseProcess $process) {
         $this->_process = $process;
         return $this;
     }
@@ -86,5 +89,13 @@ class CollectorFix {
 
     public function getLabel() {
         return $this->_label;
+    }
+
+    public function getName() {
+        return $this->getSubject()->getName().'. '.$this->getProcess()->getName();
+    }
+
+    public function apply() {
+        return (bool) rand(0,1);
     }
 } 

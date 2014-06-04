@@ -7,8 +7,18 @@ namespace WS\Migrations\Processes;
 
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
+use WS\Migrations\Module;
 
 abstract class BaseProcess {
+    public function getLocalization() {
+        return Module::getInstance()->getLocalization('processes');
+    }
+
+    static public function className() {
+        return get_called_class();
+    }
+
+    abstract public function getName();
 
     abstract public function update(CollectorFix $fix);
 
