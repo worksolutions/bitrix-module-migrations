@@ -233,7 +233,7 @@ class Module {
                 $process = $this->_getProcessAdd();
                 $fix
                     ->setProcess(get_class($process))
-                    ->setName($process->getName().' '.$handler->getName());
+                    ->setName($handler->getName().'. '.$process->getName());
                 $process->change($handler, $fix, $params);
                 break;
             case self::FIX_CHANGES_BEFORE_CHANGE_KEY:
@@ -244,7 +244,7 @@ class Module {
                 $process = $this->_getProcessUpdate();
                 $fix
                     ->setProcess(get_class($process))
-                    ->setName($process->getName().' '.$handler->getName());
+                    ->setName($handler->getName().'. '.$process->getName());
                 $process->afterChange($handler, $fix, $params);
                 break;
             case self::FIX_CHANGES_BEFORE_DELETE_KEY:
@@ -255,7 +255,7 @@ class Module {
                 $process = $this->_getProcessDelete();
                 $fix
                     ->setProcess(get_class($process))
-                    ->setName($process->getName().' '.$handler->getName());
+                    ->setName($handler->getName().'. '.$process->getName());
                 $process->afterChange($handler, $fix, $params);
                 break;
         }

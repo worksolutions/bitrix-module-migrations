@@ -72,6 +72,9 @@ class Collector {
      */
     private function _getSavedData() {
         global $APPLICATION;
+        if (!$this->_file->isExists()) {
+            return array();
+        }
         $value = json_decode($this->_file->getContents(), true);
         $value = $APPLICATION->ConvertCharsetArray($value, "UTF-8", LANG_CHARSET);
         return $value;
