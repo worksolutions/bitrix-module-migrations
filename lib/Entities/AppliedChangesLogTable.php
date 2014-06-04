@@ -21,14 +21,39 @@ class AppliedChangesLogTable extends DataManager {
 
     public static function getMap() {
         return array(
-            'ID' => array(),
-            'GROUP_LABEL' => array(),
-            'DATE' => array(),
-            'PROCESS' => array(),
-            'SUBJECT' => array(),
-            'UPDATE_DATA' => array(),
-            'ORIGINAL_DATA' => array(),
-            'DESCRIPTION' => array()
+            'ID' => array(
+                'data_type' => 'integer',
+                'primary' => true,
+                'autocomplete' => true
+            ),
+            'GROUP_LABEL' => array(
+                'data_type' => 'string',
+                'required' => true,
+            ),
+            'DATE' => array(
+                'data_type' => 'datetime',
+                'required' => true,
+            ),
+            'PROCESS' => array(
+                'data_type' => 'string',
+                'required' => true,
+            ),
+            'SUBJECT' => array(
+                'data_type' => 'string',
+                'required' => true,
+            ),
+            'UPDATE_DATA' => array(
+                'data_type' => 'string',
+                'required' => true,
+            ),
+            'ORIGINAL_DATA' => array(
+                'data_type' => 'string',
+                'required' => true,
+            ),
+            'DESCRIPTION' => array(
+                'data_type' => 'string',
+                'required' => true,
+            )
         );
     }
 }
