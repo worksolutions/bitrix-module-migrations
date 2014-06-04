@@ -79,6 +79,7 @@ class Collector {
                 'data' => $fix->getData()
             );
         }
+        $this->_fixes = array();
         if (!$fixesData) {
             return false;
         }
