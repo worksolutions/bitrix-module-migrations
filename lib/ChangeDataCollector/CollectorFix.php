@@ -7,10 +7,16 @@ namespace WS\Migrations\ChangeDataCollector;
 
 
 class CollectorFix {
-    private $_isUses = false;
     private $_subject;
     private $_process;
     private $_data;
+
+    private $_isUses = false;
+    private $_label;
+
+    public function __construct($label) {
+        $this->_label = $label;
+    }
 
     /**
      * @return $this
@@ -76,5 +82,9 @@ class CollectorFix {
         $this->take();
         $this->_data = $data;
         return $this;
+    }
+
+    public function getLabel() {
+        return $this->_label;
     }
 } 

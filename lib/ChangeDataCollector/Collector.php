@@ -18,8 +18,11 @@ class Collector {
      */
     private $_fixes;
 
+    private $_label;
+
     private function __construct(File $file, $log = null) {
         $this->_file = $file;
+        $this->_label = $file->getName();
     }
 
     static public function createByFile($path) {
@@ -49,7 +52,7 @@ class Collector {
      * @return CollectorFix
      */
     public function getFix() {
-        $fix = new CollectorFix();
+        $fix = new CollectorFix($this->_label);
         $this->_fixes[] = $fix;
         return $fix;
     }
