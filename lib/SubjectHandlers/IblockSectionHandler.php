@@ -15,7 +15,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
      * @return string
      */
     public function getName() {
-        $this->getLocalization()->getDataByPath('iblockSection.name');
+        return $this->getLocalization()->getDataByPath('iblockSection.name');
     }
 
     public function getIdByChangeMethod($method, $data = array()) {
