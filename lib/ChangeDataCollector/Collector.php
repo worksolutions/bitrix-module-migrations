@@ -6,7 +6,6 @@
 namespace WS\Migrations\ChangeDataCollector;
 
 use Bitrix\Main\IO\File;
-use WS\Migrations\Module;
 
 class Collector {
     /**
@@ -21,7 +20,7 @@ class Collector {
 
     private $_label;
 
-    private function __construct(File $file, Module $module) {
+    private function __construct(File $file) {
         $this->_file = $file;
         $this->_label = $file->getName();
         $savedData = $this->_getSavedData();
@@ -35,16 +34,16 @@ class Collector {
         }
     }
 
-    static public function createByFile($path, Module $module) {
-        return new static(new File($path), $module);
+    static public function createByFile($path) {
+        return new static(new File($path));
     }
 
-    static public function createInstance($dir, Module $module) {
+    static public function createInstance($dir) {
         if (!file_exists($dir)) {
             throw new \Exception("Dir `$dir` not exists");
         }
         $fileName = time().'.json';
-        return self::createByFile($dir.DIRECTORY_SEPARATOR.$fileName,$module);
+        return self::createByFile($dir.DIRECTORY_SEPARATOR.$fileName);
     }
 
     /**

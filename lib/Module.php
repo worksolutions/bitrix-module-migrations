@@ -298,7 +298,7 @@ class Module {
                 continue;
             }
             if (in_array($file->getName(), $usesGroups)) {
-                //continue;
+                continue;
             }
             $collectors[] = Collector::createByFile($file->getPath(), $this);
         }
