@@ -16,6 +16,7 @@ class CollectorFix {
 
     private $_isUses = false;
     private $_label;
+    private $_name;
 
     public function __construct($label) {
         $this->_label = $label;
@@ -63,7 +64,7 @@ class CollectorFix {
      * @param mixed $subject
      * @return $this
      */
-    public function setSubject(BaseSubjectHandler $subject) {
+    public function setSubject($subject) {
         $this->_subject = $subject;
         return $this;
     }
@@ -72,7 +73,7 @@ class CollectorFix {
      * @param mixed $process
      * @return $this
      */
-    public function setProcess(BaseProcess $process) {
+    public function setProcess($process) {
         $this->_process = $process;
         return $this;
     }
@@ -91,8 +92,13 @@ class CollectorFix {
         return $this->_label;
     }
 
+    public function setName($value) {
+        $this->_name = $value;
+        return $this;
+    }
+
     public function getName() {
-        return $this->getSubject()->getName().'. '.$this->getProcess()->getName();
+        return $this->_name;
     }
 
     public function apply() {

@@ -22,8 +22,6 @@ class AddProcess extends BaseProcess {
         $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_ADD_KEY, $data);
         $snapshot = $subjectHandler->getSnapshot($id);
         $fix
-            ->setProcess($this)
-            ->setSubject($subjectHandler)
             ->setData($snapshot);
 
         $applyLog = new AppliedChangesLogModel();

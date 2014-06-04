@@ -28,8 +28,6 @@ class DeleteProcess extends BaseProcess {
     public function afterChange(BaseSubjectHandler $subjectHandler, CollectorFix $fix, $data) {
         $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_AFTER_DELETE_KEY, $data);
         $fix
-            ->setSubject($subjectHandler)
-            ->setProcess($this)
             ->setData(array(
                 'snapshot' => $this->_beforeChangesSnapshots[$id],
                 'id' => $id

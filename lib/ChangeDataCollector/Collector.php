@@ -29,8 +29,9 @@ class Collector {
             $fix = $this->getFix();
             $fix
                 ->setData($arFix['data'])
-                ->setSubject($module->getSubjectHandler($arFix['subject']))
-                ->setProcess($module->getProcess($arFix['process']));
+                ->setSubject($arFix['subject'])
+                ->setProcess($arFix['process'])
+                ->setName($arFix['name']);
         }
     }
 
@@ -83,9 +84,10 @@ class Collector {
                 continue;
             }
             $fixesData[] = array(
-                'process' => get_class($fix->getProcess()),
-                'subject' => get_class($fix->getSubject()),
-                'data' => $fix->getData()
+                'process' => $fix->getProcess(),
+                'subject' => $fix->getSubject(),
+                'data' => $fix->getData(),
+                'name' => $fix->getName()
             );
         }
         $this->_fixes = array();
@@ -102,5 +104,4 @@ class Collector {
     public function getFixes() {
         return $this->_fixes;
     }
-
 }

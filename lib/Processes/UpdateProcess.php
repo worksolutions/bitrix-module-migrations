@@ -31,8 +31,6 @@ class UpdateProcess extends BaseProcess {
         $actualData = $subjectHandler->getSnapshot($id);
         $data = $subjectHandler->analysisOfChanges($actualData, $this->_beforeChangesSnapshots[$id]);
         $fix
-            ->setSubject($subjectHandler)
-            ->setProcess($this)
             ->setData($data);
 
         $applyLog = new AppliedChangesLogModel();

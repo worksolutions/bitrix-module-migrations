@@ -224,10 +224,17 @@ class Module {
         }
         $collector = $this->_getDutyCollector();
         $handler = $this->getSubjectHandler($handlerClass);
+
+        $fix  = $collector->getFix();
+        $fix->setSubject(get_class($handler));
+
         switch ($eventKey) {
             case self::FIX_CHANGES_ADD_KEY:
                 $process = $this->_getProcessAdd();
-                $process->change($handler, $collector->getFix(), $params);
+                $fix
+                    ->setProcess(get_class($process))
+                    ->setName($process->getName().' '.$handler->getName());
+                $process->change($handler, $fix, $params);
                 break;
             case self::FIX_CHANGES_BEFORE_CHANGE_KEY:
                 $process = $this->_getProcessUpdate();
@@ -235,7 +242,10 @@ class Module {
                 break;
             case self::FIX_CHANGES_AFTER_CHANGE_KEY:
                 $process = $this->_getProcessUpdate();
-                $process->afterChange($handler, $collector->getFix(), $params);
+                $fix
+                    ->setProcess(get_class($process))
+                    ->setName($process->getName().' '.$handler->getName());
+                $process->afterChange($handler, $fix, $params);
                 break;
             case self::FIX_CHANGES_BEFORE_DELETE_KEY:
                 $process = $this->_getProcessDelete();
@@ -243,7 +253,10 @@ class Module {
                 break;
             case self::FIX_CHANGES_AFTER_DELETE_KEY:
                 $process = $this->_getProcessDelete();
-                $process->afterChange($handler, $collector->getFix(), $params);
+                $fix
+                    ->setProcess(get_class($process))
+                    ->setName($process->getName().' '.$handler->getName());
+                $process->afterChange($handler, $fix, $params);
                 break;
         }
     }
@@ -290,5 +303,14 @@ class Module {
             $collectors[] = Collector::createByFile($file->getPath(), $this);
         }
         return $collectors;
+    }
+
+    /**
+     * Применение фиксации
+     * @param CollectorFix $fix
+     * @return bool
+     */
+    public function fixApply(CollectorFix $fix) {
+        return (bool)rand(0,1);
     }
 }

@@ -3,7 +3,7 @@ if ($_POST['apply']) {
     $collectors = \WS\Migrations\Module::getInstance()->getNotAppliedCollectors();
     foreach ($collectors as $collector) {
         foreach ($collector->getFixes() as $fix) {
-            if ($fix->apply()) {
+            if (\WS\Migrations\Module::getInstance()->fixApply($fix)) {
                 $appliedFixes[$fix->getName()]++;
             } else {
                 $errorFixes[$fix->getName()]++;
