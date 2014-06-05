@@ -7,6 +7,8 @@ namespace WS\Migrations\Entities;
 
 
 abstract class BaseEntity {
+    public $id;
+
     private $_isNew = true;
 
     /**
@@ -96,7 +98,7 @@ abstract class BaseEntity {
 
     /**
      * @param array $params
-     * @return AppliedChangesLogModel|null
+     * @return $this
      */
     static public function findOne($params = array()) {
         $params['limit'] = 1;
@@ -125,6 +127,7 @@ abstract class BaseEntity {
 
     public function insert() {
         $res = static::callGatewayMethod('add', $this->_getRawFields());
+        $this->id = $res->getId();
         return !(bool)$res->getErrors();
     }
 

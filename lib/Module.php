@@ -5,6 +5,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
+use Bitrix\Main\UserTable;
 use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
@@ -101,8 +102,12 @@ class Module {
         if (!$self->_dutyCollector) {
             return null;
         }
+        $fixes = $self->_getDutyCollector()->getUsesFixed();
+        if (!$fixes) {
+            return;
+        }
         $setupLog = $self->_createSetupLog();
-        foreach ($self->_getDutyCollector()->getUsesFixed() as $fix) {
+        foreach ($fixes as $fix) {
             $applyLog = new AppliedChangesLogModel();
             $applyLog->subjectName = $fix->getSubject();
             $applyLog->groupLabel = $fix->getLabel();
@@ -363,7 +368,7 @@ class Module {
      */
     private function _createSetupLog() {
         $setupLog = new SetupLogModel();
-        $setupLog->user = $this->getCurrentUser();
+        $setupLog->userId = $this->getCurrentUser()->GetID();
         $setupLog->save();
         return $setupLog;
     }
@@ -376,6 +381,20 @@ class Module {
         return $USER ?: new \CUser();
     }
 
+    /**
+     * @return SetupLogModel
+     */
+    public function getLastSetupLog() {
+        return SetupLogModel::findOne(array(
+            'order' => array('date' => 'desc')
+        ));
+    }
+
+    /**
+     * @return null|Entities\AppliedChangesLogModel[]
+     */
     public function rollbackLastChanges() {
+        $setupLog = $this->getLastSetupLog();
+        return $setupLog ? $setupLog->getAppliedLogs() : null;
     }
 }

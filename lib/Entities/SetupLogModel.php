@@ -7,9 +7,15 @@ namespace WS\Migrations\Entities;
 
 
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\UserTable;
 
 class SetupLogModel extends BaseEntity {
-    public $id, $date, $user;
+    public
+        $id, $userId;
+    /**
+     * @var \DateTime
+     */
+    public $date;
 
     public function __construct() {
         $this->date = new \DateTime();
@@ -19,7 +25,7 @@ class SetupLogModel extends BaseEntity {
         return array(
             'id' => 'ID',
             'date' => 'DATE',
-            'user' => 'USER'
+            'userId' => 'USER_ID'
         );
     }
 
@@ -39,5 +45,23 @@ class SetupLogModel extends BaseEntity {
     static protected function modifyToDb($data) {
         $data['date'] && $data['date'] instanceof \DateTime && $data['date'] = DateTime::createFromPhp($data['date']);
         return $data;
+    }
+
+    /**
+     * @return AppliedChangesLogModel[]
+     */
+    public function getAppliedLogs() {
+        return AppliedChangesLogModel::find(array(
+            'select' => array(
+                'setupLogId' => $this->id
+            )
+        ));
+    }
+
+    /**
+     * @return array
+     */
+    public function getUseData() {
+        return UserTable::getById($this->userId)->fetch();
     }
 }

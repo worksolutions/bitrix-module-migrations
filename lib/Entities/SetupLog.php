@@ -38,11 +38,8 @@ class SetupLogTable extends DataManager {
                 'data_type' => 'datetime',
                 'required' => true,
             ),
-            'USER' => array(
-                'data_type' => 'User',
-                'reference' => array(
-                    '=this.USER_ID' => 'ref.ID'
-                )
+            'USER_ID' => array(
+                'data_type' => 'integer'
             )
         );
     }

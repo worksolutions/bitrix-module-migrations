@@ -53,44 +53,49 @@ $form->BeginCustomField('list', 'vv');
 <?
 $form->EndCustomField('data');
 //--------------------
-$form->AddSection('lastSetup', 'Последня установка 19-00 Михайлов Никита [33]');
-$form->BeginCustomField('appliedList', 'vv');
-?>
-<tr id="tr_ACTIVE_FROM" style="color: #32cd32;">
-    <td width="30%"><?=$localization->getDataByPath('appliedList')?>:</td>
-    <td width="60%">
-<?if($appliedFixes):?>
-        <ul>
-<?foreach ($appliedFixes as $fixName => $fixCount):?>
-            <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
-<?endforeach;?>
-        </ul>
-<?else:?>
-<b>Список пуст</b>
-<?endif;?>
-    </td>
-</tr>
-<?
-$form->EndCustomField('appliedList');
-//--------------------
-$form->BeginCustomField('errorList', 'vv');
-?>
-<tr id="tr_ACTIVE_FROM"  style="color: #ff0000;">
-    <td width="30%"><?=$localization->getDataByPath('errorList')?>:</td>
-    <td width="60%">
-<?if($errorFixes):?>
-        <ul>
-<?foreach ($errorFixes as $fixName => $fixCount):?>
-            <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
-<?endforeach;?>
-        </ul>
-<?else:?>
-<b>Список пуст</b>
-<?endif;?>
-    </td>
-</tr>
-<?
-$form->EndCustomField('errorList');
+if ($lastSetupLog = \WS\Migrations\Module::getInstance()->getLastSetupLog()) {
+    $form->AddSection('lastSetup', $localization->message('lastSetup.sectionName', array(
+        ':time:' => $lastSetupLog->date->format('Y.m.d H:i:s'),
+        ':user:' => $lastSetupLog->user['ID']
+    )));
+    $form->BeginCustomField('appliedList', 'vv');
+    ?>
+    <tr id="tr_ACTIVE_FROM" style="color: #32cd32;">
+        <td width="30%"><?=$localization->getDataByPath('appliedList')?>:</td>
+        <td width="60%">
+    <?if($appliedFixes):?>
+            <ul>
+    <?foreach ($appliedFixes as $fixName => $fixCount):?>
+                <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
+    <?endforeach;?>
+            </ul>
+    <?else:?>
+    <b>Список пуст</b>
+    <?endif;?>
+        </td>
+    </tr>
+    <?
+    $form->EndCustomField('appliedList');
+    //--------------------
+    $form->BeginCustomField('errorList', 'vv');
+    ?>
+    <tr id="tr_ACTIVE_FROM"  style="color: #ff0000;">
+        <td width="30%"><?=$localization->getDataByPath('errorList')?>:</td>
+        <td width="60%">
+    <?if($errorFixes):?>
+            <ul>
+    <?foreach ($errorFixes as $fixName => $fixCount):?>
+                <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
+    <?endforeach;?>
+            </ul>
+    <?else:?>
+    <b>Список пуст</b>
+    <?endif;?>
+        </td>
+    </tr>
+    <?
+    $form->EndCustomField('errorList');
+}
 $form->EndTab();
 !$fixes && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnАpply' => true));
