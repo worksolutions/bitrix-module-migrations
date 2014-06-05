@@ -41,11 +41,11 @@ abstract class BaseEntity {
     private function _getRawFields() {
         $result = array();
         $data = array();
-        foreach (self::map() as $property => $field) {
+        foreach (static::map() as $property => $field) {
             $data[$property] = $this->{$property};
         }
         $data = static::modifyToDb($data);
-        foreach (self::map() as $property => $field) {
+        foreach (static::map() as $property => $field) {
             $result[$field] = $data[$property];
         }
 

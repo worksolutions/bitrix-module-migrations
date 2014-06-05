@@ -60,6 +60,7 @@ $form->BeginCustomField('list', 'vv');
 <?
 $form->EndCustomField('data');
 //--------------------
+$form->AddSection('lastSetup', 'Последня установка 19-00 Михайлов Никита [33]');
 $form->BeginCustomField('appliedList', 'vv');
 ?>
 <tr id="tr_ACTIVE_FROM" style="color: #32cd32;">
