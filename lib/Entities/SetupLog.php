@@ -11,6 +11,10 @@ use Bitrix\Main;
 
 class SetupLogTable extends DataManager {
 
+    public static function className() {
+        return get_called_class();
+    }
+
     public static function getTableName() {
         return 'ws_migrations_setups_log';
     }

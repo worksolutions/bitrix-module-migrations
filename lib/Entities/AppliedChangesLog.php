@@ -10,6 +10,10 @@ use Bitrix\Main\Entity\DataManager;
 use Bitrix\Main;
 
 class AppliedChangesLogTable extends DataManager {
+    public static function className() {
+        return get_called_class();
+    }
+
     public static function getFilePath() {
         // fuck )))
         return __FILE__;
