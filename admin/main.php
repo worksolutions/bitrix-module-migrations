@@ -43,7 +43,7 @@ $form->Begin(array(
 $form->BeginNextFormTab();
 $form->BeginCustomField('list', 'vv');
 ?>
-<tr id="tr_ACTIVE_FROM">
+<tr id="tr_ACTIVE_FROM"  style="color: #1e90ff;">
     <td width="30%"><?=$localization->getDataByPath('list')?>:</td>
     <td width="60%">
 <?if($fixes):?>
@@ -62,7 +62,7 @@ $form->EndCustomField('data');
 //--------------------
 $form->BeginCustomField('appliedList', 'vv');
 ?>
-<tr id="tr_ACTIVE_FROM">
+<tr id="tr_ACTIVE_FROM" style="color: #32cd32;">
     <td width="30%"><?=$localization->getDataByPath('appliedList')?>:</td>
     <td width="60%">
 <?if($appliedFixes):?>
@@ -81,7 +81,7 @@ $form->EndCustomField('appliedList');
 //--------------------
 $form->BeginCustomField('errorList', 'vv');
 ?>
-<tr id="tr_ACTIVE_FROM">
+<tr id="tr_ACTIVE_FROM"  style="color: #ff0000;">
     <td width="30%"><?=$localization->getDataByPath('errorList')?>:</td>
     <td width="60%">
 <?if($errorFixes):?>
@@ -98,6 +98,7 @@ $form->BeginCustomField('errorList', 'vv');
 <?
 $form->EndCustomField('errorList');
 $form->EndTab();
+!$fixes && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
 $form->Show();
 ?></form><?
