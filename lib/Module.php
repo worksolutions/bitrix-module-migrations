@@ -115,6 +115,7 @@ class Module {
             $applyLog->description = $fix->getName();
             $applyLog->originalData = $fix->getOriginalData();
             $applyLog->updateData = $fix->getUpdateData();
+            $applyLog->success = true;
             $applyLog->setSetupLog($setupLog);
             $applyLog->save();
         }
@@ -357,7 +358,7 @@ class Module {
             $subject = $this->getSubjectHandler($fix->getSubject());
 
             $result = $process->update($subject, $fix, $applyFixLog);
-            $applyFixLog->success = (int) $result;
+            $applyFixLog->success = (bool) $result;
             $applyFixLog->save();
         }
         return count($fixes);
@@ -391,10 +392,22 @@ class Module {
     }
 
     /**
-     * @return null|Entities\AppliedChangesLogModel[]
+     * @return null
      */
     public function rollbackLastChanges() {
         $setupLog = $this->getLastSetupLog();
-        return $setupLog ? $setupLog->getAppliedLogs() : null;
+        if (!$setupLog) {
+            return null;
+        }
+        foreach ($setupLog->getAppliedLogs() as $log) {
+            $log->delete();
+            if (!$log->success) {
+                continue;
+            }
+            $process = $this->getProcess($log->processName);
+            $subjectHandler = $this->getSubjectHandler($log->subjectName);
+            $process->rollback($subjectHandler, $log);
+        }
+        $setupLog->delete();
     }
 }

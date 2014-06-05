@@ -23,5 +23,5 @@ abstract class BaseProcess {
 
     abstract public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log);
 
-    abstract public function rollback(AppliedChangesLogModel $log);
+    abstract public function rollback(BaseSubjectHandler $subjectHandler, AppliedChangesLogModel $log);
 }

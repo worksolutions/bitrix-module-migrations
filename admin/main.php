@@ -12,6 +12,16 @@ $notAppliedFixes = \WS\Migrations\Module::getInstance()->getNotAppliedFixes();
 foreach ($notAppliedFixes as $fix) {
     $fixes[$fix->getName()]++;
 }
+$lastSetupLog = \WS\Migrations\Module::getInstance()->getLastSetupLog();
+
+$appliedFixes = array();
+$errorFixes = array();
+
+foreach ($lastSetupLog->getAppliedLogs() as $appliedLog) {
+    !$appliedLog->success && $errorFixes[$appliedLog->description]++;
+    $appliedLog->success && $appliedFixes[$appliedLog->description]++;
+}
+
 
 //--------------------------------------------------------------------------
 
@@ -53,10 +63,10 @@ $form->BeginCustomField('list', 'vv');
 <?
 $form->EndCustomField('data');
 //--------------------
-if ($lastSetupLog = \WS\Migrations\Module::getInstance()->getLastSetupLog()) {
+if ($lastSetupLog) {
     $form->AddSection('lastSetup', $localization->message('lastSetup.sectionName', array(
-        ':time:' => $lastSetupLog->date->format('Y.m.d H:i:s'),
-        ':user:' => $lastSetupLog->user['ID']
+        ':time:' => $lastSetupLog->date->format('d.m.Y H:i:s'),
+        ':user:' => $lastSetupLog->shortUserInfo()
     )));
     $form->BeginCustomField('appliedList', 'vv');
     ?>

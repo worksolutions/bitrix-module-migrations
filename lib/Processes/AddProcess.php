@@ -23,7 +23,9 @@ class AddProcess extends BaseProcess {
         return $result;
     }
 
-    public function rollback(AppliedChangesLogModel $log) {
+    public function rollback(BaseSubjectHandler $subjectHandler, AppliedChangesLogModel $log) {
+        $id = $subjectHandler->getIdBySnapshot($log->originalData);
+        $subjectHandler->delete($id);
     }
 
     public function change(BaseSubjectHandler $subjectHandler, CollectorFix $fix, $data = array()) {

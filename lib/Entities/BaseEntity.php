@@ -80,10 +80,10 @@ abstract class BaseEntity {
         if ($params['filter']) {
             $pFilter = array();
             foreach ($params['filter'] as $field => $value) {
-                preg_replace_callback("/w+/", function ($matches) use ($modelToDb) {
+                $field = preg_replace_callback("/\w+/", function ($matches) use ($modelToDb) {
                     return $modelToDb[$matches[0]];
                 }, $field);
-                $pFilter[$modelToDb[$field]] = $value;
+                $pFilter[$field] = $value;
             }
             $params['filter'] = $pFilter;
         }

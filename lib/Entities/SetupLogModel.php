@@ -52,8 +52,8 @@ class SetupLogModel extends BaseEntity {
      */
     public function getAppliedLogs() {
         return AppliedChangesLogModel::find(array(
-            'select' => array(
-                'setupLogId' => $this->id
+            'filter' => array(
+                '=setupLogId' => $this->id
             )
         ));
     }
@@ -61,7 +61,12 @@ class SetupLogModel extends BaseEntity {
     /**
      * @return array
      */
-    public function getUseData() {
+    public function getUserData() {
         return UserTable::getById($this->userId)->fetch();
+    }
+
+    public function shortUserInfo() {
+        $data = $this->getUserData();
+        return $data['NAME'].' '.$data['LAST_NAME'].' ['.$data['ID'].']';
     }
 }

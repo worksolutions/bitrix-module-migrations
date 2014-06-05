@@ -7,7 +7,7 @@ return array(
         'appliedList' => 'Удачно примененные миграции',
         'btnRollback' => 'Откатить последние изменения',
         'lastSetup' => array(
-            'sectionName' => 'Последнее обновление :time: :user:'
+            'sectionName' => 'Последнее обновление :time: - :user:'
         )
     )
 );
