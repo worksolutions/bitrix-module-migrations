@@ -91,6 +91,7 @@ class CollectorFix {
 
     public function setOriginalData($data) {
         $this->_originalData = $data;
+        return $this;
     }
 
     public function getOriginalData() {

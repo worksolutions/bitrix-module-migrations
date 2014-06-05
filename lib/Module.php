@@ -264,6 +264,7 @@ class Module {
         if ($fix->isUses()) {
             $applyLog = new AppliedChangesLogModel();
             $applyLog->subjectName = $fix->getSubject();
+            $applyLog->groupLabel = $fix->getLabel();
             $applyLog->processName = $fix->getProcess();
             $applyLog->description = $fix->getName();
             $applyLog->originalData = $fix->getOriginalData();

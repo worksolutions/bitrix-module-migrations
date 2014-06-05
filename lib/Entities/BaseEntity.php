@@ -120,17 +120,17 @@ abstract class BaseEntity {
 
     public function delete() {
         $res = static::callGatewayMethod('delete', $this->id);
-        return (bool)$res->getErrors();
+        return !(bool)$res->getErrors();
     }
 
     public function insert() {
         $res = static::callGatewayMethod('add', $this->_getRawFields());
-        return (bool)$res->getErrors();
+        return !(bool)$res->getErrors();
     }
 
     public function update() {
         $res = static::callGatewayMethod('update', $this->id, $this->_getRawFields());
-        return (bool)$res->getErrors();
+        return !(bool)$res->getErrors();
     }
 
     public function save() {
