@@ -342,8 +342,6 @@ class Module {
         $setupLog->user = $this->getCurrentUser();
         $setupLog->save();
 
-        $count = 0;
-
         foreach ($fixes as $fix) {
             $applyFixLog = new AppliedChangesLogModel();
             $applyFixLog->processName = $fix->getProcess();
@@ -354,12 +352,11 @@ class Module {
             $process = $this->getProcess($fix->getProcess());
             $subject = $this->getSubjectHandler($fix->getSubject());
 
-            if ($process->update($subject, $fix, $applyFixLog)) {
-                $applyFixLog->save();
-                $count++;
-            }
+            $result = $process->update($subject, $fix, $applyFixLog);
+            $applyFixLog->success = (int) $result;
+            $applyFixLog->save();
         }
-        return $count;
+        return count($fixes);
     }
 
     /**

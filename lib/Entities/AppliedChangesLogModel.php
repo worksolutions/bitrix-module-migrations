@@ -9,7 +9,7 @@ use Bitrix\Main\Type\DateTime;
 
 class AppliedChangesLogModel extends BaseEntity {
     public
-        $id, $groupLabel, $date,
+        $id, $groupLabel, $date, $success,
         $processName, $subjectName, $updateData,
         $originalData, $description, $setupLogId;
 
@@ -61,6 +61,7 @@ class AppliedChangesLogModel extends BaseEntity {
             'subjectName' => 'SUBJECT',
             'updateData' => 'UPDATE_DATA',
             'originalData' => 'ORIGINAL_DATA',
+            'success' => 'SUCCESS',
             'description' => 'DESCRIPTION'
         );
     }
