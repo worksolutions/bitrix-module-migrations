@@ -33,15 +33,52 @@ abstract class BaseSubjectHandler {
      */
     abstract public function getIdByChangeMethod($method, $data = array());
 
+    /**
+     * Delete subject record
+     * @param $id
+     * @return mixed
+     */
+    abstract public function delete($id);
+
+    /**
+     * Get snapshot from database
+     * @param $id
+     * @return mixed
+     */
     abstract public function getSnapshot($id);
 
+    /**
+     * Apply snapshot to database
+     * @param $data
+     * @return mixed
+     */
     abstract public function applySnapshot($data);
 
+    /**
+     * Get identifier record by snapshot from database
+     * @param array $data
+     * @return mixed
+     */
+    public function getIdBySnapshot($data = array()) {
+        return $data['ID'];
+    }
+
+    /**
+     * Analysis changes (diff) by two snapshots
+     * @param $updatedData
+     * @param null $baseData
+     * @return mixed
+     */
     public function analysisOfChanges($updatedData, $baseData = null) {
         return $updatedData;
     }
 
+    /**
+     * Apply changes, run after analysis
+     * @param $data
+     */
     public function applyChanges($data) {
         $this->applySnapshot($data);
     }
+
 }

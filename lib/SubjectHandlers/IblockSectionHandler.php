@@ -37,10 +37,22 @@ class IblockSectionHandler extends BaseSubjectHandler {
 
     public function applySnapshot($data) {
         $sec = new \CIBlockSection();
+        $res = false;
         if (\CIBlockSection::GetByID($data['ID'])->Fetch()) {
-            $sec->Add($data);
+            $res = $sec->Add($data);
         } else {
-            $sec->Update($data['ID'], $data);
+            $res= $sec->Update($data['ID'], $data);
         }
+        return $res;
+    }
+
+    /**
+     * Delete subject record
+     * @param $id
+     * @return mixed
+     */
+    public function delete($id) {
+        $sec = new \CIBlockSection();
+        return $sec->Delete($id);
     }
 }

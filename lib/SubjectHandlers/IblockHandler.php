@@ -31,6 +31,11 @@ class IblockHandler extends BaseSubjectHandler  {
         return null;
     }
 
+    public function getIdBySnapshot($data = array()) {
+        return $data['iblock']['ID'];
+    }
+
+
     public function getSnapshot($id) {
         $iblock = \CIBlock::GetArrayByID($id);
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
@@ -45,23 +50,31 @@ class IblockHandler extends BaseSubjectHandler  {
         $typeData = $data['type'];
 
         $type = new \CIBlockType();
+        $res = false;
         if (!\CIBlockType::GetByID($typeData['ID'])->Fetch()) {
-            $type->Add($typeData);
+            $res = $type->Add($typeData);
         } else {
-            $type->Update($typeData['ID'], $typeData);
+            $res = $type->Update($typeData['ID'], $typeData);
         }
-        if ($type->LAST_ERROR) {
+        if (!$res) {
             return false;
         }
         $iblock = new \CIBlock();
         if (!\CIBlock::GetArrayByID($iblockData['ID'])) {
-            $iblock->Add($iblockData);
+            $res = $iblock->Add($iblockData);
         } else {
-            $iblock->Update($iblockData['ID'], $iblockData);
+            $res = $iblock->Update($iblockData['ID'], $iblockData);
         }
-        if ($iblock->LAST_ERROR) {
-            return false;
-        }
-        return true;
+        return $res;
+    }
+
+    /**
+     * Delete subject record
+     * @param $id
+     * @return mixed
+     */
+    public function delete($id) {
+        $iblock = new \CIBlock();
+        return $iblock->Delete($id);
     }
 }

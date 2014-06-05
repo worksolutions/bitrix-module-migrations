@@ -36,10 +36,22 @@ class IblockPropertyHandler extends BaseSubjectHandler {
 
     public function applySnapshot($data) {
         $prop = new \CIBlockProperty();
+        $res = false;
         if (\CIBlockProperty::GetByID($data['ID'])->Fetch()) {
-            $prop->Add($data);
+            $res = $prop->Add($data);
         } else {
-            $prop->Update($data['ID'], $data);
+            $res = $prop->Update($data['ID'], $data);
         }
+        return $res;
+    }
+
+    /**
+     * Delete subject record
+     * @param $id
+     * @return mixed
+     */
+    public function delete($id) {
+        $prop = new \CIBlockProperty();
+        return $prop->Delete($id);
     }
 }
