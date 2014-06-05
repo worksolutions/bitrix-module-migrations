@@ -16,7 +16,7 @@ class UpdateProcess extends BaseProcess {
     private $_beforeChangesSnapshots = array();
 
     public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log) {
-        $data = $fix->getData();
+        $data = $fix->getUpdateData();
         $id = $subjectHandler->getIdBySnapshot($data);
         $originalData = $subjectHandler->getSnapshot($id);
 
@@ -39,19 +39,12 @@ class UpdateProcess extends BaseProcess {
 
     public function afterChange(BaseSubjectHandler $subjectHandler, CollectorFix $fix, $data) {
         $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_AFTER_CHANGE_KEY, $data);
+        $originalData = $this->_beforeChangesSnapshots[$id];
         $actualData = $subjectHandler->getSnapshot($id);
         $data = $subjectHandler->analysisOfChanges($actualData, $this->_beforeChangesSnapshots[$id]);
         $fix
-            ->setData($data);
-
-        $applyLog = new AppliedChangesLogModel();
-        $applyLog->subjectName = get_class($subjectHandler);
-        $applyLog->processName = get_class($this);
-        $applyLog->description = $subjectHandler->getName().' - '.$id;
-        $applyLog->originalData = $this->_beforeChangesSnapshots[$id];
-        $applyLog->updateData = $data;
-        $applyLog->groupLabel = $fix->getLabel();
-        $applyLog->save();
+            ->setOriginalData($originalData)
+            ->setUpdateData($data);
     }
 
     public function getName() {

@@ -260,6 +260,16 @@ class Module {
                 $process->afterChange($handler, $fix, $params);
                 break;
         }
+
+        if ($fix->isUses()) {
+            $applyLog = new AppliedChangesLogModel();
+            $applyLog->subjectName = $fix->getSubject();
+            $applyLog->processName = $fix->getProcess();
+            $applyLog->description = $fix->getName();
+            $applyLog->originalData = $fix->getOriginalData();
+            $applyLog->updateData = $fix->getUpdateData();
+            $applyLog->save();
+        }
     }
 
     /**

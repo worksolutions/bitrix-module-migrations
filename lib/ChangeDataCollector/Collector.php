@@ -27,7 +27,8 @@ class Collector {
         foreach ($savedData as $arFix) {
             $fix = $this->getFix();
             $fix
-                ->setData($arFix['data'])
+                ->setUpdateData($arFix['data'])
+                ->setOriginalData($arFix['name'])
                 ->setSubject($arFix['subject'])
                 ->setProcess($arFix['process'])
                 ->setName($arFix['name']);
@@ -88,7 +89,8 @@ class Collector {
             $fixesData[] = array(
                 'process' => $fix->getProcess(),
                 'subject' => $fix->getSubject(),
-                'data' => $fix->getData(),
+                'data' => $fix->getUpdateData(),
+                'originalData' => $fix->getOriginalData(),
                 'name' => $fix->getName()
             );
         }

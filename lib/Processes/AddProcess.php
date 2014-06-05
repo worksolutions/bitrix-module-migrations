@@ -13,7 +13,7 @@ use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 class AddProcess extends BaseProcess {
 
     public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log) {
-        $data = $fix->getData();
+        $data = $fix->getUpdateData();
         $result = $subjectHandler->applySnapshot($data);
         $id = $subjectHandler->getIdByChangeMethod($data);
 
@@ -30,16 +30,8 @@ class AddProcess extends BaseProcess {
         $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_ADD_KEY, $data);
         $snapshot = $subjectHandler->getSnapshot($id);
         $fix
-            ->setData($snapshot);
-
-        $applyLog = new AppliedChangesLogModel();
-        $applyLog->subjectName = get_class($subjectHandler);
-        $applyLog->processName = get_class($this);
-        $applyLog->description = $subjectHandler->getName().' - '.$id;
-        $applyLog->originalData = array();
-        $applyLog->updateData = $snapshot;
-        $applyLog->groupLabel = $fix->getLabel();
-        $applyLog->save();
+            ->setOriginalData(array())
+            ->setUpdateData($snapshot);
     }
 
     public function getName() {
