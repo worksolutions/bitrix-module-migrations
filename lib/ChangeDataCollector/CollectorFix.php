@@ -13,10 +13,11 @@ class CollectorFix {
     private $_subject;
     private $_process;
     private $_data;
-
-    private $_isUses = false;
     private $_label;
     private $_name;
+    private $_originalData;
+
+    private $_isUses = false;
 
     public function __construct($label) {
         $this->_label = $label;
@@ -56,7 +57,7 @@ class CollectorFix {
     /**
      * @return mixed
      */
-    public function getData() {
+    public function getUpdateData() {
         return $this->_data;
     }
 
@@ -82,10 +83,18 @@ class CollectorFix {
      * @param mixed $data
      * @return $this
      */
-    public function setData($data) {
+    public function setUpdateData($data) {
         $this->take();
         $this->_data = $data;
         return $this;
+    }
+
+    public function setOriginalData($data) {
+        $this->_originalData = $data;
+    }
+
+    public function getOriginalData() {
+        return $this->_originalData;
     }
 
     public function getLabel() {
@@ -100,8 +109,4 @@ class CollectorFix {
     public function getName() {
         return $this->_name;
     }
-
-    public function apply() {
-        return (bool) rand(0,1);
-    }
-} 
+}
