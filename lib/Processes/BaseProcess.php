@@ -21,7 +21,7 @@ abstract class BaseProcess {
 
     abstract public function getName();
 
-    abstract public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix);
+    abstract public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log);
 
     abstract public function rollback(AppliedChangesLogModel $log);
 }

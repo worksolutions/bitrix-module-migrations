@@ -30,6 +30,9 @@ class AppliedChangesLogTable extends DataManager {
                 'primary' => true,
                 'autocomplete' => true
             ),
+            'SETUP_LOG_ID' => array(
+                'data_type' => 'integer'
+            ),
             'GROUP_LABEL' => array(
                 'data_type' => 'string',
                 'required' => true,

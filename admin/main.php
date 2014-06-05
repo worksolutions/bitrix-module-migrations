@@ -1,13 +1,11 @@
 <?php
 if ($_POST['apply']) {
-    $collectors = \WS\Migrations\Module::getInstance()->getNotAppliedCollectors();
-    foreach ($collectors as $collector) {
-        foreach ($collector->getFixes() as $fix) {
-            if (\WS\Migrations\Module::getInstance()->fixApply($fix)) {
-                $appliedFixes[$fix->getName()]++;
-            } else {
-                $errorFixes[$fix->getName()]++;
-            }
+    $notAppliedFixes = \WS\Migrations\Module::getInstance()->getNotAppliedFixes();
+    foreach ($notAppliedFixes as $fix) {
+        if (\WS\Migrations\Module::getInstance()->applyNewFixes($fix)) {
+            $appliedFixes[$fix->getName()]++;
+        } else {
+            $errorFixes[$fix->getName()]++;
         }
     }
 }

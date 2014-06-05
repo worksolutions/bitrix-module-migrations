@@ -14,21 +14,16 @@ use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 class DeleteProcess extends BaseProcess {
     private $_beforeChangesSnapshots = array();
 
-    public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix) {
+    public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log) {
         $data = $fix->getData();
         $id = $subjectHandler->getIdBySnapshot($data);
         $originalData = $subjectHandler->getSnapshot($id);
 
         $result = $subjectHandler->delete($id);
 
-        $applyLog = new AppliedChangesLogModel();
-        $applyLog->subjectName = get_class($subjectHandler);
-        $applyLog->processName = get_class($this);
-        $applyLog->description = $subjectHandler->getName().'. '.$this->getName().' - '.$id;
-        $applyLog->originalData = $originalData;
-        $applyLog->updateData = $data;
-        $applyLog->groupLabel = $fix->getLabel();
-        $applyLog->save();
+        $log->description = $subjectHandler->getName().'. '.$this->getName().' - '.$id;
+        $log->originalData = $originalData;
+        $log->updateData = $data;
 
         return $result;
     }

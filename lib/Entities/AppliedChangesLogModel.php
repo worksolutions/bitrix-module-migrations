@@ -11,7 +11,9 @@ class AppliedChangesLogModel extends BaseEntity {
     public
         $id, $groupLabel, $date,
         $processName, $subjectName, $updateData,
-        $originalData, $description;
+        $originalData, $description, $setupLogId;
+
+    private $_setupLog;
 
     public function __construct() {
         $this->date = new \DateTime();
@@ -52,6 +54,7 @@ class AppliedChangesLogModel extends BaseEntity {
     static protected function map() {
         return array(
             'id' => 'ID',
+            'setupLogId' => 'SETUP_LOG_ID',
             'groupLabel' => 'GROUP_LABEL',
             'date' => 'DATE',
             'processName' => 'PROCESS',
@@ -60,6 +63,22 @@ class AppliedChangesLogModel extends BaseEntity {
             'originalData' => 'ORIGINAL_DATA',
             'description' => 'DESCRIPTION'
         );
+    }
+
+    public function getSetupLog() {
+        if (!$this->_setupLog) {
+            $this->_setupLog = SetupLogModel::findOne(array(
+                    'select' => array('=id' => $this->setupLogId)
+                )
+            );
+        }
+        return $this->_setupLog;
+    }
+
+    public function setSetupLog(SetupLogModel $model) {
+        $this->_setupLog = $model;
+        $model->id && $this->setupLogId = $model->id;
+        return $this;
     }
 
     static protected function gatewayClass() {

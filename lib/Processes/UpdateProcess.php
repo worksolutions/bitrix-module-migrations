@@ -15,24 +15,18 @@ class UpdateProcess extends BaseProcess {
 
     private $_beforeChangesSnapshots = array();
 
-    public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix) {
+    public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log) {
         $data = $fix->getData();
         $id = $subjectHandler->getIdBySnapshot($data);
         $originalData = $subjectHandler->getSnapshot($id);
 
         $result = $subjectHandler->applyChanges($data);
 
-        $applyLog = new AppliedChangesLogModel();
-        $applyLog->subjectName = get_class($subjectHandler);
-        $applyLog->processName = get_class($this);
-        $applyLog->description = $subjectHandler->getName().'. '.$this->getName().' - '.$id;
-        $applyLog->originalData = $originalData;
-        $applyLog->updateData = $data;
-        $applyLog->groupLabel = $fix->getLabel();
-        $applyLog->save();
+        $log->description = $fix->getName().' - '.$id;
+        $log->originalData = $originalData;
+        $log->updateData = $data;
 
         return $result;
-
     }
 
     public function rollback(AppliedChangesLogModel $log) {

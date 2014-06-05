@@ -9,6 +9,7 @@ use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Entities\AppliedChangesLogTable;
+use WS\Migrations\Entities\SetupLogModel;
 use WS\Migrations\Processes\AddProcess;
 use WS\Migrations\Processes\BaseProcess;
 use WS\Migrations\Processes\DeleteProcess;
@@ -306,14 +307,48 @@ class Module {
     }
 
     /**
-     * Применение фиксации
-     * @param CollectorFix $fix
-     * @return bool
+     * @return CollectorFix[]
      */
-    public function fixApply(CollectorFix $fix) {
-        $process = $this->getProcess($fix->getProcess());
-        $subject = $this->getSubjectHandler($fix->getSubject());
-        return $process->update($subject, $fix);
+    public function getNotAppliedFixes() {
+        $collectors = $this->getNotAppliedCollectors();
+        $result = array();
+        foreach ($collectors as $collector) {
+            $result = array_merge($result, $collector->getFixes() ?: array());
+        }
+        return $result;
+    }
+
+    /**
+     * Применение фиксации
+     * @return int
+     */
+    public function applyNewFixes() {
+        $fixes = $this->getNotAppliedFixes();
+        if (!$fixes) {
+            return 0;
+        }
+        $setupLog = new SetupLogModel();
+        $setupLog->user = $this->getCurrentUser();
+        $setupLog->save();
+
+        $count = 0;
+
+        foreach ($fixes as $fix) {
+            $applyFixLog = new AppliedChangesLogModel();
+            $applyFixLog->processName = $fix->getProcess();
+            $applyFixLog->subjectName = $fix->getSubject();
+            $applyFixLog->setSetupLog($setupLog);
+            $applyFixLog->groupLabel = $fix->getLabel();
+
+            $process = $this->getProcess($fix->getProcess());
+            $subject = $this->getSubjectHandler($fix->getSubject());
+
+            if ($process->update($subject, $fix, $applyFixLog)) {
+                $applyFixLog->save();
+                $count++;
+            }
+        }
+        return $count;
     }
 
     /**
@@ -321,6 +356,6 @@ class Module {
      */
     public function getCurrentUser() {
         global $USER;
-        return $USER;
+        return $USER ?: new \CUser();
     }
 }
