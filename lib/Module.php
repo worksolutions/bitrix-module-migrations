@@ -315,4 +315,12 @@ class Module {
         $subject = $this->getSubjectHandler($fix->getSubject());
         return $process->update($subject, $fix);
     }
+
+    /**
+     * @return \CUser
+     */
+    public function getCurrentUser() {
+        global $USER;
+        return $USER;
+    }
 }
