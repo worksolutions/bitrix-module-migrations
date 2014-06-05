@@ -36,6 +36,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
     }
 
     public function applySnapshot($data) {
+        $data = $this->handleNullValues($data);
         $sec = new \CIBlockSection();
         $res = false;
         if (\CIBlockSection::GetByID($data['ID'])->Fetch()) {

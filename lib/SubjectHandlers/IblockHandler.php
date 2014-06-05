@@ -46,8 +46,8 @@ class IblockHandler extends BaseSubjectHandler  {
     }
 
     public function applySnapshot($data) {
-        $iblockData = $data['iblock'];
-        $typeData = $data['type'];
+        $iblockData = $this->handleNullValues($data['iblock']);
+        $typeData = $this->handleNullValues($data['type']);
 
         $type = new \CIBlockType();
         $res = false;

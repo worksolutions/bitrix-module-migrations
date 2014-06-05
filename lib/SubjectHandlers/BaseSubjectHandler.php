@@ -81,4 +81,12 @@ abstract class BaseSubjectHandler {
         $this->applySnapshot($data);
     }
 
+    protected function handleNullValues($data) {
+        foreach ($data as $key => & $value) {
+            if (is_null($value)) {
+                $value = false;
+            }
+        }
+    }
+
 }
