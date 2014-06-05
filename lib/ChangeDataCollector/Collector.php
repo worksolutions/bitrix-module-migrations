@@ -82,10 +82,7 @@ class Collector {
 
     public function commit() {
         $fixesData = array();
-        foreach ($this->_fixes as $fix) {
-            if (!$fix->isUses()) {
-                continue;
-            }
+        foreach ($this->getUsesFixed() as $fix) {
             $fixesData[] = array(
                 'process' => $fix->getProcess(),
                 'subject' => $fix->getSubject(),
@@ -107,5 +104,15 @@ class Collector {
      */
     public function getFixes() {
         return $this->_fixes;
+    }
+
+    /**
+     * List of uses fixes
+     * @return array
+     */
+    public function getUsesFixed() {
+        return array_filter($this->_fixes, function (CollectorFix $fix) {
+            return $fix->isUses();
+        });
     }
 }

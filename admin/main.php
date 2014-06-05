@@ -1,4 +1,8 @@
 <?php
+if ($_POST['rollback']) {
+    \WS\Migrations\Module::getInstance()->rollbackLastChanges();
+}
+
 if ($_POST['apply']) {
     \WS\Migrations\Module::getInstance()->applyNewFixes();
 }
@@ -90,5 +94,7 @@ $form->EndCustomField('errorList');
 $form->EndTab();
 !$fixes && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
+$form->sButtonsContent = '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
+
 $form->Show();
 ?></form><?

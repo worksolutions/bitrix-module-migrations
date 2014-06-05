@@ -101,6 +101,18 @@ class Module {
         if (!$self->_dutyCollector) {
             return null;
         }
+        $setupLog = $self->_createSetupLog();
+        foreach ($self->_getDutyCollector()->getUsesFixed() as $fix) {
+            $applyLog = new AppliedChangesLogModel();
+            $applyLog->subjectName = $fix->getSubject();
+            $applyLog->groupLabel = $fix->getLabel();
+            $applyLog->processName = $fix->getProcess();
+            $applyLog->description = $fix->getName();
+            $applyLog->originalData = $fix->getOriginalData();
+            $applyLog->updateData = $fix->getUpdateData();
+            $applyLog->setSetupLog($setupLog);
+            $applyLog->save();
+        }
         $self->_getDutyCollector()->commit();
     }
 
@@ -260,17 +272,6 @@ class Module {
                 $process->afterChange($handler, $fix, $params);
                 break;
         }
-
-        if ($fix->isUses()) {
-            $applyLog = new AppliedChangesLogModel();
-            $applyLog->subjectName = $fix->getSubject();
-            $applyLog->groupLabel = $fix->getLabel();
-            $applyLog->processName = $fix->getProcess();
-            $applyLog->description = $fix->getName();
-            $applyLog->originalData = $fix->getOriginalData();
-            $applyLog->updateData = $fix->getUpdateData();
-            $applyLog->save();
-        }
     }
 
     /**
@@ -338,9 +339,7 @@ class Module {
         if (!$fixes) {
             return 0;
         }
-        $setupLog = new SetupLogModel();
-        $setupLog->user = $this->getCurrentUser();
-        $setupLog->save();
+        $setupLog = $this->_createSetupLog();
 
         foreach ($fixes as $fix) {
             $applyFixLog = new AppliedChangesLogModel();
@@ -360,10 +359,23 @@ class Module {
     }
 
     /**
+     * @return SetupLogModel
+     */
+    private function _createSetupLog() {
+        $setupLog = new SetupLogModel();
+        $setupLog->user = $this->getCurrentUser();
+        $setupLog->save();
+        return $setupLog;
+    }
+
+    /**
      * @return \CUser
      */
     public function getCurrentUser() {
         global $USER;
         return $USER ?: new \CUser();
+    }
+
+    public function rollbackLastChanges() {
     }
 }
