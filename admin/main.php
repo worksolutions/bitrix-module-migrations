@@ -14,14 +14,15 @@ foreach ($notAppliedFixes as $fix) {
 }
 $lastSetupLog = \WS\Migrations\Module::getInstance()->getLastSetupLog();
 
-$appliedFixes = array();
-$errorFixes = array();
+if ($lastSetupLog) {
+    $appliedFixes = array();
+    $errorFixes = array();
 
-foreach ($lastSetupLog->getAppliedLogs() as $appliedLog) {
-    !$appliedLog->success && $errorFixes[$appliedLog->description]++;
-    $appliedLog->success && $appliedFixes[$appliedLog->description]++;
+    foreach ($lastSetupLog->getAppliedLogs() as $appliedLog) {
+        !$appliedLog->success && $errorFixes[$appliedLog->description]++;
+        $appliedLog->success && $appliedFixes[$appliedLog->description]++;
+    }
 }
-
 
 //--------------------------------------------------------------------------
 
@@ -107,9 +108,10 @@ if ($lastSetupLog) {
     $form->EndCustomField('errorList');
 }
 $form->EndTab();
-!$fixes && $form->bPublicMode = true;
+!$fixes && !$lastSetupLog && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
-$form->sButtonsContent = '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
+$lastSetupLog
+    && $form->sButtonsContent = '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
 
 $form->Show();
 ?></form><?

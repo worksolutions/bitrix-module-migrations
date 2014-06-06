@@ -46,6 +46,31 @@ class Module {
     private $_processUpdate;
     private $_processDelete;
 
+    private $_listenMode = true;
+
+    /**
+     * @return $this
+     */
+    private function _enableListen() {
+        $this->_listenMode = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    private function _disableListen() {
+        $this->_listenMode = false;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    private function _hasListen() {
+        return (bool)$this->_listenMode;
+    }
+
     private function __construct() {
         $this->localizePath = __DIR__.'/../lang/'.LANGUAGE_ID;
     }
@@ -237,6 +262,9 @@ class Module {
     }
 
     public function handle($handlerClass, $eventKey, $params) {
+        if (!$this->_hasListen()) {
+            return ;
+        }
         $handlers = $this->handlers();
         if ( !$handlers[$handlerClass][$eventKey]) {
             return false;
@@ -341,6 +369,7 @@ class Module {
      * @return int
      */
     public function applyNewFixes() {
+        $this->_disableListen();
         $fixes = $this->getNotAppliedFixes();
         if (!$fixes) {
             return 0;
@@ -361,6 +390,7 @@ class Module {
             $applyFixLog->success = (bool) $result;
             $applyFixLog->save();
         }
+        $this->_enableListen();
         return count($fixes);
     }
 
@@ -395,6 +425,7 @@ class Module {
      * @return null
      */
     public function rollbackLastChanges() {
+        $this->_disableListen();
         $setupLog = $this->getLastSetupLog();
         if (!$setupLog) {
             return null;
@@ -409,5 +440,6 @@ class Module {
             $process->rollback($subjectHandler, $log);
         }
         $setupLog->delete();
+        $this->_enableListen();
     }
 }
