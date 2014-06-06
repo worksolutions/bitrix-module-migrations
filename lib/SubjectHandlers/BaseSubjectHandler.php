@@ -76,9 +76,10 @@ abstract class BaseSubjectHandler {
     /**
      * Apply changes, run after analysis
      * @param $data
+     * @return mixed
      */
     public function applyChanges($data) {
-        $this->applySnapshot($data);
+        return $this->applySnapshot($data);
     }
 
     protected function handleNullValues($data) {
@@ -87,6 +88,7 @@ abstract class BaseSubjectHandler {
                 $value = false;
             }
         }
+        return $data;
     }
 
 }

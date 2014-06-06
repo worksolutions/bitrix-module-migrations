@@ -38,12 +38,12 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $data = $this->handleNullValues($data);
         $prop = new \CIBlockProperty();
         $res = false;
-        if (\CIBlockProperty::GetByID($data['ID'])->Fetch()) {
+        if (!\CIBlockProperty::GetByID($data['ID'])->Fetch()) {
             $res = $prop->Add($data);
         } else {
             $res = $prop->Update($data['ID'], $data);
         }
-        return $res;
+        return (bool)$res;
     }
 
     /**

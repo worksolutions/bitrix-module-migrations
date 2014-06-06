@@ -39,7 +39,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
         $data = $this->handleNullValues($data);
         $sec = new \CIBlockSection();
         $res = false;
-        if (\CIBlockSection::GetByID($data['ID'])->Fetch()) {
+        if (!\CIBlockSection::GetByID($data['ID'])->Fetch()) {
             $res = $sec->Add($data);
         } else {
             $res= $sec->Update($data['ID'], $data);
