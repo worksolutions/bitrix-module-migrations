@@ -30,7 +30,7 @@ class AppliedChangesLogModel extends BaseEntity {
                 }
             }
             if (in_array($name, array('originalData', 'updateData'))) {
-                $value = json_decode($value, true);
+                $value = \WS\Migrations\jsonToArray($value);
             }
             $result[$name] = $value;
         }
@@ -44,7 +44,7 @@ class AppliedChangesLogModel extends BaseEntity {
                 $value = DateTime::createFromPhp($value);
             }
             if (in_array($name, array('originalData', 'updateData'))) {
-                $value = json_encode($value);
+                $value = \WS\Migrations\arrayToJson($value);
             }
             $result[$name] = $value;
         }
