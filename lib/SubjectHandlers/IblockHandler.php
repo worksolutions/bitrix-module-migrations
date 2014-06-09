@@ -49,22 +49,24 @@ class IblockHandler extends BaseSubjectHandler  {
         $iblockData = $this->handleNullValues($data['iblock']);
         $typeData = $this->handleNullValues($data['type']);
 
-        $type = new \CIBlockType();
         $res = false;
+        $type = new \CIBlockType();
         if (!\CIBlockType::GetByID($typeData['ID'])->Fetch()) {
             $res = $type->Add($typeData);
         } else {
             $res = $type->Update($typeData['ID'], $typeData);
         }
+
         if (!$res) {
             return false;
         }
-        $iblock = new \CIBlock();
+        /** @var $DB \CDatabase */
+        global $DB;
         if (!\CIBlock::GetArrayByID($iblockData['ID'])) {
-            $res = $iblock->Add($iblockData);
-        } else {
-            $res = $iblock->Update($iblockData['ID'], $iblockData);
+            $DB->Add('b_iblock', array('ID' => $iblockData['ID']));
         }
+        $iblock = new \CIBlock();
+        $res = $iblock->Update($iblockData['ID'], $iblockData);
         return $res;
     }
 
