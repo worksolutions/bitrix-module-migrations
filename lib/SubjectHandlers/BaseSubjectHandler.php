@@ -6,6 +6,7 @@
 namespace WS\Migrations\SubjectHandlers;
 
 
+use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 
 abstract class BaseSubjectHandler {
@@ -36,7 +37,7 @@ abstract class BaseSubjectHandler {
     /**
      * Delete subject record
      * @param $id
-     * @return mixed
+     * @return ApplyResult
      */
     abstract public function delete($id);
 
@@ -50,7 +51,7 @@ abstract class BaseSubjectHandler {
     /**
      * Apply snapshot to database
      * @param $data
-     * @return mixed
+     * @return ApplyResult
      */
     abstract public function applySnapshot($data);
 
@@ -76,7 +77,7 @@ abstract class BaseSubjectHandler {
     /**
      * Apply changes, run after analysis
      * @param $data
-     * @return mixed
+     * @return ApplyResult
      */
     public function applyChanges($data) {
         return $this->applySnapshot($data);

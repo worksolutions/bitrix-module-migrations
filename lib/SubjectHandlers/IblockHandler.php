@@ -6,6 +6,7 @@
 namespace WS\Migrations\SubjectHandlers;
 
 
+use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 
 class IblockHandler extends BaseSubjectHandler  {
@@ -49,34 +50,41 @@ class IblockHandler extends BaseSubjectHandler  {
         $iblockData = $this->handleNullValues($data['iblock']);
         $typeData = $this->handleNullValues($data['type']);
 
-        $res = false;
+        $res = new ApplyResult();
         $type = new \CIBlockType();
         if (!\CIBlockType::GetByID($typeData['ID'])->Fetch()) {
-            $res = $type->Add($typeData);
+            $res
+                ->setSuccess($type->Add($typeData));
         } else {
-            $res = $type->Update($typeData['ID'], $typeData);
+            $res
+                ->setSuccess($type->Update($typeData['ID'], $typeData));
         }
 
-        if (!$res) {
-            return false;
+        if (!$res->isSuccess()) {
+            return $res->setMessage($type->LAST_ERROR);
         }
         /** @var $DB \CDatabase */
         global $DB;
         if (!\CIBlock::GetArrayByID($iblockData['ID'])) {
-            $DB->Add('b_iblock', array('ID' => $iblockData['ID']));
+            $res->setSuccess((bool)$DB->Add('b_iblock', array('ID' => $iblockData['ID'])));
+        }
+        if (!$res->isSuccess()) {
+            return $res->setMessage($DB->GetErrorMessage());
         }
         $iblock = new \CIBlock();
-        $res = $iblock->Update($iblockData['ID'], $iblockData);
-        return $res;
+        $res->setSuccess((bool)$iblock->Update($iblockData['ID'], $iblockData));
+        return $res->setMessage($iblock->LAST_ERROR);
     }
 
     /**
      * Delete subject record
      * @param $id
-     * @return mixed
+     * @return ApplyResult
      */
     public function delete($id) {
         $iblock = new \CIBlock();
-        return $iblock->Delete($id);
+        $res = new ApplyResult();
+        return $res->setSuccess((bool)$iblock->Delete($id))
+            ->setMessage($iblock->LAST_ERROR);
     }
 }

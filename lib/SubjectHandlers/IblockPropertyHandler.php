@@ -5,6 +5,7 @@
 
 namespace WS\Migrations\SubjectHandlers;
 
+use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 
 class IblockPropertyHandler extends BaseSubjectHandler {
@@ -34,26 +35,44 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         return \CIBlockProperty::GetByID($id)->Fetch();
     }
 
+    /**
+     * @param $data
+     * @return ApplyResult
+     */
     public function applySnapshot($data) {
         $data = $this->handleNullValues($data);
         global $DB;
         $prop = new \CIBlockProperty();
+        $res = new ApplyResult();
         if (!$DB->Query("select ID from b_iblock_property where ID=".((int) $data['ID']))->Fetch()) {
             /** @var $DB \CDatabase */
-            $DB->Add("b_iblock_property", $data);
-            $prop->_Add($data['ID'], $data);
+            $propAddResult = $DB->Add("b_iblock_property", $data);
+            $res->setSuccess((bool)$propAddResult)->setMessage($DB->GetErrorMessage());
+            if ($propAddResult && $data['VERSION'] == 2) {
+                $twoVersionAddResult = $prop->_Add($data['ID'], $data);
+                $res
+                    ->setSuccess($twoVersionAddResult)
+                    ->setMessage($DB->GetErrorMessage());
+                !$twoVersionAddResult && $prop->Delete($data['ID']);
+            }
         }
-        $res = $prop->Update($data['ID'], $data);
-        return (bool)$res;
+        if (!$res->isSuccess()) {
+            return $res;
+        }
+        $res->setSuccess((bool) $prop->Update($data['ID'], $data));
+        return $res->setMessage($prop->LAST_ERROR);
     }
 
     /**
      * Delete subject record
      * @param $id
-     * @return mixed
+     * @return ApplyResult
      */
     public function delete($id) {
         $prop = new \CIBlockProperty();
-        return $prop->Delete($id);
+        $res = new ApplyResult();
+        return $res
+                ->setSuccess((bool)$prop->Delete($id))
+                ->setMessage($prop->LAST_ERROR);
     }
 }

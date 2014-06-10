@@ -6,6 +6,7 @@
 namespace WS\Migrations\SubjectHandlers;
 
 
+use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 
 class IblockSectionHandler extends BaseSubjectHandler {
@@ -35,14 +36,18 @@ class IblockSectionHandler extends BaseSubjectHandler {
         return \CIBlockSection::GetByID($id)->Fetch();
     }
 
+    /**
+     * @param $data
+     * @return ApplyResult
+     */
     public function applySnapshot($data) {
         $data = $this->handleNullValues($data);
         $sec = new \CIBlockSection();
-        $res = false;
+        $res = new ApplyResult();
         if (!\CIBlockSection::GetByID($data['ID'])->Fetch()) {
-            $res = $sec->Add($data);
+            $res->setSuccess((bool)$sec->Add($data));
         } else {
-            $res= $sec->Update($data['ID'], $data);
+            $res->setSuccess((bool)$sec->Update($data['ID'], $data));
         }
         return $res;
     }
@@ -50,10 +55,13 @@ class IblockSectionHandler extends BaseSubjectHandler {
     /**
      * Delete subject record
      * @param $id
-     * @return mixed
+     * @return ApplyResult
      */
     public function delete($id) {
         $sec = new \CIBlockSection();
-        return $sec->Delete($id);
+        $res = new ApplyResult();
+        return $res
+            ->setSuccess((bool) $sec->Delete($id))
+            ->setMessage($sec->LAST_ERROR);
     }
 }
