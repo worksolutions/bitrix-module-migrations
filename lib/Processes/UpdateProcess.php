@@ -30,7 +30,7 @@ class UpdateProcess extends BaseProcess {
     }
 
     public function rollback(BaseSubjectHandler $subjectHandler, AppliedChangesLogModel $log) {
-        $subjectHandler->applySnapshot($log->originalData);
+        return $subjectHandler->applySnapshot($log->originalData);
     }
 
     public function beforeChange(BaseSubjectHandler $subjectHandler, $data) {

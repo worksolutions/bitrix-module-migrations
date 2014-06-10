@@ -387,7 +387,8 @@ class Module {
             $subject = $this->getSubjectHandler($fix->getSubject());
 
             $result = $process->update($subject, $fix, $applyFixLog);
-            $applyFixLog->success = (bool) $result;
+            $applyFixLog->success = (bool) $result->isSuccess();
+            !$result->isSuccess() && $applyFixLog->description .= '. '.$result->getMessage();
             $applyFixLog->save();
         }
         $this->_enableListen();

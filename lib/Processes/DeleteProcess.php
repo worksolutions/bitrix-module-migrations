@@ -21,7 +21,7 @@ class DeleteProcess extends BaseProcess {
 
         $result = $subjectHandler->delete($id);
 
-        $log->description = $subjectHandler->getName().'. '.$this->getName().' - '.$id;
+        $log->description = $fix->getName().' - '.$id;
         $log->originalData = $originalData;
         $log->updateData = $data;
 
@@ -29,7 +29,7 @@ class DeleteProcess extends BaseProcess {
     }
 
     public function rollback(BaseSubjectHandler $subjectHandler, AppliedChangesLogModel $log) {
-        $subjectHandler->applySnapshot($log->originalData);
+        return $subjectHandler->applySnapshot($log->originalData);
     }
 
     public function beforeChange(BaseSubjectHandler $subjectHandler, $data) {

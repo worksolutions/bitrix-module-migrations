@@ -5,6 +5,7 @@
 
 namespace WS\Migrations\Processes;
 
+use WS\Migrations\ApplyResult;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
@@ -21,7 +22,18 @@ abstract class BaseProcess {
 
     abstract public function getName();
 
+    /**
+     * @param BaseSubjectHandler $subjectHandler
+     * @param CollectorFix $fix
+     * @param AppliedChangesLogModel $log
+     * @return ApplyResult
+     */
     abstract public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log);
 
+    /**
+     * @param BaseSubjectHandler $subjectHandler
+     * @param AppliedChangesLogModel $log
+     * @return ApplyResult
+     */
     abstract public function rollback(BaseSubjectHandler $subjectHandler, AppliedChangesLogModel $log);
 }
