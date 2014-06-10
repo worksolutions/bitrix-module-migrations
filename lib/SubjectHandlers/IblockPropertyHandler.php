@@ -36,13 +36,14 @@ class IblockPropertyHandler extends BaseSubjectHandler {
 
     public function applySnapshot($data) {
         $data = $this->handleNullValues($data);
+        global $DB;
         $prop = new \CIBlockProperty();
-        $res = false;
-        if (!\CIBlockProperty::GetByID($data['ID'])->Fetch()) {
-            $res = $prop->Add($data);
-        } else {
-            $res = $prop->Update($data['ID'], $data);
+        if (!$DB->Query("select ID from b_iblock_property where ID=".((int) $data['ID']))->Fetch()) {
+            /** @var $DB \CDatabase */
+            $DB->Add("b_iblock_property", $data);
+            $prop->_Add($data['ID'], $data);
         }
+        $res = $prop->Update($data['ID'], $data);
         return (bool)$res;
     }
 
