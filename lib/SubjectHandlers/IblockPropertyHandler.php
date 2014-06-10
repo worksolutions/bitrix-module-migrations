@@ -44,6 +44,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         global $DB;
         $prop = new \CIBlockProperty();
         $res = new ApplyResult();
+        $res->setSuccess(true);
         if (!$DB->Query("select ID from b_iblock_property where ID=".((int) $data['ID']))->Fetch()) {
             /** @var $DB \CDatabase */
             $propAddResult = $DB->Add("b_iblock_property", $data);

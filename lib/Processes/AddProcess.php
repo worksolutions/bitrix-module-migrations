@@ -15,9 +15,8 @@ class AddProcess extends BaseProcess {
     public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log) {
         $data = $fix->getUpdateData();
         $result = $subjectHandler->applySnapshot($data);
-        $id = $subjectHandler->getIdByChangeMethod($data);
 
-        $log->description = $fix->getName().' - '.$id;
+        $log->description = $fix->getName();
         $log->originalData = array();
         $log->updateData = $data;
         return $result;
