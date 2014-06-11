@@ -45,11 +45,19 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $prop = new \CIBlockProperty();
         $res = new ApplyResult();
         $res->setSuccess(true);
+        if (!$arIblock = \CIBlock::GetArrayByID($data['IBLOCK_ID'])) {
+            return $res
+                ->setSuccess(false)
+                ->setMassage($this->getLocalization()->message('iblockProperty.errors.iblockNotExists', array(':id:' => $data['IBLOCK_ID'])));
+        }
+        $isTwoVersion = $arIblock['VERSION'] == 2;
+        $data['VERSION'] = $arIblock['VERSION'];
+
         if (!$DB->Query("select ID from b_iblock_property where ID=".((int) $data['ID']))->Fetch()) {
             /** @var $DB \CDatabase */
             $propAddResult = $DB->Add("b_iblock_property", $data);
             $res->setSuccess((bool)$propAddResult)->setMessage($DB->GetErrorMessage());
-            if ($propAddResult && $data['VERSION'] == 2) {
+            if ($propAddResult && $isTwoVersion) {
                 $twoVersionAddResult = $prop->_Add($data['ID'], $data);
                 $res
                     ->setSuccess($twoVersionAddResult)

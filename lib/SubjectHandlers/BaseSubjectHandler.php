@@ -7,6 +7,7 @@ namespace WS\Migrations\SubjectHandlers;
 
 
 use WS\Migrations\ApplyResult;
+use WS\Migrations\Localization;
 use WS\Migrations\Module;
 
 abstract class BaseSubjectHandler {
