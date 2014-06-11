@@ -22,7 +22,7 @@ class UpdateProcess extends BaseProcess {
 
         $result = $subjectHandler->applyChanges($data);
 
-        $log->description = $fix->getName().' - '.$id;
+        $log->description = $fix->getName();
         $log->originalData = $originalData;
         $log->updateData = $data;
 

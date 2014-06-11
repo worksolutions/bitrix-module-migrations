@@ -21,7 +21,7 @@ class DeleteProcess extends BaseProcess {
 
         $result = $subjectHandler->delete($id);
 
-        $log->description = $fix->getName().' - '.$id;
+        $log->description = $fix->getName();
         $log->originalData = $originalData;
         $log->updateData = $data;
 
