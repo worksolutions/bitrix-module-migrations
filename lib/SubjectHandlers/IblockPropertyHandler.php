@@ -48,7 +48,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         if (!$arIblock = \CIBlock::GetArrayByID($data['IBLOCK_ID'])) {
             return $res
                 ->setSuccess(false)
-                ->setMassage($this->getLocalization()->message('iblockProperty.errors.iblockNotExists', array(':id:' => $data['IBLOCK_ID'])));
+                ->setMessage($this->getLocalization()->message('iblockProperty.errors.iblockNotExists', array(':id:' => $data['IBLOCK_ID'])));
         }
         $isTwoVersion = $arIblock['VERSION'] == 2;
         $data['VERSION'] = $arIblock['VERSION'];

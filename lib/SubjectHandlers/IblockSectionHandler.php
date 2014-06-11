@@ -44,11 +44,29 @@ class IblockSectionHandler extends BaseSubjectHandler {
         $data = $this->handleNullValues($data);
         $sec = new \CIBlockSection();
         $res = new ApplyResult();
+        $res->setSuccess(true);
         if (!\CIBlockSection::GetByID($data['ID'])->Fetch()) {
-            $res->setSuccess((bool)$sec->Add($data));
-        } else {
-            $res->setSuccess((bool)$sec->Update($data['ID'], $data));
+            /** @var $DB \CDatabase */
+            global $DB;
+            $res
+                ->setSuccess((bool)$DB->Add('b_iblock_section', array(
+                        'ID' => $data['ID'],
+                        'IBLOCK_ID' => $data['IBLOCK_ID'],
+                        'GLOBAL_ACTIVE' => $data['GLOBAL_ACTIVE'],
+                        'LEFT_MARGIN' => $data['LEFT_MARGIN'],
+                        'RIGHT_MARGIN' => $data['RIGHT_MARGIN'],
+                        'DATE_CREATE' => $data['DATE_CREATE'],
+                        'CREATED_BY' => $data['CREATED_BY']
+                    )
+                ))
+                ->setMessage($DB->GetErrorMessage());
         }
+        if (!$res->isSuccess()) {
+            return $res;
+        }
+        $res
+            ->setSuccess((bool)$sec->Update($data['ID'], $data))
+            ->setMessage($sec->LAST_ERROR);
         return $res;
     }
 
