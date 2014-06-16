@@ -6,7 +6,7 @@
 namespace WS\Migrations\Reference;
 
 
-use WS\Migrations\Entities\DbVersionReferences;
+use WS\Migrations\Entities\DbVersionReferencesTable;
 
 class ReferenceController {
     private $_currentDbVersion;
@@ -25,7 +25,7 @@ class ReferenceController {
     public function registerItem(ReferenceItem $item) {
         !$item->dbVersion && $item->dbVersion = $this->_currentDbVersion;
         !$item->reference && $item->reference = md5($item->dbVersion.$item->group.$item->id);
-        DbVersionReferences::add(array(
+        DbVersionReferencesTable::add(array(
             'REFERENCE' => $item->reference,
             'DB_VERSION' => $item->dbVersion,
             'GROUP' => $item->group,
@@ -43,7 +43,7 @@ class ReferenceController {
             return null;
         }
 
-        $res = DbVersionReferences::getList(array(
+        $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
                 '=REFERENCE' => $referenceValue,
                 '=DB_VERSION' => $this->_currentDbVersion
@@ -65,7 +65,7 @@ class ReferenceController {
     }
 
     public function getReferenceValueByOtherVersion($dbVersion, $id, $group) {
-        $res = DbVersionReferences::getList(array(
+        $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
                 '=ITEM_ID' => $id,
                 '=DB_VERSION' => $dbVersion,

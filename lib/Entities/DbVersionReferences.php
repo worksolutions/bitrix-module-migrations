@@ -8,7 +8,7 @@ namespace WS\Migrations\Entities;
 
 use Bitrix\Main\Entity\DataManager;
 
-class DbVersionReferences extends DataManager {
+class DbVersionReferencesTable extends DataManager {
 
     public static function getTableName() {
         return 'ws_migrations_db_version_references';
