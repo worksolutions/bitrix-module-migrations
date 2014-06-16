@@ -26,6 +26,7 @@ class Collector {
         $savedData = $this->_getSavedData();
         foreach ($savedData as $arFix) {
             $fix = $this->getFix();
+            $this->registerFix($fix);
             $fix
                 ->setUpdateData($arFix['data'])
                 ->setOriginalData($arFix['name'])
@@ -61,9 +62,12 @@ class Collector {
      * @return CollectorFix
      */
     public function getFix() {
-        $fix = new CollectorFix($this->_label);
+        return new CollectorFix($this->_label);
+    }
+
+    public function registerFix(CollectorFix $fix) {
         $this->_fixes[] = $fix;
-        return $fix;
+        return $this;
     }
 
     /**

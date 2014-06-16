@@ -306,6 +306,7 @@ class Module {
                 $process->afterChange($handler, $fix, $params);
                 break;
         }
+        $fix->getProcess() && $collector->registerFix($fix);
     }
 
     /**
