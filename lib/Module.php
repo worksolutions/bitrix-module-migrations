@@ -144,7 +144,7 @@ class Module {
             $applyLog->setSetupLog($setupLog);
             $applyLog->save();
         }
-        $self->_getDutyCollector()->commit();
+        $self->_getDutyCollector()->commit($self->getDbVersion());
     }
 
     /**
