@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS `ws_migrations_setups_log` (
   `DATE` DATETIME NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `ws_migrations_version_host_associations` (
+CREATE TABLE IF NOT EXISTS `ws_migrations_db_version_references` (
   `ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `VERSION` VARCHAR(64),
+  `REFERENCE` VARCHAR (40),
+  `DB_VERSION` VARCHAR(64),
   `GROUP` VARCHAR (64),
-  `REFERENCE_ID` VARCHAR (32),
-  `ORIGINAL_ID` VARCHAR (32)
+  `ITEM_ID` VARCHAR (32)
 );

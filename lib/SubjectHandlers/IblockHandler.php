@@ -36,6 +36,10 @@ class IblockHandler extends BaseSubjectHandler  {
         return $data['iblock']['ID'];
     }
 
+    public function injectIdInSnapshotData($id, $data) {
+        $data['iblock']['ID'] = $id;
+        return $data;
+    }
 
     public function getSnapshot($id) {
         $iblock = \CIBlock::GetArrayByID($id);

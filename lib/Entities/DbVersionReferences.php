@@ -8,10 +8,10 @@ namespace WS\Migrations\Entities;
 
 use Bitrix\Main\Entity\DataManager;
 
-class VersionHostAssociations extends DataManager {
+class DbVersionReferences extends DataManager {
 
     public static function getTableName() {
-        return 'ws_migrations_version_host_associations';
+        return 'ws_migrations_db_version_references';
     }
 
     public static function className() {
@@ -30,7 +30,11 @@ class VersionHostAssociations extends DataManager {
                 'primary' => true,
                 'autocomplete' => true
             ),
-            'VERSION' => array(
+            'REFERENCE' => array(
+                'data_type' => 'string',
+                'required' => true
+            ),
+            'DB_VERSION' => array(
                 'data_type' => 'string',
                 'required' => true
             ),
@@ -38,14 +42,10 @@ class VersionHostAssociations extends DataManager {
                 'data_type' => 'string',
                 'required' => true
             ),
-            'REFERENCE_ID' => array(
-                'data_type' => 'string',
-                'required' => true
-            ),
-            'ORIGINAL_ID' => array(
+            'ITEM_ID' => array(
                 'data_type' => 'string',
                 'required' => true
             )
         );
     }
-} 
+}

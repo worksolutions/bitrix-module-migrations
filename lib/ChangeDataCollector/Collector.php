@@ -31,7 +31,8 @@ class Collector {
                 ->setOriginalData($arFix['name'])
                 ->setSubject($arFix['subject'])
                 ->setProcess($arFix['process'])
-                ->setName($arFix['name']);
+                ->setName($arFix['name'])
+                ->setDbVersion($arFix['version']);
         }
     }
 
@@ -69,14 +70,17 @@ class Collector {
      * @return array | null
      */
     private function _getSavedData() {
-        global $APPLICATION;
         if (!$this->_file->isExists()) {
             return array();
         }
         return \WS\Migrations\jsonToArray($this->_file->getContents());
     }
 
-    public function commit() {
+    /**
+     * @param $dbVersion
+     * @return bool
+     */
+    public function commit($dbVersion) {
         $fixesData = array();
         foreach ($this->getUsesFixed() as $fix) {
             $fixesData[] = array(
@@ -84,7 +88,8 @@ class Collector {
                 'subject' => $fix->getSubject(),
                 'data' => $fix->getUpdateData(),
                 'originalData' => $fix->getOriginalData(),
-                'name' => $fix->getName()
+                'name' => $fix->getName(),
+                'version' => $dbVersion
             );
         }
         $this->_fixes = array();

@@ -19,6 +19,8 @@ class CollectorFix {
 
     private $_isUses = false;
 
+    private $_dbVersion;
+
     public function __construct($label) {
         $this->_label = $label;
     }
@@ -109,5 +111,21 @@ class CollectorFix {
 
     public function getName() {
         return $this->_name;
+    }
+
+    /**
+     * @param $value
+     * @return $this
+     */
+    public function setDbVersion($value) {
+        $this->_dbVersion = $value;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDbVersion() {
+        return $this->_dbVersion;
     }
 }

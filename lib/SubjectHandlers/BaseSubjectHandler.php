@@ -66,6 +66,18 @@ abstract class BaseSubjectHandler {
     }
 
     /**
+     * Inject identifier in snapshot data
+     * @param $id
+     * @param $data
+     * @return array Data
+     */
+    public function injectIdInSnapshotData($id, $data) {
+        $data['ID'] = $id;
+        return $data;
+    }
+
+
+    /**
      * Analysis changes (diff) by two snapshots
      * @param $updatedData
      * @param null $baseData

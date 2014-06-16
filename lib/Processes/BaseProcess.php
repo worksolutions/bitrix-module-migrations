@@ -9,6 +9,7 @@ use WS\Migrations\ApplyResult;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
+use WS\Migrations\Reference\ReferenceController;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 
 abstract class BaseProcess {
@@ -18,6 +19,12 @@ abstract class BaseProcess {
 
     static public function className() {
         return get_called_class();
+    }
+
+    /**
+     * @return ReferenceController
+     */
+    public function getReferenceController() {
     }
 
     abstract public function getName();
