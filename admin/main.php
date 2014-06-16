@@ -45,9 +45,15 @@ $form->Begin(array(
     'FORM_ACTION' => $APPLICATION->GetCurUri()
 ));
 $form->BeginNextFormTab();
+$form->BeginCustomField('version', 'vv');
+?><tr>
+    <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
+    <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b></td>
+</tr><?
+$form->EndCustomField('version');
 $form->BeginCustomField('list', 'vv');
 ?>
-<tr id="tr_ACTIVE_FROM"  style="color: #1e90ff;">
+<tr style="color: #1e90ff;">
     <td width="30%"><?=$localization->getDataByPath('list')?>:</td>
     <td width="60%">
 <?if($fixes):?>
@@ -62,7 +68,7 @@ $form->BeginCustomField('list', 'vv');
     </td>
 </tr>
 <?
-$form->EndCustomField('data');
+$form->EndCustomField('list');
 //--------------------
 if ($lastSetupLog) {
     $form->AddSection('lastSetup', $localization->message('lastSetup.sectionName', array(
@@ -71,7 +77,7 @@ if ($lastSetupLog) {
     )));
     $form->BeginCustomField('appliedList', 'vv');
     ?>
-    <tr id="tr_ACTIVE_FROM" style="color: #32cd32;">
+    <tr style="color: #32cd32;">
         <td width="30%"><?=$localization->getDataByPath('appliedList')?>:</td>
         <td width="60%">
     <?if($appliedFixes):?>
@@ -90,7 +96,7 @@ if ($lastSetupLog) {
     //--------------------
     $form->BeginCustomField('errorList', 'vv');
     ?>
-    <tr id="tr_ACTIVE_FROM"  style="color: #ff0000;">
+    <tr style="color: #ff0000;">
         <td width="30%"><?=$localization->getDataByPath('errorList')?>:</td>
         <td width="60%">
     <?if($errorFixes):?>
