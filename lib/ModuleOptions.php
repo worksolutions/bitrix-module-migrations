@@ -2,6 +2,7 @@
 namespace WS\Migrations;
 /**
  * @property string $catalogPath
+ * @property string $version;
  * @author <sokolovsky@worksolutions.ru>
  */
 final class ModuleOptions {

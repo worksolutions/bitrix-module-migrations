@@ -443,6 +443,15 @@ class Module {
         $setupLog->delete();
         $this->_enableListen();
     }
+
+    /**
+     * @return string
+     */
+    public function getDbVersion() {
+        $options = self::getOptions();
+        !$options->version && $options->version = md5(time());
+        return $options->version;
+    }
 }
 
 
