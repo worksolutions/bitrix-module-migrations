@@ -15,6 +15,8 @@ use WS\Migrations\Processes\AddProcess;
 use WS\Migrations\Processes\BaseProcess;
 use WS\Migrations\Processes\DeleteProcess;
 use WS\Migrations\Processes\UpdateProcess;
+use WS\Migrations\Reference\ReferenceController;
+use WS\Migrations\Reference\ReferenceItem;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 use WS\Migrations\SubjectHandlers\IblockHandler;
 use WS\Migrations\SubjectHandlers\IblockPropertyHandler;
@@ -33,6 +35,8 @@ class Module {
     const FIX_CHANGES_BEFORE_DELETE_KEY = 'beforeDelete';
     const FIX_CHANGES_AFTER_DELETE_KEY = 'afterDelete';
 
+    const SPECIAL_PROCESS_FIX_REFERENCE = 'reference';
+
     private $localizePath = null,
             $localizations = array();
 
@@ -40,7 +44,15 @@ class Module {
 
     private $_handlers = array();
 
+    /**
+     * @var Collector
+     */
     private $_dutyCollector = null;
+
+    /**
+     * @var ReferenceController
+     */
+    private $_referenceController = null;
 
     private $_processAdd;
     private $_processUpdate;
@@ -120,6 +132,24 @@ class Module {
                 }, $self, $class, $eventKey));
             }
         }
+        $self->_referenceController = new ReferenceController($self->getDbVersion());
+        $fixRefProcess = self::SPECIAL_PROCESS_FIX_REFERENCE;
+        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($self, $fixRefProcess) {
+            if (!$self->_hasListen()) {
+                return;
+            }
+            $fix = $self->_getDutyCollector()->getFix();
+            $fix
+                ->setName('Reference fix')
+                ->setProcess($fixRefProcess)
+                ->setUpdateData(array(
+                    'reference' => $item->reference,
+                    'group' => $item->group,
+                    'dbVersion' => $item->dbVersion,
+                    'id' => $item->id
+            ));
+            $self->_getDutyCollector()->registerFix($fix);
+        });
     }
 
     static public function commitDutyChanges() {
@@ -319,6 +349,13 @@ class Module {
         return $this->_dutyCollector;
     }
 
+    private function _getReferenceController() {
+        if (!$this->_referenceController) {
+            $this->_referenceController = new ReferenceController($this->getDbVersion());
+        }
+        return $this->_referenceController;
+    }
+
     /**
      * Directory location fixed files
      * @return string
@@ -365,6 +402,35 @@ class Module {
         return $result;
     }
 
+
+    private function _applyFix(CollectorFix $fix, SetupLogModel $setupLog) {
+        $applyFixLog = new AppliedChangesLogModel();
+        $applyFixLog->processName = $fix->getProcess();
+        $applyFixLog->subjectName = $fix->getSubject();
+        $applyFixLog->setSetupLog($setupLog);
+        $applyFixLog->groupLabel = $fix->getLabel();
+
+        $process = $this->getProcess($fix->getProcess());
+        $subject = $this->getSubjectHandler($fix->getSubject());
+
+        $result = $process->update($subject, $fix, $applyFixLog);
+        $applyFixLog->success = (bool) $result->isSuccess();
+        !$result->isSuccess() && $applyFixLog->description .= '. '.$result->getMessage();
+        $applyFixLog->save();
+    }
+
+    private function _applyReferenceFix(CollectorFix $fix) {
+        $item = new ReferenceItem();
+        $data = $fix->getUpdateData();
+
+        $item->reference = $data['reference'];
+        $item->id = $data['id'];
+        $item->group = $data['group'];
+        $item->dbVersion = $data['dbVersion'];
+
+        $this->_getReferenceController()->registerItem($item);
+    }
+
     /**
      * Применение фиксации
      * @return int
@@ -378,19 +444,11 @@ class Module {
         $setupLog = $this->_createSetupLog();
 
         foreach ($fixes as $fix) {
-            $applyFixLog = new AppliedChangesLogModel();
-            $applyFixLog->processName = $fix->getProcess();
-            $applyFixLog->subjectName = $fix->getSubject();
-            $applyFixLog->setSetupLog($setupLog);
-            $applyFixLog->groupLabel = $fix->getLabel();
-
-            $process = $this->getProcess($fix->getProcess());
-            $subject = $this->getSubjectHandler($fix->getSubject());
-
-            $result = $process->update($subject, $fix, $applyFixLog);
-            $applyFixLog->success = (bool) $result->isSuccess();
-            !$result->isSuccess() && $applyFixLog->description .= '. '.$result->getMessage();
-            $applyFixLog->save();
+            if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
+                $this->_applyReferenceFix($fix);
+                continue;
+            }
+            $this->_applyFix($fix, $setupLog);
         }
         $this->_enableListen();
         return count($fixes);

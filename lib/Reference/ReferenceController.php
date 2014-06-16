@@ -11,6 +11,8 @@ use WS\Migrations\Entities\DbVersionReferences;
 class ReferenceController {
     private $_currentDbVersion;
 
+    private $_onRegister;
+
     public function __construct($currentDbVersion) {
         $this->_currentDbVersion = $currentDbVersion;
     }
@@ -55,6 +57,10 @@ class ReferenceController {
         $item->dbVersion = $data['DB_VERSION'];
         $item->group = $data['GROUP'];
         $item->id = $data['ITEM_ID'];
+
+        $onRegister = $this->_onRegister;
+        $onRegister && $onRegister($item);
+
         return $item;
     }
 
@@ -74,5 +80,13 @@ class ReferenceController {
 
     public function getItemByOtherVersion($dbVersion, $id, $group) {
         return $this->getItem($this->getItemByOtherVersion($dbVersion, $id, $group));
+    }
+
+    public function onRegister($callback) {
+        if (!is_callable($callback)) {
+            return ;
+        }
+        $this->_onRegister = $callback;
+        return $this;
     }
 }
