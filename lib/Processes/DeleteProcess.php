@@ -17,7 +17,7 @@ class DeleteProcess extends BaseProcess {
     public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log) {
         $data = $fix->getUpdateData();
         $id = $subjectHandler->getIdBySnapshot($data);
-        $originalData = $subjectHandler->getSnapshot($id);
+        $originalData = $subjectHandler->getSnapshot($id, $fix->getDbVersion());
 
         $result = $subjectHandler->delete($id, $fix->getDbVersion());
 

@@ -43,7 +43,13 @@ class IblockHandler extends BaseSubjectHandler  {
         return $data;
     }
 
-    public function getSnapshot($id) {
+    /**
+     * @param $id
+     * @param null $dbVersion
+     * @return array|mixed
+     */
+    public function getSnapshot($id, $dbVersion = null) {
+        $dbVersion && $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK);
         $iblock = \CIBlock::GetArrayByID($id);
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
         return array(

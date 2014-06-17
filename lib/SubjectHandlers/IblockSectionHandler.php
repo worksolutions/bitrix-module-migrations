@@ -34,7 +34,8 @@ class IblockSectionHandler extends BaseSubjectHandler {
         return null;
     }
 
-    public function getSnapshot($id) {
+    public function getSnapshot($id, $dbVersion = null) {
+        $dbVersion && $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_SECTION);
         return \CIBlockSection::GetByID($id)->Fetch();
     }
 

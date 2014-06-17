@@ -64,9 +64,10 @@ abstract class BaseSubjectHandler {
     /**
      * Get snapshot from database
      * @param $id
+     * @param null $dbVersion
      * @return mixed
      */
-    abstract public function getSnapshot($id);
+    abstract public function getSnapshot($id, $dbVersion = null);
 
     /**
      * Apply snapshot to database

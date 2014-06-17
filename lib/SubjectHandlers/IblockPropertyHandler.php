@@ -33,7 +33,8 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         return null;
     }
 
-    public function getSnapshot($id) {
+    public function getSnapshot($id, $dbVersion = null) {
+        $dbVersion && $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_PROPERTY);
         return \CIBlockProperty::GetByID($id)->Fetch();
     }
 
