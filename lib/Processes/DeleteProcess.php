@@ -19,12 +19,7 @@ class DeleteProcess extends BaseProcess {
         $id = $subjectHandler->getIdBySnapshot($data);
         $originalData = $subjectHandler->getSnapshot($id);
 
-        $refItem = $this->getReferenceController()
-            ->getItemByOtherVersion($fix->getDbVersion(), $id, get_class($subjectHandler));
-
-        $id = $refItem->id;
-
-        $result = $subjectHandler->delete($id);
+        $result = $subjectHandler->delete($id, $fix->getDbVersion());
 
         $log->description = $fix->getName();
         $log->originalData = $originalData;

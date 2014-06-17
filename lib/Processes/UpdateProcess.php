@@ -19,16 +19,11 @@ class UpdateProcess extends BaseProcess {
         $data = $fix->getUpdateData();
         $id = $subjectHandler->getIdBySnapshot($data);
 
-        $refItem = $this->getReferenceController()
-            ->getItemByOtherVersion($fix->getDbVersion(), $id, get_class($subjectHandler));
-
-        $id = $refItem->id;
-
         $originalData = $subjectHandler->getSnapshot($id);
 
         $data = $subjectHandler->injectIdInSnapshotData($id, $data);
 
-        $result = $subjectHandler->applyChanges($data);
+        $result = $subjectHandler->applyChanges($data, $fix->getDbVersion());
 
         $log->description = $fix->getName();
         $log->originalData = $originalData;

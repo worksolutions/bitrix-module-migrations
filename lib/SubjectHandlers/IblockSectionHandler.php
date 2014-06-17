@@ -8,6 +8,8 @@ namespace WS\Migrations\SubjectHandlers;
 
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
+use WS\Migrations\Reference\ReferenceController;
+use WS\Migrations\Reference\ReferenceItem;
 
 class IblockSectionHandler extends BaseSubjectHandler {
 
@@ -38,34 +40,35 @@ class IblockSectionHandler extends BaseSubjectHandler {
 
     /**
      * @param $data
+     * @param null $dbVersion
      * @return ApplyResult
      */
-    public function applySnapshot($data) {
+    public function applySnapshot($data, $dbVersion = null) {
         $data = $this->handleNullValues($data);
         $sec = new \CIBlockSection();
         $res = new ApplyResult();
-        $res->setSuccess(true);
-        if (!\CIBlockSection::GetByID($data['ID'])->Fetch()) {
-            /** @var $DB \CDatabase */
-            global $DB;
-            $res
-                ->setSuccess((bool)$DB->Add('b_iblock_section', array(
-                        'ID' => $data['ID'],
-                        'IBLOCK_ID' => $data['IBLOCK_ID'],
-                        'GLOBAL_ACTIVE' => $data['GLOBAL_ACTIVE'],
-                        'LEFT_MARGIN' => $data['LEFT_MARGIN'],
-                        'RIGHT_MARGIN' => $data['RIGHT_MARGIN'],
-                        'DATE_CREATE' => $data['DATE_CREATE'],
-                        'CREATED_BY' => $data['CREATED_BY']
-                    )
-                ))
-                ->setMessage($DB->GetErrorMessage());
+
+        $id = $data['ID'];
+        if ($dbVersion) {
+            $data['IBLOCK_ID'] = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK);
+            $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_SECTION);
+            if (!$id) {
+                $referenceValue = $this->getReferenceController()->getReferenceValueByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_SECTION);
+            }
         }
-        if (!$res->isSuccess()) {
-            return $res;
+        if ($id) {
+            $res->setSuccess((bool)$sec->Update($id, $data));
+        } else {
+            $res->setSuccess((bool) ($id = $sec->Add($id, $data)));
+            $referenceItem = new ReferenceItem();
+            $referenceItem->id = $id;
+            $referenceItem->group = ReferenceController::GROUP_IBLOCK_SECTION;
+            $referenceItem->reference = $referenceValue;
+            $this->getReferenceController()->registerItem($referenceItem);
         }
+        $res->setId($id);
+
         $res
-            ->setSuccess((bool)$sec->Update($data['ID'], $data))
             ->setMessage($sec->LAST_ERROR);
         return $res;
     }
@@ -73,9 +76,11 @@ class IblockSectionHandler extends BaseSubjectHandler {
     /**
      * Delete subject record
      * @param $id
+     * @param null $dbVersion
      * @return ApplyResult
      */
-    public function delete($id) {
+    public function delete($id, $dbVersion = null) {
+        $dbVersion && $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_SECTION);
         $sec = new \CIBlockSection();
         $res = new ApplyResult();
         return $res

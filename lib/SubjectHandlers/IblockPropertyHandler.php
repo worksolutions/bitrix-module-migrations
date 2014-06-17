@@ -7,6 +7,8 @@ namespace WS\Migrations\SubjectHandlers;
 
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
+use WS\Migrations\Reference\ReferenceController;
+use WS\Migrations\Reference\ReferenceItem;
 
 class IblockPropertyHandler extends BaseSubjectHandler {
 
@@ -37,47 +39,44 @@ class IblockPropertyHandler extends BaseSubjectHandler {
 
     /**
      * @param $data
+     * @param null $dbVersion
      * @return ApplyResult
      */
-    public function applySnapshot($data) {
+    public function applySnapshot($data, $dbVersion = null) {
         $data = $this->handleNullValues($data);
-        global $DB;
         $prop = new \CIBlockProperty();
         $res = new ApplyResult();
-        $res->setSuccess(true);
-        if (!$arIblock = \CIBlock::GetArrayByID($data['IBLOCK_ID'])) {
-            return $res
-                ->setSuccess(false)
-                ->setMessage($this->getLocalization()->message('iblockProperty.errors.iblockNotExists', array(':id:' => $data['IBLOCK_ID'])));
-        }
-        $isTwoVersion = $arIblock['VERSION'] == 2;
-        $data['VERSION'] = $arIblock['VERSION'];
-
-        if (!$DB->Query("select ID from b_iblock_property where ID=".((int) $data['ID']))->Fetch()) {
-            /** @var $DB \CDatabase */
-            $propAddResult = $DB->Add("b_iblock_property", $data);
-            $res->setSuccess((bool)$propAddResult)->setMessage($DB->GetErrorMessage());
-            if ($propAddResult && $isTwoVersion) {
-                $twoVersionAddResult = $prop->_Add($data['ID'], $data);
-                $res
-                    ->setSuccess($twoVersionAddResult)
-                    ->setMessage($DB->GetErrorMessage());
-                !$twoVersionAddResult && $prop->Delete($data['ID']);
+        $id = $data['ID'];
+        if ($dbVersion) {
+            $data['IBLOCK_ID'] = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK);
+            $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_PROPERTY);
+            if (!$id) {
+                $referenceValue = $this->getReferenceController()->getReferenceValueByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_PROPERTY);
             }
         }
-        if (!$res->isSuccess()) {
-            return $res;
+        if ($id) {
+            $res->setSuccess((bool) $prop->Update($id, $data));
+        } else {
+            $res->setSuccess((bool) ($id = $prop->Add($id, $data)));
+            $referenceItem = new ReferenceItem();
+            $referenceItem->id = $id;
+            $referenceItem->group = ReferenceController::GROUP_IBLOCK_PROPERTY;
+            $referenceItem->reference = $referenceValue;
+            $this->getReferenceController()->registerItem($referenceItem);
         }
-        $res->setSuccess((bool) $prop->Update($data['ID'], $data));
+        $res->setId($id);
+
         return $res->setMessage($prop->LAST_ERROR);
     }
 
     /**
      * Delete subject record
      * @param $id
+     * @param null $dbVersion
      * @return ApplyResult
      */
-    public function delete($id) {
+    public function delete($id, $dbVersion = null) {
+        $dbVersion && $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK_PROPERTY);
         $prop = new \CIBlockProperty();
         $res = new ApplyResult();
         return $res

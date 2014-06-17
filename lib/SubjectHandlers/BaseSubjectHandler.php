@@ -56,9 +56,10 @@ abstract class BaseSubjectHandler {
     /**
      * Delete subject record
      * @param $id
+     * @param $dbVersion
      * @return ApplyResult
      */
-    abstract public function delete($id);
+    abstract public function delete($id, $dbVersion = null);
 
     /**
      * Get snapshot from database
@@ -70,9 +71,10 @@ abstract class BaseSubjectHandler {
     /**
      * Apply snapshot to database
      * @param $data
+     * @param $dbVersion
      * @return ApplyResult
      */
-    abstract public function applySnapshot($data);
+    abstract public function applySnapshot($data, $dbVersion = null);
 
     /**
      * Get identifier record by snapshot from database
@@ -108,14 +110,15 @@ abstract class BaseSubjectHandler {
     /**
      * Apply changes, run after analysis
      * @param $data
+     * @param $dbVersion
      * @return ApplyResult
      */
-    public function applyChanges($data) {
-        return $this->applySnapshot($data);
+    public function applyChanges($data, $dbVersion) {
+        return $this->applySnapshot($data, $dbVersion);
     }
 
     protected function handleNullValues($data) {
-        foreach ($data as $key => & $value) {
+        foreach ($data as & $value) {
             if (is_null($value)) {
                 $value = false;
             }

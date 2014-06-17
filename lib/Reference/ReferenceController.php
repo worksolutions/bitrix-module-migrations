@@ -9,6 +9,10 @@ namespace WS\Migrations\Reference;
 use WS\Migrations\Entities\DbVersionReferencesTable;
 
 class ReferenceController {
+    const GROUP_IBLOCK = 'iblock';
+    const GROUP_IBLOCK_PROPERTY = 'iblockProperty';
+    const GROUP_IBLOCK_SECTION = 'iblockSection';
+
     private $_currentDbVersion;
 
     private $_onRegister;
@@ -78,8 +82,25 @@ class ReferenceController {
         return $data['REFERENCE'];
     }
 
+    /**
+     * @param $dbVersion
+     * @param $id
+     * @param $group
+     * @return null|ReferenceItem
+     */
     public function getItemByOtherVersion($dbVersion, $id, $group) {
         return $this->getItem($this->getItemByOtherVersion($dbVersion, $id, $group));
+    }
+
+    /**
+     * @param $dbVersion
+     * @param $id
+     * @param $group
+     * @return mixed
+     */
+    public function getItemIdByOtherVersion($dbVersion, $id, $group) {
+        $item = $this->getItemByOtherVersion($dbVersion, $id, $group);
+        return $item->id;
     }
 
     public function onRegister($callback) {
