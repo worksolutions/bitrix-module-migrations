@@ -21,7 +21,10 @@ class AddProcess extends BaseProcess {
 
         $log->description = $fix->getName();
         $log->originalData = array();
-        $log->updateData = $data;
+        $log->updateData = array(
+            'fields' => $data,
+            'version' => $fix->getDbVersion()
+        );
         return $result;
     }
 

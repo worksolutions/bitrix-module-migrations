@@ -18,16 +18,15 @@ class UpdateProcess extends BaseProcess {
     public function update(BaseSubjectHandler $subjectHandler, CollectorFix $fix, AppliedChangesLogModel $log) {
         $data = $fix->getUpdateData();
         $id = $subjectHandler->getIdBySnapshot($data);
-
-        $originalData = $subjectHandler->getSnapshot($id);
-
-        $data = $subjectHandler->injectIdInSnapshotData($id, $data);
-
+        $originalData = $subjectHandler->getSnapshot($id, $fix->getDbVersion());
         $result = $subjectHandler->applyChanges($data, $fix->getDbVersion());
 
         $log->description = $fix->getName();
         $log->originalData = $originalData;
-        $log->updateData = $data;
+        $log->updateData = array(
+            'fields' => $data,
+            'version' => $fix->getDbVersion()
+        );
 
         return $result;
     }
