@@ -35,6 +35,9 @@ class ReferenceController {
             'GROUP' => $item->group,
             'ITEM_ID' => $item->id
         ));
+
+        $onRegister = $this->_onRegister;
+        $onRegister && $onRegister($item);
         return $this;
     }
 
@@ -61,9 +64,6 @@ class ReferenceController {
         $item->dbVersion = $data['DB_VERSION'];
         $item->group = $data['GROUP'];
         $item->id = $data['ITEM_ID'];
-
-        $onRegister = $this->_onRegister;
-        $onRegister && $onRegister($item);
 
         return $item;
     }
