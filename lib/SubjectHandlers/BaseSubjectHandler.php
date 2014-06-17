@@ -9,10 +9,28 @@ namespace WS\Migrations\SubjectHandlers;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Localization;
 use WS\Migrations\Module;
+use WS\Migrations\Reference\ReferenceController;
 
 abstract class BaseSubjectHandler {
+    /**
+     * @var ReferenceController
+     */
+    private $_referenceController;
+
+
     static public function className() {
         return get_called_class();
+    }
+
+    public function __construct(ReferenceController $referenceController) {
+        $this->_referenceController = $referenceController;
+    }
+
+    /**
+     * @return ReferenceController
+     */
+    public function getReferenceController() {
+        return $this->_referenceController;
     }
 
     /**
