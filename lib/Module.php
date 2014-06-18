@@ -238,7 +238,7 @@ class Module {
             }
         }
         if (!$this->_handlers[$class]) {
-            $this->_handlers[$class] = new $class;
+            $this->_handlers[$class] = new $class($this->_getReferenceController());
         }
         return $this->_handlers[$class];
     }
@@ -248,7 +248,7 @@ class Module {
      */
     private function _getProcessAdd() {
         if (!$this->_processAdd) {
-            $this->_processAdd = new AddProcess($this->_getReferenceController());
+            $this->_processAdd = new AddProcess();
         }
         return $this->_processAdd;
     }
@@ -258,7 +258,7 @@ class Module {
      */
     private function _getProcessUpdate() {
         if (!$this->_processUpdate) {
-            $this->_processUpdate = new UpdateProcess($this->_getReferenceController());
+            $this->_processUpdate = new UpdateProcess();
         }
         return $this->_processUpdate;
     }
@@ -268,7 +268,7 @@ class Module {
      */
     private function _getProcessDelete() {
         if (!$this->_processDelete) {
-            $this->_processDelete = new DeleteProcess($this->_getReferenceController());
+            $this->_processDelete = new DeleteProcess();
         }
         return $this->_processDelete;
     }
