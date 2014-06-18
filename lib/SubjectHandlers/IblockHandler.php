@@ -9,7 +9,6 @@ namespace WS\Migrations\SubjectHandlers;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
-use WS\Migrations\Reference\ReferenceItem;
 
 class IblockHandler extends BaseSubjectHandler  {
 
@@ -49,7 +48,9 @@ class IblockHandler extends BaseSubjectHandler  {
      * @return array|mixed
      */
     public function getSnapshot($id, $dbVersion = null) {
-        $dbVersion && $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK);
+        $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
+        !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
+
         $iblock = \CIBlock::GetArrayByID($id);
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
         return array(
@@ -77,9 +78,9 @@ class IblockHandler extends BaseSubjectHandler  {
         }
         $id = $iblockData['ID'];
         if ($dbVersion) {
-            $id = $this->getReferenceController()->getItemByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK);
+            $id = $this->getCurrentVersionId($id, $dbVersion);
             if (!$id) {
-                $referenceValue = $this->getReferenceController()->getReferenceValueByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK);
+                $referenceValue = $this->getReferenceValue($id, $dbVersion);
             }
         }
         $iblock = new \CIBlock();
@@ -87,11 +88,7 @@ class IblockHandler extends BaseSubjectHandler  {
             $res->setSuccess((bool)$iblock->Update($id, $iblockData));
         } else {
             $res->setSuccess((bool)($id = $iblock->Add($iblockData)));
-            $referenceItem = new ReferenceItem();
-            $referenceItem->id = $id;
-            $referenceItem->group = ReferenceController::GROUP_IBLOCK;
-            $referenceItem->reference = $referenceValue;
-            $this->getReferenceController()->registerItem($referenceItem);
+            $this->registerCurrentVersionId($id, $referenceValue);
         }
         $res->setId($id);
         return $res->setMessage($iblock->LAST_ERROR);
@@ -104,10 +101,16 @@ class IblockHandler extends BaseSubjectHandler  {
      * @return ApplyResult
      */
     public function delete($id, $dbVersion = null) {
-        $dbVersion && $id = $this->getReferenceController()->getItemIdByOtherVersion($dbVersion, $id, ReferenceController::GROUP_IBLOCK);
+        $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
+        !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
+
         $iblock = new \CIBlock();
         $res = new ApplyResult();
         return $res->setSuccess((bool)$iblock->Delete($id))
             ->setMessage($iblock->LAST_ERROR);
+    }
+
+    protected function getSubjectGroup() {
+        return ReferenceController::GROUP_IBLOCK;
     }
 }

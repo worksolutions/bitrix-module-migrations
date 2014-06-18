@@ -10,6 +10,7 @@ use WS\Migrations\ApplyResult;
 use WS\Migrations\Localization;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
+use WS\Migrations\Reference\ReferenceItem;
 
 abstract class BaseSubjectHandler {
     /**
@@ -22,7 +23,7 @@ abstract class BaseSubjectHandler {
         return get_called_class();
     }
 
-    public function __construct(ReferenceController $referenceController) {
+    final public function __construct(ReferenceController $referenceController) {
         $this->_referenceController = $referenceController;
     }
 
@@ -31,6 +32,35 @@ abstract class BaseSubjectHandler {
      */
     public function getReferenceController() {
         return $this->_referenceController;
+    }
+
+    /**
+     * Регистрация идентификатора для текущей версии
+     * @param $id
+     * @param null $referenceValue
+     */
+    protected function registerCurrentVersionId($id, $referenceValue = null) {
+        $item = new ReferenceItem();
+        $item->group = $this->getSubjectGroup();
+        $item->id = $id;
+        $referenceValue && $item->reference = $referenceValue;
+        $this->getReferenceController()->registerItem($item);
+    }
+
+    protected function hasCurrentReference($id) {
+        return (bool)$this->getReferenceController()->getItemId($id, $this->getSubjectGroup());
+    }
+
+    protected function getIdByVersion($id, $dbVersion = null) {
+        return $this->getReferenceController()->getItemId($id, $this->getSubjectGroup(), $dbVersion);
+    }
+
+    protected function getReferenceValue($id, $dbVersion = null) {
+        return $this->getReferenceController()->getReferenceValue($id, $this->getSubjectGroup(), $dbVersion);
+    }
+
+    protected function getCurrentVersionId($id, $dbVersion) {
+        return $this->getReferenceController()->getCurrentIdByOtherVersion($id, $this->getSubjectGroup(), $dbVersion);
     }
 
     /**
@@ -126,5 +156,7 @@ abstract class BaseSubjectHandler {
         }
         return $data;
     }
+
+    abstract protected  function getSubjectGroup();
 
 }

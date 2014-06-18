@@ -35,40 +35,56 @@ class ReferenceController {
             'GROUP' => $item->group,
             'ITEM_ID' => $item->id
         ));
-
         $onRegister = $this->_onRegister;
         $onRegister && $onRegister($item);
         return $this;
     }
 
+    private function _createItemByDBData(array $data) {
+        $item = new ReferenceItem();
+        $item->reference = $data['REFERENCE'];
+        $item->dbVersion = $data['DB_VERSION'];
+        $item->group = $data['GROUP'];
+        $item->id = $data['ITEM_ID'];
+        return $item;
+    }
+
     /**
-     * @param $referenceValue
+     * @param $value
      * @return null|ReferenceItem
      */
-    public function getItem($referenceValue) {
-        if (!$referenceValue) {
+    public function getItemCurrentVersionByReference($value) {
+        if (!$value) {
             return null;
         }
 
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
-                '=REFERENCE' => $referenceValue,
+                '=REFERENCE' => $value,
                 '=DB_VERSION' => $this->_currentDbVersion
             )
         ));
         if (!$data = $res->fetch()) {
             return null;
         }
-        $item = new ReferenceItem();
-        $item->reference = $data['REFERENCE'];
-        $item->dbVersion = $data['DB_VERSION'];
-        $item->group = $data['GROUP'];
-        $item->id = $data['ITEM_ID'];
-
-        return $item;
+        return $this->_createItemByDBData($data);
     }
 
-    public function getReferenceValueByOtherVersion($dbVersion, $id, $group) {
+    public function getReferenceValue($id, $group, $dbVersion = null) {
+        $item = $this->getItemById($id, $group, $dbVersion);
+        if (!$item) {
+            return null;
+        }
+        return $item->reference;
+    }
+
+    /**
+     * @param $id
+     * @param $group
+     * @param $dbVersion
+     * @return null|ReferenceItem
+     */
+    public function getItemById($id, $group, $dbVersion = null) {
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
                 '=ITEM_ID' => $id,
@@ -79,27 +95,17 @@ class ReferenceController {
         if (!$data = $res->fetch()) {
             return null;
         }
-        return $data['REFERENCE'];
+        return $this->_createItemByDBData($data);
     }
 
     /**
-     * @param $dbVersion
      * @param $id
      * @param $group
-     * @return null|ReferenceItem
-     */
-    public function getItemByOtherVersion($dbVersion, $id, $group) {
-        return $this->getItem($this->getItemByOtherVersion($dbVersion, $id, $group));
-    }
-
-    /**
      * @param $dbVersion
-     * @param $id
-     * @param $group
      * @return mixed
      */
-    public function getItemIdByOtherVersion($dbVersion, $id, $group) {
-        $item = $this->getItemByOtherVersion($dbVersion, $id, $group);
+    public function getItemId($id, $group, $dbVersion = null) {
+        $item = $this->getItemById($id, $group, $dbVersion);
         return $item->id;
     }
 
@@ -109,5 +115,14 @@ class ReferenceController {
         }
         $this->_onRegister = $callback;
         return $this;
+    }
+
+    public function getCurrentIdByOtherVersion($id, $group, $dbVersion) {
+        $reference = $this->getReferenceValue($id, $group, $dbVersion);
+        if (!$reference) {
+            return null;
+        }
+        $item = $this->getItemCurrentVersionByReference($reference);
+        return $item->id;
     }
 }
