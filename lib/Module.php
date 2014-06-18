@@ -79,7 +79,7 @@ class Module {
     /**
      * @return bool
      */
-    private function _hasListen() {
+    public function hasListen() {
         return (bool)$this->_listenMode;
     }
 
@@ -134,11 +134,12 @@ class Module {
         }
         $self->_referenceController = new ReferenceController($self->getDbVersion());
         $fixRefProcess = self::SPECIAL_PROCESS_FIX_REFERENCE;
-        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($self, $fixRefProcess) {
-            if (!$self->_hasListen()) {
+        $collector = $self->_getDutyCollector();
+        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($self, $fixRefProcess, $collector) {
+            if (!$self->hasListen()) {
                 return;
             }
-            $fix = $self->_getDutyCollector()->getFix();
+            $fix = $collector->getFix();
             $fix
                 ->setName('Reference fix')
                 ->setProcess($fixRefProcess)
@@ -148,7 +149,7 @@ class Module {
                     'dbVersion' => $item->dbVersion,
                     'id' => $item->id
             ));
-            $self->_getDutyCollector()->registerFix($fix);
+            $collector->registerFix($fix);
         });
     }
 
@@ -292,7 +293,7 @@ class Module {
     }
 
     public function handle($handlerClass, $eventKey, $params) {
-        if (!$this->_hasListen()) {
+        if (!$this->hasListen()) {
             return ;
         }
         $handlers = $this->handlers();
