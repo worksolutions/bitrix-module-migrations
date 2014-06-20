@@ -48,6 +48,7 @@ class UpdateProcess extends BaseProcess {
         $fix
             ->setOriginalData($originalData)
             ->setUpdateData($data);
+        return true;
     }
 
     public function getName() {

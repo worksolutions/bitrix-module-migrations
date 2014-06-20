@@ -45,6 +45,7 @@ class DeleteProcess extends BaseProcess {
         $fix
             ->setOriginalData($this->_beforeChangesSnapshots[$id])
             ->setUpdateData($id);
+        return true;
     }
 
     public function getName() {

@@ -37,6 +37,9 @@ class AddProcess extends BaseProcess {
         $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_ADD_KEY, $data);
 
         $snapshot = $subjectHandler->getSnapshot($id);
+        if (!$snapshot) {
+            return false;
+        }
         $fix
             ->setOriginalData(array())
             ->setUpdateData($snapshot);

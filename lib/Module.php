@@ -306,13 +306,14 @@ class Module {
         $fix  = $collector->getFix();
         $fix->setSubject(get_class($handler));
 
+        $result = false;
         switch ($eventKey) {
             case self::FIX_CHANGES_ADD_KEY:
                 $process = $this->_getProcessAdd();
                 $fix
                     ->setProcess(get_class($process))
                     ->setName($handler->getName().'. '.$process->getName());
-                $process->change($handler, $fix, $params);
+                $result = $process->change($handler, $fix, $params);
                 break;
             case self::FIX_CHANGES_BEFORE_CHANGE_KEY:
                 $process = $this->_getProcessUpdate();
@@ -323,7 +324,7 @@ class Module {
                 $fix
                     ->setProcess(get_class($process))
                     ->setName($handler->getName().'. '.$process->getName());
-                $process->afterChange($handler, $fix, $params);
+                $result = $process->afterChange($handler, $fix, $params);
                 break;
             case self::FIX_CHANGES_BEFORE_DELETE_KEY:
                 $process = $this->_getProcessDelete();
@@ -334,10 +335,10 @@ class Module {
                 $fix
                     ->setProcess(get_class($process))
                     ->setName($handler->getName().'. '.$process->getName());
-                $process->afterChange($handler, $fix, $params);
+                $result = $process->afterChange($handler, $fix, $params);
                 break;
         }
-        $fix->getProcess() && $collector->registerFix($fix);
+        $result && $collector->registerFix($fix);
     }
 
     /**
