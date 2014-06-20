@@ -43,6 +43,7 @@ class AddProcess extends BaseProcess {
         $fix
             ->setOriginalData(array())
             ->setUpdateData($snapshot);
+        return true;
     }
 
     public function getName() {
