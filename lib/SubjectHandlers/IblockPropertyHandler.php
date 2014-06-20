@@ -33,6 +33,9 @@ class IblockPropertyHandler extends BaseSubjectHandler {
     }
 
     public function getSnapshot($id, $dbVersion = null) {
+        if (!$id) {
+            return false;
+        }
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
         return \CIBlockProperty::GetByID($id)->Fetch();
