@@ -52,6 +52,9 @@ class IblockHandler extends BaseSubjectHandler  {
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
 
         $iblock = \CIBlock::GetArrayByID($id);
+        if (!$iblock) {
+            return false;
+        }
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
         return array(
             'iblock' => $iblock,
