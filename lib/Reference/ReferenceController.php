@@ -125,4 +125,21 @@ class ReferenceController {
         $item = $this->getItemCurrentVersionByReference($reference);
         return $item->id;
     }
+
+    public function registerCloneVersion($cloneVersion) {
+        if (!$cloneVersion) {
+            return false;
+        }
+        $res = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                'DB_VERSION' => $this->_currentDbVersion
+            )
+        ));
+        while ($itemData = $res->fetch()) {
+            $item = $this->_createItemByDBData($itemData);
+            $item->dbVersion = $cloneVersion;
+            $this->registerItem($item);
+        }
+        return true;
+    }
 }

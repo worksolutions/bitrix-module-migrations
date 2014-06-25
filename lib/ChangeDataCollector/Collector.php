@@ -85,9 +85,19 @@ class Collector {
      * @return bool
      */
     public function commit($dbVersion) {
-        $fixesData = array();
+        $fixesData = $this->getFixesData($dbVersion);
+        $fixesData && $this->_saveData($fixesData);
+        if (!$fixesData) {
+            return false;
+        }
+        $this->_fixes = array();
+        return true;
+    }
+
+    public function getFixesData($dbVersion) {
+        $data = array();
         foreach ($this->getUsesFixed() as $fix) {
-            $fixesData[] = array(
+            $data[] = array(
                 'process' => $fix->getProcess(),
                 'subject' => $fix->getSubject(),
                 'data' => $fix->getUpdateData(),
@@ -96,12 +106,10 @@ class Collector {
                 'version' => $dbVersion
             );
         }
-        $this->_fixes = array();
-        if (!$fixesData) {
+        if (!$data) {
             return false;
         }
-        $this->_saveData($fixesData);
-        return true;
+        return $data;
     }
 
     /**

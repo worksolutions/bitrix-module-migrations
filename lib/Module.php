@@ -6,6 +6,7 @@ use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\UserTable;
+use Bitrix\Main\Web\Json;
 use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
@@ -344,9 +345,16 @@ class Module {
     /**
      * @return Collector
      */
+    private function _createCollector() {
+        return Collector::createInstance($this->_getFixFilesDir(), $this);
+    }
+
+    /**
+     * @return Collector
+     */
     private function _getDutyCollector() {
         if (!$this->_dutyCollector) {
-            $this->_dutyCollector = Collector::createInstance($this->_getFixFilesDir(), $this);
+            $this->_dutyCollector = $this->_createCollector();
         }
         return $this->_dutyCollector;
     }
@@ -514,18 +522,40 @@ class Module {
         return $options->version;
     }
 
+    /**
+     * Export data json format
+     * @return string
+     */
     public function getExportText() {
-        // Версии
-        // Инфоблоки
-        // Свойства
-        // Разделы
-        return '';
+        $handlerClasses = array_keys($this->handlers());
+        $collector = $this->_createCollector();
+        foreach ($handlerClasses as $class) {
+            $handler = $this->getSubjectHandler($class);
+            $ids = $handler->existsIds();
+            foreach ($ids as $id) {
+                $snapshot = $handler->getSnapshot($id);
+                $fix = $collector->getFix();
+                $fix->setSubject(get_class($handler))
+                    ->setDbVersion($this->getDbVersion())
+                    ->setUpdateData($snapshot);
+                $collector->registerFix($fix);
+            }
+        }
+        return arrayToJson($collector->getFixesData($this->getDbVersion()));
     }
 
     /**
      * Refresh current DB version, copy references links
      */
     public function runRefreshVersion() {
+        $cloneVersion = md5(time());
+        $registerResult = $this->_getReferenceController()->registerCloneVersion($cloneVersion);
+        if (!$registerResult) {
+            return false;
+        }
+        self::getOptions()->version = $cloneVersion;
+        $this->_referenceController = null;
+        return true;
     }
 
     public function import($version, $text) {
