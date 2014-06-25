@@ -513,6 +513,14 @@ class Module {
         !$options->version && $options->version = md5(time());
         return $options->version;
     }
+
+    public function getExportText() {
+        // Версии
+        // Инфоблоки
+        // Свойства
+        // Разделы
+        return '';
+    }
 }
 
 

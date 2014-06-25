@@ -10,5 +10,9 @@ return array(
         'lastSetup' => array(
             'sectionName' => 'Последнее обновление :time: - :user:'
         )
+    ),
+    'export' => array(
+        'title' => 'Экспорт миграций',
+        'version' => 'Текущая версия базы данных'
     )
 );
