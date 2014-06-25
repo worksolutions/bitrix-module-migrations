@@ -142,4 +142,16 @@ class ReferenceController {
         }
         return true;
     }
+
+    /**
+     * @return ReferenceItem[]
+     */
+    public function getItems() {
+        $dbRes = DbVersionReferencesTable::getList();
+        $res = array();
+        while ($itemData = $dbRes->fetch()) {
+            $res[] = $this->_createItemByDBData($itemData);
+        }
+        return $res;
+    }
 }

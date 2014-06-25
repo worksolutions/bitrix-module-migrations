@@ -529,7 +529,22 @@ class Module {
     public function getExportText() {
         $handlerClasses = array_keys($this->handlers());
         $collector = $this->_createCollector();
-        // применение версий!
+        // version export
+        foreach ($this->_getReferenceController()->getItems() as $item) {
+            $fix = $collector->getFix();
+            $fix
+                ->setName('Reference fix')
+                ->setProcess(self::SPECIAL_PROCESS_FIX_REFERENCE)
+                ->setUpdateData(array(
+                    'reference' => $item->reference,
+                    'group' => $item->group,
+                    'dbVersion' => $item->dbVersion,
+                    'id' => $item->id
+                ));
+            $collector->registerFix($fix);
+        }
+
+        // entities scheme export
         foreach ($handlerClasses as $class) {
             $handler = $this->getSubjectHandler($class);
             $ids = $handler->existsIds();
