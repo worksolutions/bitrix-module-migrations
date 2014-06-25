@@ -37,6 +37,7 @@ class Module {
     const FIX_CHANGES_AFTER_DELETE_KEY = 'afterDelete';
 
     const SPECIAL_PROCESS_FIX_REFERENCE = 'reference';
+    const SPECIAL_PROCESS_FULL_MIGRATE = 'fullMigrate';
 
     private $localizePath = null,
             $localizations = array();
@@ -552,6 +553,7 @@ class Module {
                 $snapshot = $handler->getSnapshot($id);
                 $fix = $collector->getFix();
                 $fix->setSubject(get_class($handler))
+                    ->setProcess(self::SPECIAL_PROCESS_FULL_MIGRATE)
                     ->setDbVersion($this->getDbVersion())
                     ->setUpdateData($snapshot);
                 $collector->registerFix($fix);
