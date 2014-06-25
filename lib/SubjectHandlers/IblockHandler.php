@@ -6,6 +6,7 @@
 namespace WS\Migrations\SubjectHandlers;
 
 
+use Bitrix\Iblock\IblockTable;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
@@ -118,5 +119,16 @@ class IblockHandler extends BaseSubjectHandler  {
 
     protected function getSubjectGroup() {
         return ReferenceController::GROUP_IBLOCK;
+    }
+
+    public function existsIds() {
+        $dbRes = IblockTable::getList(array(
+            'select' => array('ID')
+        ));
+        $res = array();
+        while ($item = $dbRes->fetch()) {
+            $res[] = $item['ID'];
+        }
+        return $res;
     }
 }

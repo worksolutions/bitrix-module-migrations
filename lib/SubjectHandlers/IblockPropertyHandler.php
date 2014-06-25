@@ -5,6 +5,7 @@
 
 namespace WS\Migrations\SubjectHandlers;
 
+use Bitrix\Iblock\PropertyTable;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
@@ -87,5 +88,20 @@ class IblockPropertyHandler extends BaseSubjectHandler {
 
     protected function getSubjectGroup() {
         return ReferenceController::GROUP_IBLOCK_PROPERTY;
+    }
+
+    /**
+     * Return entities identifiers
+     * @return mixed
+     */
+    public function existsIds() {
+        $dbRes = PropertyTable::getList(array(
+            'select' => array('ID')
+        ));
+        $res = array();
+        while ($item = $dbRes->fetch()) {
+            $res[] = $item['ID'];
+        }
+        return $res;
     }
 }

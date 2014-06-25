@@ -529,6 +529,7 @@ class Module {
     public function getExportText() {
         $handlerClasses = array_keys($this->handlers());
         $collector = $this->_createCollector();
+        // применение версий!
         foreach ($handlerClasses as $class) {
             $handler = $this->getSubjectHandler($class);
             $ids = $handler->existsIds();

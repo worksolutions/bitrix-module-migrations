@@ -28,6 +28,12 @@ abstract class BaseSubjectHandler {
     }
 
     /**
+     * Return entities identifiers
+     * @return mixed
+     */
+    abstract public function existsIds();
+
+    /**
      * @return ReferenceController
      */
     public function getReferenceController() {
