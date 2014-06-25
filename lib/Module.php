@@ -521,8 +521,16 @@ class Module {
         // Разделы
         return '';
     }
-}
 
+    /**
+     * Refresh current DB version, copy references links
+     */
+    public function runRefreshVersion() {
+    }
+
+    public function import($version, $text) {
+    }
+}
 
 function jsonToArray($json) {
     global $APPLICATION;
