@@ -22,6 +22,7 @@ use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 use WS\Migrations\SubjectHandlers\IblockHandler;
 use WS\Migrations\SubjectHandlers\IblockPropertyHandler;
 use WS\Migrations\SubjectHandlers\IblockSectionHandler;
+use WS\Migrations\Tests\Starter;
 
 /**
  * Class Module (Singleton)
@@ -118,6 +119,8 @@ class Module {
     static public function listen(){
         EventManager::getInstance()
             ->addEventHandler('main', 'OnBeforeLocalRedirect', array(get_called_class(), 'commitDutyChanges'));
+        EventManager::getInstance()
+            ->addEventHandler('main', 'OnCheckListGet', array(Starter::className(), 'items'));
         $self = self::getInstance();
         $bxEventManager = EventManager::getInstance();
         foreach ($self->handlers() as $class => $events) {
