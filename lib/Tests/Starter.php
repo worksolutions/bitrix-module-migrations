@@ -87,7 +87,7 @@ class Starter {
                 ->toArray();
         }
         return $result->setSuccess(true)
-            ->setMessage(var_export($testMethods, true))
+            ->setMessage('Tests `OK')
             ->toArray();
     }
 }
