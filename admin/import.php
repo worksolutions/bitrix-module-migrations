@@ -2,11 +2,10 @@
 if ($_POST['apply']) {
     !$_POST['isScheme'] && \WS\Migrations\Module::getInstance()->runRefreshVersion();
     if ($_POST['isScheme']) {
-        $version = pathinfo($_FILES['file']['name'], PATHINFO_FILENAME);
         $text = file_get_contents($_FILES['file']['tmp_name']);
         // Импорт данных, при выводе нужен отчет
         // Сколько создано, сколько обновлено
-        \WS\Migrations\Module::getInstance()->import($version, $text);
+        \WS\Migrations\Module::getInstance()->import($text);
     }
 }
 /** @var $localization \WS\Migrations\Localization */
