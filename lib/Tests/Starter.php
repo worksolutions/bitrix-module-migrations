@@ -7,7 +7,9 @@ namespace WS\Migrations\Tests;
 
 
 use WS\Migrations\Tests\Cases\ErrorException;
-use WS\Migrations\Tests\Cases\IblockHandlerCase;
+use WS\Migrations\Tests\Cases\FixTestCase;
+use WS\Migrations\Tests\Cases\UpdateTestCase;
+use WS\Migrations\Tests\Cases\VersionTestCase;
 
 class Starter {
 
@@ -19,7 +21,9 @@ class Starter {
 
     static public function cases() {
         return array(
-            IblockHandlerCase::className()
+            FixTestCase::className(),
+            UpdateTestCase::className(),
+            VersionTestCase::className(),
         );
     }
 
@@ -78,11 +82,13 @@ class Starter {
             return strpos(strtolower($method->getName()), 'test') === 0;
         });
         try {
+            $count = 0;
             /** @var $method \ReflectionMethod */
             foreach ($testMethods as $method) {
                 $testCase->setUp();
                 $method->invoke($testCase);
                 $testCase->tearDown();
+                $count++;
             }
         } catch (ErrorException $e) {
             return $result->setSuccess(false)
@@ -91,7 +97,7 @@ class Starter {
                 ->toArray();
         }
         return $result->setSuccess(true)
-            ->setMessage('Tests `OK')
+            ->setMessage('Успешно пройдено: '.$count)
             ->toArray();
     }
 }
