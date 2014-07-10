@@ -7,6 +7,7 @@ namespace WS\Migrations\Tests;
 
 
 use WS\Migrations\Tests\Cases\ErrorException;
+use WS\Migrations\Tests\Cases\IblockHandlerCase;
 
 class Starter {
 
@@ -18,7 +19,8 @@ class Starter {
 
     static public function cases() {
         return array(
-            \WS\Migrations\Tests\Cases\SimpleCase::className()
+            \WS\Migrations\Tests\Cases\SimpleCase::className(),
+            IblockHandlerCase::className()
         );
     }
 
@@ -35,7 +37,7 @@ class Starter {
             return array_pop($arClass);
         };
         foreach (self::cases() as $caseClass) {
-            $points[self::SECTION] = array(
+            $points[self::SECTION.$i++] = array(
                 'AUTO' => 'Y',
                 'NAME' => $caseClass::name(),
                 'DESC' => $caseClass::description(),
@@ -79,11 +81,14 @@ class Starter {
         try {
             /** @var $method \ReflectionMethod */
             foreach ($testMethods as $method) {
+                $testCase->setUp();
                 $method->invoke($testCase);
+                $testCase->tearDown();
             }
         } catch (ErrorException $e) {
             return $result->setSuccess(false)
-                ->setMessage($e->getMessage()."\n".$e->getTraceAsString())
+                ->setMessage($e->getMessage())
+                ->setTrace($e->getTraceAsString())
                 ->toArray();
         }
         return $result->setSuccess(true)

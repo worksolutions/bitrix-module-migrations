@@ -9,6 +9,7 @@ namespace WS\Migrations\Tests;
 class Result {
     private $_success;
     private $_message;
+    private $_trace;
 
     /**
      * @return mixed
@@ -19,10 +20,23 @@ class Result {
 
     /**
      * @param mixed $value
+     * @return $this
      */
     public function setMessage($value) {
         $this->_message = $value;
         return $this;
+    }
+
+    public function setTrace($aTrace) {
+        $this->_trace = $aTrace;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTrace() {
+        return $this->_trace;
     }
 
     /**
@@ -48,7 +62,8 @@ class Result {
         return array(
             'STATUS' => $this->isSuccess(),
             'MESSAGE' => array(
-                'PREVIEW' => str_replace("\n", "<br/>", $this->getMessage())
+                'PREVIEW' => str_replace("\n", "<br/>", $this->getMessage()),
+                'DETAIL' => $this->getTrace()
             )
         );
     }

@@ -53,4 +53,8 @@ abstract class AbstractCase {
             $this->throwError($this->generateMessage('Value actual:`'.self::exportValue($actual).'` expectation that not equals expected:`'.self::exportValue($expected).'`', $message));
         }
     }
+
+    public function setUp() {}
+
+    public function tearDown() {}
 }
