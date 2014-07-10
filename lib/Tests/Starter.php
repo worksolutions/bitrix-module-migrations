@@ -19,7 +19,6 @@ class Starter {
 
     static public function cases() {
         return array(
-            \WS\Migrations\Tests\Cases\SimpleCase::className(),
             IblockHandlerCase::className()
         );
     }
@@ -87,7 +86,7 @@ class Starter {
             }
         } catch (ErrorException $e) {
             return $result->setSuccess(false)
-                ->setMessage($e->getMessage())
+                ->setMessage($method->getShortName(). ' '. $e->getMessage())
                 ->setTrace($e->getTraceAsString())
                 ->toArray();
         }
