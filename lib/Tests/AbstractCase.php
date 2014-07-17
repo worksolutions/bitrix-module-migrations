@@ -55,7 +55,7 @@ abstract class AbstractCase {
         }
     }
 
-    protected function assertNot($actual, $expected, $message = null) {
+    protected function assertNotEquals($actual, $expected, $message = null) {
         if  ($actual == $expected) {
             $this->throwError($this->generateMessage('Value actual:`'.self::exportValue($actual).'` expectation that not equals expected:`'.self::exportValue($expected).'`', $message));
         }
