@@ -371,6 +371,15 @@ class Module {
     }
 
     /**
+     * @param Collector $collector
+     * @return $this
+     */
+    public function injectDutyCollector(Collector $collector) {
+        $this->_dutyCollector = $collector;
+        return $this;
+    }
+
+    /**
      * Directory location fixed files
      * @return string
      */
