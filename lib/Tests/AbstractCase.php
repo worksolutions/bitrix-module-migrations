@@ -48,6 +48,12 @@ abstract class AbstractCase {
         }
     }
 
+    protected function assertEmpty($actual, $message = null) {
+        if  (!empty($actual)) {
+            $this->throwError($this->generateMessage('Value `'.self::exportValue($actual).'` asserted as empty', $message));
+        }
+    }
+
 
     protected function assertEquals($actual, $expected, $message = null) {
         if  ($actual != $expected) {
