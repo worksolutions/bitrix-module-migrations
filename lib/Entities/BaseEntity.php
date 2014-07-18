@@ -76,6 +76,13 @@ abstract class BaseEntity {
             }
             $params['group'] = $pGroup;
         }
+        if ($params['order']) {
+            $pOrder = array();
+            foreach ($params['order'] as $field => $value) {
+                $pOrder[$modelToDb[$field]] = $value;
+            }
+            $params['order'] = $pOrder;
+        }
 
         if ($params['filter']) {
             $pFilter = array();
