@@ -31,24 +31,28 @@ abstract class AbstractCase {
     }
 
     protected function assertTrue($actual, $message = null) {
+        $this->_assertTake();
         if  (!$actual) {
             $this->throwError($this->generateMessage('Value `'.self::exportValue($actual).'` not asserted as true', $message));
         }
     }
 
     protected function assertFalse($actual, $message = null) {
+        $this->_assertTake();
         if  ($actual) {
             $this->throwError($this->generateMessage('Value `'.self::exportValue($actual).'` not asserted as false', $message));
         }
     }
 
     protected function assertNotEmpty($actual, $message = null) {
+        $this->_assertTake();
         if  (empty($actual)) {
             $this->throwError($this->generateMessage('Value `'.self::exportValue($actual).'` not asserted as empty', $message));
         }
     }
 
     protected function assertEmpty($actual, $message = null) {
+        $this->_assertTake();
         if  (!empty($actual)) {
             $this->throwError($this->generateMessage('Value `'.self::exportValue($actual).'` asserted as empty', $message));
         }
@@ -56,12 +60,14 @@ abstract class AbstractCase {
 
 
     protected function assertEquals($actual, $expected, $message = null) {
+        $this->_assertTake();
         if  ($actual != $expected) {
             $this->throwError($this->generateMessage('Value actual:`'.self::exportValue($actual).'` not equals expected:`'.self::exportValue($expected).'`', $message));
         }
     }
 
     protected function assertNotEquals($actual, $expected, $message = null) {
+        $this->_assertTake();
         if  ($actual == $expected) {
             $this->throwError($this->generateMessage('Value actual:`'.self::exportValue($actual).'` expectation that not equals expected:`'.self::exportValue($expected).'`', $message));
         }
@@ -70,4 +76,18 @@ abstract class AbstractCase {
     public function setUp() {}
 
     public function tearDown() {}
+
+    private $_assertCount = 0;
+
+    /**
+     * @return $this
+     */
+    private function _assertTake() {
+        $this->_assertCount++;
+        return $this;
+    }
+
+    public function getAssertCount() {
+        return $this->_assertCount;
+    }
 }
