@@ -73,6 +73,20 @@ abstract class AbstractCase {
         }
     }
 
+    protected function assertCount($arActual, $expectedCount, $message = null) {
+        $this->_assertTake();
+        if  (count($arActual) != $expectedCount) {
+            $this->throwError($this->generateMessage('Value actual:`'.self::exportValue($arActual).'` not equals count elements, expected:`'.self::exportValue($expectedCount).'`', $message));
+        }
+    }
+
+    protected function assertNotCount($arActual, $expectedCount, $message = null) {
+        $this->_assertTake();
+        if  (count($arActual) == $expectedCount) {
+            $this->throwError($this->generateMessage('Value actual:`'.self::exportValue($arActual).'` equals count elements, expected:`'.self::exportValue($expectedCount).'`', $message));
+        }
+    }
+
     public function setUp() {}
 
     public function tearDown() {}
@@ -87,7 +101,7 @@ abstract class AbstractCase {
         return $this;
     }
 
-    public function getAssertCount() {
+    public function getAssertsCount() {
         return $this->_assertCount;
     }
 }
