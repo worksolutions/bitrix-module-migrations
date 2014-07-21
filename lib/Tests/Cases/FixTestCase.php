@@ -10,6 +10,7 @@ use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
 use WS\Migrations\Processes\AddProcess;
+use WS\Migrations\Processes\DeleteProcess;
 use WS\Migrations\Processes\UpdateProcess;
 use WS\Migrations\SubjectHandlers\IblockHandler;
 use WS\Migrations\SubjectHandlers\IblockPropertyHandler;
@@ -170,5 +171,13 @@ class FixTestCase extends AbstractCase {
      * @after testUpdate
      */
     public function testDelete() {
+        $this->_injectDutyCollector();
+        $iblock = new \CIBlock();
+        $deleteResult = $iblock->Delete($this->_iblockId);
+        $this->assertTrue($deleteResult, 'Инфоблок должен быть удален из БД');
+
+        $this->assertCount($this->_getCollectorFixes(DeleteProcess::className()), 3, 'Должны быть записи удалений: секция, свойство, инфоблок');
+        $this->assertCount($this->_getCollectorFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, 'Должны быть записи удалений: секция');
+        $this->assertNotEmpty($this->_getCollectorFixes('reference'), 'При обновлении должны быть ссылочгые данные');
     }
 }
