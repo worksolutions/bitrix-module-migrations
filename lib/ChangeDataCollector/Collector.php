@@ -20,6 +20,8 @@ class Collector {
 
     private $_label;
 
+    private $_storable = true;
+
     private function __construct(File $file) {
         $this->_file = $file;
         $this->_label = $file->getName();
@@ -81,12 +83,21 @@ class Collector {
     }
 
     /**
+     * Перевод объекта в нехранимое состояние
+     * @return $this
+     */
+    public function notStored() {
+        $this->_storable = false;
+        return $this;
+    }
+
+    /**
      * @param $dbVersion
      * @return bool
      */
     public function commit($dbVersion) {
         $fixesData = $this->getFixesData($dbVersion);
-        $fixesData && $this->_saveData($fixesData);
+        $fixesData && $this->_storable && $this->_saveData($fixesData);
         if (!$fixesData) {
             return false;
         }
