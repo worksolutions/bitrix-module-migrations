@@ -139,11 +139,11 @@ class Module {
         }
         $self->_referenceController = new ReferenceController($self->getDbVersion());
         $fixRefProcess = self::SPECIAL_PROCESS_FIX_REFERENCE;
-        $collector = $self->_getDutyCollector();
-        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($self, $fixRefProcess, $collector) {
+        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($self, $fixRefProcess) {
             if (!$self->hasListen()) {
                 return;
             }
+            $collector = $self->getDutyCollector();
             $fix = $collector->getFix();
             $fix
                 ->setName('Reference fix')
@@ -163,7 +163,7 @@ class Module {
         if (!$self->_dutyCollector) {
             return null;
         }
-        $fixes = $self->_getDutyCollector()->getUsesFixed();
+        $fixes = $self->getDutyCollector()->getUsesFixed();
         if (!$fixes) {
             return;
         }
@@ -180,7 +180,7 @@ class Module {
             $applyLog->setSetupLog($setupLog);
             $applyLog->save();
         }
-        $self->_getDutyCollector()->commit($self->getDbVersion());
+        $self->getDutyCollector()->commit($self->getDbVersion());
     }
 
     /**
@@ -305,7 +305,7 @@ class Module {
         if ( !$handlers[$handlerClass][$eventKey]) {
             return false;
         }
-        $collector = $this->_getDutyCollector();
+        $collector = $this->getDutyCollector();
         $handler = $this->getSubjectHandler($handlerClass);
 
         $fix  = $collector->getFix();
@@ -356,7 +356,7 @@ class Module {
     /**
      * @return Collector
      */
-    private function _getDutyCollector() {
+    public function getDutyCollector() {
         if (!$this->_dutyCollector) {
             $this->_dutyCollector = $this->_createCollector();
         }
