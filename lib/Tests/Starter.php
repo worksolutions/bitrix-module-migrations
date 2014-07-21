@@ -97,7 +97,7 @@ class Starter {
                 ->toArray();
         }
         return $result->setSuccess(true)
-            ->setMessage('Успешно пройдено: '.$count."\n".'Сопоставлений: '.$testCase->getAssertCount())
+            ->setMessage('Успешно пройдено: '.$count."\n".'Проверок: '.$testCase->getAssertsCount())
             ->toArray();
     }
 }
