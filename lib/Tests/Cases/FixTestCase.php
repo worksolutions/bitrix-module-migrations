@@ -10,6 +10,7 @@ use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
 use WS\Migrations\Processes\AddProcess;
+use WS\Migrations\Processes\UpdateProcess;
 use WS\Migrations\SubjectHandlers\IblockHandler;
 use WS\Migrations\SubjectHandlers\IblockPropertyHandler;
 use WS\Migrations\SubjectHandlers\IblockSectionHandler;
@@ -23,6 +24,8 @@ class FixTestCase extends AbstractCase {
     private $_currentDutyCollector;
 
     const VERSION = 'testVersion';
+
+    private $_iblockId, $_propertyId, $_sectionId;
 
     public function name() {
         return 'Тестирование фиксаций изменений';
@@ -43,19 +46,24 @@ class FixTestCase extends AbstractCase {
         $fixes = $this->_currentDutyCollector->getFixesData(self::VERSION);
         $res = array();
         foreach ($fixes as $fixData) {
-            $fixData['process'] == $process && $fixData['subject'] == $subject && $res[] = $fixData;
+            $fixData['process'] == $process
+                &&
+            ($subject && $fixData['subject'] == $subject || !$subject)
+                &&
+            $res[] = $fixData;
         }
         return $res;
     }
 
     private function _injectDutyCollector() {
         $collector = Collector::createInstance(__DIR__);
+        $collector->notStored();
         Module::getInstance()->injectDutyCollector($collector);
         $this->_currentDutyCollector = $collector;
         return $collector;
     }
 
-    public function testIblockAdd() {
+    public function testAdd() {
         $this->_injectDutyCollector();
         $ibType = \CIBlockType::GetList()->Fetch();
         $ib = new \CIBlock;
@@ -125,5 +133,42 @@ class FixTestCase extends AbstractCase {
 
         // добавлены три вида ссылок в фиксациях
         $this->assertEquals(3, count($refFixes), 'Ссылока должно быть 3');
+
+        $this->_iblockId = $ibId;
+        $this->_propertyId = $propId;
+        $this->_sectionId = $secId;
+    }
+
+    /**
+     * Зависимость от добавления
+     * @after testAdd
+     */
+    public function testUpdate() {
+        $this->_injectDutyCollector();
+        $this->assertNotEmpty($this->_iblockId);
+        $this->assertNotEmpty($this->_propertyId);
+        $this->assertNotEmpty($this->_sectionId);
+
+        $arIblock = \CIBlock::GetArrayByID($this->_iblockId);
+        $arIblock['NAME'] .= '2';
+        $name = $arIblock['NAME'];
+
+        $iblock = new \CIBlock();
+        $updateResult = $iblock->Update($this->_iblockId, $arIblock);
+
+        $this->assertTrue($updateResult, 'Результат обновления отрицательный');
+        // для начала определяется просто как снимок
+        $fixes = $this->_getCollectorFixes(UpdateProcess::className());
+        $this->assertEquals(count($fixes), 1, 'Наличие одной фиксации обновления');
+        $this->assertEquals($fixes[0]['data']['iblock']['NAME'], $name, 'Фиксация на изменение имени');
+
+        $this->assertNotEmpty($this->_getCollectorFixes('reference'), 'При обновлении должны быть ссылочгые данные');
+    }
+
+    /**
+     * Зависимость от добавления
+     * @after testUpdate
+     */
+    public function testDelete() {
     }
 }
