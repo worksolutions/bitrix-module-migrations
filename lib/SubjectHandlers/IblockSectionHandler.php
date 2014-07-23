@@ -29,7 +29,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
                 return $data[0]['ID'];
             case Module::FIX_CHANGES_BEFORE_DELETE_KEY:
             case Module::FIX_CHANGES_AFTER_DELETE_KEY:
-                return $data[0]['ID'];
+                return $data[0];
         }
         return null;
     }

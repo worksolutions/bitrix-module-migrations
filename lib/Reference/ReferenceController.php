@@ -29,6 +29,28 @@ class ReferenceController {
     public function registerItem(ReferenceItem $item) {
         !$item->dbVersion && $item->dbVersion = $this->_currentDbVersion;
         !$item->reference && $item->reference = md5($item->dbVersion.$item->group.$item->id);
+
+        $hasRefByVersion = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                '=REFERENCE' => $item->reference,
+                '=DB_VERSION' => $item->dbVersion
+            )
+        ))->fetch();
+        if ($hasRefByVersion) {
+            throw new \Exception('Reference '.$item->reference.' by version '.$item->dbVersion.' been registered before');
+        }
+
+        $hasItem = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                '=DB_VERSION' => $item->dbVersion,
+                '=GROUP' => $item->group,
+                '=ITEM_ID' => $item->id
+            )
+        ))->fetch();
+        if ($hasItem) {
+            throw new \Exception('Item '.$item->group.' ('.$item->id.') by version '.$item->dbVersion.' been registered before');
+        }
+
         DbVersionReferencesTable::add(array(
             'REFERENCE' => $item->reference,
             'DB_VERSION' => $item->dbVersion,
