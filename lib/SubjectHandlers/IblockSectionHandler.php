@@ -64,13 +64,11 @@ class IblockSectionHandler extends BaseSubjectHandler {
         if ($id) {
             $res->setSuccess((bool)$sec->Update($id, $data));
         } else {
-            $res->setSuccess((bool) ($id = $sec->Add($id, $data)));
+            $res->setSuccess((bool) ($id = $sec->Add($data)));
             $this->registerCurrentVersionId($id, $referenceValue);
         }
         $res->setId($id);
-
-        $res
-            ->setMessage($sec->LAST_ERROR);
+        $res->setMessage($sec->LAST_ERROR);
         return $res;
     }
 
