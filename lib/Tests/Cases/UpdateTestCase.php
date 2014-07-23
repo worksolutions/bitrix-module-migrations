@@ -6,11 +6,14 @@
 namespace WS\Migrations\Tests\Cases;
 
 
-use WS\Migrations\SubjectHandlers\IblockHandler;
+use WS\Migrations\ChangeDataCollector\Collector;
+use WS\Migrations\Module;
 use WS\Migrations\Tests\AbstractCase;
-use WS\Migrations\Tests\Mocks\ReferenceController;
 
 class UpdateTestCase extends AbstractCase {
+    const FIXTURE_TYPE_ADD = 'add_collection';
+    const FIXTURE_TYPE_UPDATE = 'update_collection';
+    const FIXTURE_TYPE_DELETE = 'delete_collection';
 
     public function name() {
         return 'Обновление изменений';
@@ -20,7 +23,75 @@ class UpdateTestCase extends AbstractCase {
         return 'Тестирование обновления изменений согласно фиксациям';
     }
 
+    public function init() {
+        \CModule::IncludeModule('iblock');
+    }
+
+    private function _applyFixtures($type) {
+        $collector = Collector::createByFile(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'Fixtures'.DIRECTORY_SEPARATOR.$type.'.json');
+        $this->assertNotEmpty($collector->getFixes());
+        Module::getInstance()->applyFixesList($collector->getFixes());
+    }
+
     public function testAdd() {
+
+        // Проверка/фиксация состояния системы ДО
+        /**
+         *  - колчичество инфоблоков
+         */
+        /** @var $dbList \CDBResult */
+        $dbList = \CIBlock::GetList();
+        $ibCountBefore = $dbList->SelectedRowsCount();
+        $this->_applyFixtures(self::FIXTURE_TYPE_ADD);
+
+        $dbList = \CIBlock::GetList();
+        $ibCountAfter = $dbList->SelectedRowsCount();
+
+        $this->assertNotEmpty($ibCountAfter, 'Запись ИБ должна присутствовать');
+        $this->assertNotEquals($ibCountAfter, $ibCountBefore, 'Не добавилась запись инфоблока');
+
+        // Проверка состояния системы ПОСЛЕ
+        /**
+         *  - добавление инфоблока
+         *  - наличие свойств инфоблока
+         *  - наличие секций инфоблока
+         *  - совпаденение данных фиксации и результата
+         *  - ключи добавленных данных должны храниться на протяжении всего теста
+         */
         $this->assertTrue(true);
+    }
+
+    public function testUpdate() {
+        return;
+
+        // Проверка/фиксация состояния системы ДО
+        /**
+         *  - просмотр данных (имена name)
+         */
+        $this->_applyFixtures(self::FIXTURE_TYPE_UPDATE);
+
+        // Проверка состояния системы ПОСЛЕ
+        /**
+         *  - сравнение данных имен
+         *  - инфоблока
+         *  - секции инфоблока
+         */
+    }
+
+    public function testDelete() {
+        return;
+
+        // Проверка/фиксация состояния системы ДО
+        /**
+         *  - колчичество инфоблоков
+         */
+        $this->_applyFixtures(self::FIXTURE_TYPE_DELETE);
+
+        // Проверка состояния системы ПОСЛЕ
+        /**
+         *  - сравнение данных имен
+         *  - инфоблока
+         *  - секции инфоблока
+         */
     }
 }
