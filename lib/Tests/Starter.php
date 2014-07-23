@@ -40,7 +40,7 @@ class Starter {
             return array_pop($arClass);
         };
         foreach (self::cases() as $caseClass) {
-            $points[self::SECTION.$i++] = array(
+            $points[self::SECTION.'-'.$i++] = array(
                 'AUTO' => 'Y',
                 'NAME' => $caseClass::name(),
                 'DESC' => $caseClass::description(),

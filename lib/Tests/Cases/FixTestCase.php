@@ -178,6 +178,6 @@ class FixTestCase extends AbstractCase {
 
         $this->assertCount($this->_getCollectorFixes(DeleteProcess::className()), 3, 'Должны быть записи удалений: секция, свойство, инфоблок');
         $this->assertCount($this->_getCollectorFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, 'Должны быть записи удалений: секция');
-        $this->assertNotEmpty($this->_getCollectorFixes('reference'), 'При обновлении должны быть ссылочгые данные');
+        $this->assertNotEmpty($this->_getCollectorFixes('reference'), 'При обновлении должны быть ссылочные данные');
     }
 }

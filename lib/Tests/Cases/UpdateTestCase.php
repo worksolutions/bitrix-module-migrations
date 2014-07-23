@@ -19,4 +19,8 @@ class UpdateTestCase extends AbstractCase {
     public function description() {
         return 'Тестирование обновления изменений согласно фиксациям';
     }
+
+    public function testAdd() {
+        $this->assertTrue(true);
+    }
 }
