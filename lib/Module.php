@@ -455,17 +455,12 @@ class Module {
         $this->_getReferenceController()->registerItem($item);
     }
 
-    /**
-     * Применение фиксации
-     * @return int
-     */
-    public function applyNewFixes() {
-        $this->_disableListen();
-        $fixes = $this->getNotAppliedFixes();
+
+    public function applyFixesList($fixes) {
         if (!$fixes) {
             return 0;
         }
-
+        $this->_disableListen();
         foreach ($fixes as $fix) {
             if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
                 $this->_applyReferenceFix($fix);
@@ -475,6 +470,14 @@ class Module {
         }
         $this->_enableListen();
         return count($fixes);
+    }
+
+    /**
+     * Применение фиксации
+     * @return int
+     */
+    public function applyNewFixes() {
+        return $this->applyFixesList($this->getNotAppliedFixes());
     }
 
     /**
