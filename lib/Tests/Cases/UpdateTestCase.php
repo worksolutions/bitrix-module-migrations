@@ -97,7 +97,6 @@ class UpdateTestCase extends AbstractCase {
     }
 
     public function testDelete() {
-        return;
         $this->_applyFixtures(self::FIXTURE_TYPE_SECTION_DELETE);
 
         $rsSection = SectionTable::getList(array(

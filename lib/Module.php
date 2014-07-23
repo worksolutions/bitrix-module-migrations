@@ -452,6 +452,10 @@ class Module {
         $item->group = $data['group'];
         $item->dbVersion = $data['dbVersion'];
 
+        !$this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion)
+            &&
+        !$this->_getReferenceController()->getItemCurrentVersionByReference($item->reference)
+            &&
         $this->_getReferenceController()->registerItem($item);
     }
 
