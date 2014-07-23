@@ -29,7 +29,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
                 return $data[0]['ID'];
             case Module::FIX_CHANGES_BEFORE_DELETE_KEY:
             case Module::FIX_CHANGES_AFTER_DELETE_KEY:
-                return $data[0];
+                return $data[0]['ID'];
         }
         return null;
     }
@@ -53,12 +53,12 @@ class IblockSectionHandler extends BaseSubjectHandler {
         $sec = new \CIBlockSection();
         $res = new ApplyResult();
 
-        $id = $data['ID'];
+        $extId = $data['ID'];
         if ($dbVersion) {
             $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
-            $id = $this->getCurrentVersionId($id, $dbVersion);
+            $id = $this->getCurrentVersionId($extId, $dbVersion);
             if (!$id) {
-                $referenceValue = $this->getReferenceValue($id, $dbVersion);
+                $referenceValue = $this->getReferenceValue($extId, $dbVersion);
             }
         }
         if ($id) {
@@ -81,6 +81,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
     public function delete($id, $dbVersion = null) {
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
+
 
         $sec = new \CIBlockSection();
         $res = new ApplyResult();

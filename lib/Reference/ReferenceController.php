@@ -87,7 +87,7 @@ class ReferenceController {
     public function getItemById($id, $group, $dbVersion = null) {
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
-                '=ITEM_ID' => $id,
+                '=ITEM_ID' => (int) $id,
                 '=DB_VERSION' => $dbVersion ?: $this->_currentDbVersion,
                 '=GROUP' => $group
             )

@@ -111,10 +111,9 @@ class IblockHandler extends BaseSubjectHandler  {
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
 
-        $iblock = new \CIBlock();
         $res = new ApplyResult();
-        return $res->setSuccess((bool)$iblock->Delete($id))
-            ->setMessage($iblock->LAST_ERROR);
+        return $res->setSuccess((bool)\CIBlock::Delete($id))
+            ->setMessage('Not execute ib delete');
     }
 
     protected function getSubjectGroup() {
