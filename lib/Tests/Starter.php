@@ -84,6 +84,7 @@ class Starter {
         try {
             $count = 0;
             /** @var $method \ReflectionMethod */
+            $testCase->init();
             foreach ($testMethods as $method) {
                 $testCase->setUp();
                 $method->invoke($testCase);
@@ -96,6 +97,7 @@ class Starter {
                 ->setTrace($e->getTraceAsString())
                 ->toArray();
         }
+        $testCase->close();
         return $result->setSuccess(true)
             ->setMessage('Успешно пройдено: '.$count."\n".'Проверок: '.$testCase->getAssertsCount())
             ->toArray();

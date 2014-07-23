@@ -10,6 +10,8 @@ use WS\Migrations\Tests\Cases\ErrorException;
 
 abstract class AbstractCase {
 
+    private $_assertCount = 0;
+
     static public function className() {
         return get_called_class();
     }
@@ -91,7 +93,9 @@ abstract class AbstractCase {
 
     public function tearDown() {}
 
-    private $_assertCount = 0;
+    public function init() {}
+
+    public function close() {}
 
     /**
      * @return $this
