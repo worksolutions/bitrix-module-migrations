@@ -83,11 +83,11 @@ class IblockHandler extends BaseSubjectHandler  {
         if (!$res->isSuccess()) {
             return $res->setMessage($type->LAST_ERROR);
         }
-        $id = $iblockData['ID'];
+        $extId = $iblockData['ID'];
         if ($dbVersion) {
-            $id = $this->getCurrentVersionId($id, $dbVersion);
+            $id = $this->getCurrentVersionId($extId, $dbVersion);
             if (!$id) {
-                $referenceValue = $this->getReferenceValue($id, $dbVersion);
+                $referenceValue = $this->getReferenceValue($extId, $dbVersion);
             }
         }
         $iblock = new \CIBlock();
