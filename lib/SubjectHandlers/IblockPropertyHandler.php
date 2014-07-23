@@ -51,22 +51,21 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $data = $this->handleNullValues($data);
         $prop = new \CIBlockProperty();
         $res = new ApplyResult();
-        $id = $data['ID'];
+        $extId = $data['ID'];
         if ($dbVersion) {
             $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
-            $id = $this->getIdByVersion($id, $dbVersion);
+            $id = $this->getCurrentVersionId($extId, $dbVersion);
             if (!$id) {
-                $referenceValue = $this->getReferenceValue($id, $dbVersion);
+                $referenceValue = $this->getReferenceValue($extId, $dbVersion);
             }
         }
         if ($id) {
             $res->setSuccess((bool) $prop->Update($id, $data));
         } else {
-            $res->setSuccess((bool) ($id = $prop->Add($id, $data)));
+            $res->setSuccess((bool) ($id = $prop->Add($data)));
             $this->registerCurrentVersionId($id, $referenceValue);
         }
         $res->setId($id);
-
         return $res->setMessage($prop->LAST_ERROR);
     }
 
