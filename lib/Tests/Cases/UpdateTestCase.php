@@ -35,11 +35,6 @@ class UpdateTestCase extends AbstractCase {
     }
 
     public function testAdd() {
-
-        // Проверка/фиксация состояния системы ДО
-        /**
-         *  - колчичество инфоблоков
-         */
         /** @var $dbList \CDBResult */
         $dbList = \CIBlock::GetList();
         $ibCountBefore = $dbList->SelectedRowsCount();
@@ -64,15 +59,11 @@ class UpdateTestCase extends AbstractCase {
         $this->assertNotEquals($ibCountAfter, $ibCountBefore, 'Не добавилась запись инфоблока');
         $this->assertNotEmpty($addedId, 'Недоступен идентификатор нового инфоблока');
 
-        // Проверка состояния системы ПОСЛЕ
-        /**
-         *  - добавление инфоблока
-         *  - наличие свойств инфоблока
-         *  - наличие секций инфоблока
-         *  - совпаденение данных фиксации и результата
-         *  - ключи добавленных данных должны храниться на протяжении всего теста
-         */
-        $this->assertTrue(true);
+        $rsProps = \CIBlockProperty::GetList(null, array('IBLOCK_ID' => $addedId));
+        $this->assertNotEmpty($rsProps->AffectedRowsCount(), 'Недоступны добавленные свойства информационного блока');
+
+        $rsSections = \CIBlockSection::getList(null, array('IBLOCK_ID' => $addedId), false, array('ID'));
+        $this->assertNotEmpty($rsSections->AffectedRowsCount(), 'Недоступны добавленные секции информационного блока');
     }
 
     public function testUpdate() {
