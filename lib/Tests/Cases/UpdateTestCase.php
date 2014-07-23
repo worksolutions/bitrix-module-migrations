@@ -25,6 +25,7 @@ class UpdateTestCase extends AbstractCase {
 
     public function init() {
         \CModule::IncludeModule('iblock');
+        Module::getInstance()->clearReferences();
     }
 
     private function _applyFixtures($type) {
@@ -42,13 +43,26 @@ class UpdateTestCase extends AbstractCase {
         /** @var $dbList \CDBResult */
         $dbList = \CIBlock::GetList();
         $ibCountBefore = $dbList->SelectedRowsCount();
+        $beforeIds = array();
+        while ($arIblock = $dbList->Fetch()) {
+            $beforeIds[] = $arIblock['ID'];
+        }
         $this->_applyFixtures(self::FIXTURE_TYPE_ADD);
 
         $dbList = \CIBlock::GetList();
         $ibCountAfter = $dbList->SelectedRowsCount();
+        $afterIds = array();
+        while ($arIblock = $dbList->Fetch()) {
+            $afterIds[] = $arIblock['ID'];
+        }
+
+        $aAddedId = array_diff($afterIds, $beforeIds);
+        $addedId = array_shift($aAddedId);
+
 
         $this->assertNotEmpty($ibCountAfter, 'Запись ИБ должна присутствовать');
         $this->assertNotEquals($ibCountAfter, $ibCountBefore, 'Не добавилась запись инфоблока');
+        $this->assertNotEmpty($addedId, 'Недоступен идентификатор нового инфоблока');
 
         // Проверка состояния системы ПОСЛЕ
         /**

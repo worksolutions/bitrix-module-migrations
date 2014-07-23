@@ -606,6 +606,10 @@ class Module {
             $this->_applyFix($fix);
         }
     }
+
+    public function clearReferences() {
+        $this->_getReferenceController()->deleteAll();
+    }
 }
 
 function jsonToArray($json) {

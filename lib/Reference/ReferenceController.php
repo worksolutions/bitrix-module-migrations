@@ -154,4 +154,11 @@ class ReferenceController {
         }
         return $res;
     }
+
+    public function deleteAll() {
+        $dbRes = DbVersionReferencesTable::getList();
+        while ($itemData = $dbRes->fetch()) {
+            DbVersionReferencesTable::delete($itemData['ID']);
+        }
+    }
 }
