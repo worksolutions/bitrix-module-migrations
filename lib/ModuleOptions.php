@@ -3,6 +3,7 @@ namespace WS\Migrations;
 /**
  * @property string $catalogPath
  * @property string $version;
+ * @property string $useAutotests;
  * @author <sokolovsky@worksolutions.ru>
  */
 final class ModuleOptions {

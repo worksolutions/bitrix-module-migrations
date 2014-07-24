@@ -6,6 +6,7 @@
 namespace WS\Migrations\Tests;
 
 
+use WS\Migrations\Module;
 use WS\Migrations\Tests\Cases\ErrorException;
 use WS\Migrations\Tests\Cases\FixTestCase;
 use WS\Migrations\Tests\Cases\UpdateTestCase;
@@ -32,6 +33,9 @@ class Starter {
      * @return array
      */
     static public function items() {
+        if (!Module::getInstance()->getOptions()->useAutotests) {
+            return array();
+        }
         $points = array();
         $i = 1;
         $fGetCaseId = function ($className) {
