@@ -24,7 +24,8 @@ class AppliedChangesLogModel extends BaseEntity {
         foreach ($data as $name => $value) {
             if ($name == 'date') {
                 if ($value instanceof DateTime) {
-                    $value = $value->getValue();
+                    $value = new \DateTime();
+                    $value->setTimestamp($value->getTimestamp());
                 } else {
                     $value = new \DateTime($value);
                 }

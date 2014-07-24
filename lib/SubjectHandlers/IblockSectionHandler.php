@@ -7,6 +7,8 @@ namespace WS\Migrations\SubjectHandlers;
 
 
 use Bitrix\Iblock\SectionTable;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
@@ -68,7 +70,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
             $addRes = SectionTable::add(array(
                 'ID' => $id,
                 'IBLOCK_ID' => $data['IBLOCK_ID'],
-                'TIMESTAMP_X' => $data['TIMESTAMP_X'],
+                'TIMESTAMP_X' => new DateTime(),
                 'NAME' => $data['NAME'],
                 'DESCRIPTION_TYPE' => $data['DESCRIPTION_TYPE'],
             ));

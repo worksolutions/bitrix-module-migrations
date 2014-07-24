@@ -41,6 +41,10 @@ class FixTestCase extends AbstractCase {
     public function init() {
         \CModule::IncludeModule('iblock');
         Module::getInstance()->clearReferences();
+        $applyLogs = AppliedChangesLogModel::find();
+        foreach ($applyLogs as $log) {
+            $log->delete();
+        }
     }
 
     /**

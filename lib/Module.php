@@ -452,6 +452,9 @@ class Module {
         $process = $this->getProcess($fix->getProcess());
         $subjectHandler = $this->getSubjectHandler($fix->getSubject());
         if (!$subjectHandler->required() && !$this->getOptions()->isEnableSubjectHandler($fix->getSubject())) {
+            $applyFixLog->success = false;
+            $applyFixLog->description = 'Subject handler not active';
+            $applyFixLog->save();
             return ;
         }
 
