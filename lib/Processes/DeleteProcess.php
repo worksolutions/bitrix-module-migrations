@@ -10,6 +10,7 @@ use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
+use WS\Migrations\SubjectHandlers\IblockSectionHandler;
 
 class DeleteProcess extends BaseProcess {
     private $_beforeChangesSnapshots = array();

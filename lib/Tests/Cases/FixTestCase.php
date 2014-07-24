@@ -40,6 +40,12 @@ class FixTestCase extends AbstractCase {
         \CModule::IncludeModule('iblock');
     }
 
+    /**
+     * @param $process
+     * @param null $subject
+     * @return array Список массивов данных
+     * @throws \Exception
+     */
     private function _getCollectorFixes($process, $subject = null) {
         if (!$this->_currentDutyCollector) {
             throw new \Exception('Duty collector not exists');
@@ -162,8 +168,6 @@ class FixTestCase extends AbstractCase {
         $fixes = $this->_getCollectorFixes(UpdateProcess::className());
         $this->assertEquals(count($fixes), 1, 'Наличие одной фиксации обновления');
         $this->assertEquals($fixes[0]['data']['iblock']['NAME'], $name, 'Фиксация на изменение имени');
-
-        $this->assertNotEmpty($this->_getCollectorFixes('reference'), 'При обновлении должны быть ссылочгые данные');
     }
 
     /**
@@ -177,7 +181,18 @@ class FixTestCase extends AbstractCase {
         $this->assertTrue($deleteResult, 'Инфоблок должен быть удален из БД');
 
         $this->assertCount($this->_getCollectorFixes(DeleteProcess::className()), 3, 'Должны быть записи удалений: секция, свойство, инфоблок');
-        $this->assertCount($this->_getCollectorFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, 'Должны быть записи удалений: секция');
-        $this->assertNotEmpty($this->_getCollectorFixes('reference'), 'При обновлении должны быть ссылочные данные');
+        $this->assertCount($sectionFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, 'Должны быть записи удалений: секция');
+        $this->assertCount($propsFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockPropertyHandler::className()), 1, 'Должны быть записи удалений: свойство инфоблока');
+        $this->assertCount($iblockFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockHandler::className()), 1, 'Должны быть записи удалений: инфоблок');
+
+        $sectionFixData = array_shift($sectionFixesList);
+        $this->assertTrue(is_scalar($sectionFixData['data']), 'Данными обновления при удалении секции должен быть идентификатор, а тут - '.self::exportValue($sectionFixData['data']));
+
+        $propFixData = array_shift($propsFixesList);
+        $this->assertTrue(is_scalar($propFixData['data']), 'Данными обновления при удалении свойства инфолбока должен быть идентификатор, а тут - '.self::exportValue($propFixData['data']));
+
+        $iblockFixData = array_shift($iblockFixesList);
+        $this->assertTrue(is_scalar($iblockFixData['data']), 'Данными обновления при удалении инфоблока должен быть идентификатор, а тут - '.self::exportValue($iblockFixData['data']));
+        $this->assertNotEmpty($iblockFixData['originalData'], 'Должны хранится данные удаленного инфоблока');
     }
 }

@@ -16,7 +16,7 @@ abstract class AbstractCase {
         return get_called_class();
     }
 
-    static private function exportValue($value) {
+    static protected function exportValue($value) {
         return var_export($value, true);
     }
 
