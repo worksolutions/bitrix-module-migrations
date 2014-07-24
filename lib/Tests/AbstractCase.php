@@ -89,6 +89,15 @@ abstract class AbstractCase {
         }
     }
 
+    protected function viewDump() {
+        $values = func_get_args();
+        $res = 'Dump:'."\n";
+        foreach ($values as $value) {
+            $res .= self::exportValue($value);
+        }
+        $this->throwError($res);
+    }
+
     public function setUp() {}
 
     public function tearDown() {}
