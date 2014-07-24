@@ -90,9 +90,9 @@ class Starter {
                 $testCase->tearDown();
                 $count++;
             }
-        } catch (ErrorException $e) {
+        } catch (\Exception $e) {
             return $result->setSuccess(false)
-                ->setMessage($method->getShortName(). ' '. $e->getMessage())
+                ->setMessage($method->getShortName(). ', '. $e->getMessage())
                 ->setTrace($e->getTraceAsString())
                 ->toArray();
         }
