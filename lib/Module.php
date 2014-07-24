@@ -512,15 +512,26 @@ class Module {
     }
 
     /**
+     * Откат изменений последней фиксации.
      * @return null
      */
     public function rollbackLastChanges() {
-        $this->_disableListen();
         $setupLog = $this->getLastSetupLog();
         if (!$setupLog) {
             return null;
         }
-        foreach ($setupLog->getAppliedLogs() as $log) {
+        $this->rollbackByLogs($setupLog->getAppliedLogs() ?: array());
+        $setupLog->delete();
+    }
+
+    /**
+     * Откат списка логированных изменений
+     * @param AppliedChangesLogModel[] $list
+     * @return null
+     */
+    public function rollbackByLogs($list) {
+        $this->_disableListen();
+        foreach ($list as $log) {
             $log->delete();
             if (!$log->success) {
                 continue;
@@ -529,9 +540,9 @@ class Module {
             $subjectHandler = $this->getSubjectHandler($log->subjectName);
             $process->rollback($subjectHandler, $log);
         }
-        $setupLog->delete();
         $this->_enableListen();
     }
+
 
     /**
      * @return string
