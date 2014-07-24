@@ -46,6 +46,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
     /**
      * @param $data
      * @param null $dbVersion
+     * @throws \Exception
      * @return ApplyResult
      */
     public function applySnapshot($data, $dbVersion = null) {
@@ -59,6 +60,20 @@ class IblockSectionHandler extends BaseSubjectHandler {
             $id = $this->getCurrentVersionId($extId, $dbVersion);
             if (!$id) {
                 $referenceValue = $this->getReferenceValue($extId, $dbVersion);
+            }
+        } else {
+            $id = $extId;
+        }
+        if (!$dbVersion && !SectionTable::getList(array('filter' => array('=ID' => $id)))->fetch()) {
+            $addRes = SectionTable::add(array(
+                'ID' => $id,
+                'IBLOCK_ID' => $data['IBLOCK_ID'],
+                'TIMESTAMP_X' => $data['TIMESTAMP_X'],
+                'NAME' => $data['NAME'],
+                'DESCRIPTION_TYPE' => $data['DESCRIPTION_TYPE'],
+            ));
+            if (!$addRes->isSuccess()) {
+                throw new \Exception('Не удалось возобновить секцию(раздел) текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
             }
         }
         if ($id) {

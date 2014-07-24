@@ -89,7 +89,17 @@ class IblockHandler extends BaseSubjectHandler  {
             if (!$id) {
                 $referenceValue = $this->getReferenceValue($extId, $dbVersion);
             }
+        } else {
+            $id = $extId;
         }
+
+        if (!$dbVersion && !\CIBlock::GetArrayByID($id)) {
+            $addRes = IblockTable::add(array('ID' => $id, 'IBLOCK_TYPE_ID' => $typeData['ID'], 'NAME' => 'add'));
+            if (!$addRes->isSuccess()) {
+                throw new \Exception('add iblock error ' . implode(', ', $addRes->getErrorMessages()));
+            }
+        }
+
         $iblock = new \CIBlock();
         if ($id) {
             $res->setSuccess((bool)$iblock->Update($id, $iblockData));

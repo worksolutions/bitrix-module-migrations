@@ -6,6 +6,8 @@
 namespace WS\Migrations\Tests\Cases;
 
 
+use Bitrix\Iblock\PropertyTable;
+use Bitrix\Iblock\SectionTable;
 use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
@@ -36,8 +38,9 @@ class FixTestCase extends AbstractCase {
         return 'Проверка фиксации изменений при изменении структуры предметной области';
     }
 
-    public function setUp() {
+    public function init() {
         \CModule::IncludeModule('iblock');
+        Module::getInstance()->clearReferences();
     }
 
     /**
@@ -139,7 +142,7 @@ class FixTestCase extends AbstractCase {
         }
 
         // добавлены три вида ссылок в фиксациях
-        $this->assertEquals(3, count($refFixes), 'Ссылока должно быть 3');
+        $this->assertEquals(3, count($refFixes), 'Ссылок должно быть 3');
 
         $this->_iblockId = $ibId;
         $this->_propertyId = $propId;
@@ -168,6 +171,9 @@ class FixTestCase extends AbstractCase {
         $fixes = $this->_getCollectorFixes(UpdateProcess::className());
         $this->assertEquals(count($fixes), 1, 'Наличие одной фиксации обновления');
         $this->assertEquals($fixes[0]['data']['iblock']['NAME'], $name, 'Фиксация на изменение имени');
+
+        // фиксация изменений
+        Module::getInstance()->commitDutyChanges();
     }
 
     /**
@@ -176,8 +182,8 @@ class FixTestCase extends AbstractCase {
      */
     public function testDelete() {
         $this->_injectDutyCollector();
-        $iblock = new \CIBlock();
-        $deleteResult = $iblock->Delete($this->_iblockId);
+        $deleteResult = \CIBlock::Delete($this->_iblockId);
+
         $this->assertTrue($deleteResult, 'Инфоблок должен быть удален из БД');
 
         $this->assertCount($this->_getCollectorFixes(DeleteProcess::className()), 3, 'Должны быть записи удалений: секция, свойство, инфоблок');
@@ -194,5 +200,56 @@ class FixTestCase extends AbstractCase {
         $iblockFixData = array_shift($iblockFixesList);
         $this->assertTrue(is_scalar($iblockFixData['data']), 'Данными обновления при удалении инфоблока должен быть идентификатор, а тут - '.self::exportValue($iblockFixData['data']));
         $this->assertNotEmpty($iblockFixData['originalData'], 'Должны хранится данные удаленного инфоблока');
+
+        // фиксация изменений
+        Module::getInstance()->commitDutyChanges();
+    }
+
+    /**
+     * @after testDelete
+     */
+    public function testRollbackDelete() {
+        /** @var $list AppliedChangesLogModel[] */
+        $list = AppliedChangesLogModel::find(array(
+            'limit' => 3,
+            'order' => array('id' => 'DESC')
+        ));
+        $this->assertCount($list, 3, 'Должны быть доступены три записи');
+
+        foreach ($list as $lItem) {
+            $this->assertTrue($lItem->processName == DeleteProcess::className(), 'Журналируемый процесс должен быть - удалением');
+        }
+        $rsIblock = \CIBlock::getList();
+        $countIbBefore = $rsIblock->SelectedRowsCount();
+        $iblocksBefore = array();
+        while ($arIb = $rsIblock->Fetch()) {
+            $iblocksBefore[] = $arIb['ID'];
+        }
+        Module::getInstance()->rollbackByLogs($list ?: array());
+        $rsIblock = \CIBlock::getList();
+        $countIbAfter = $rsIblock->SelectedRowsCount();
+        $iblocksAfter = array();
+        while ($arIb = $rsIblock->Fetch()) {
+            $iblocksAfter[] = $arIb['ID'];
+        }
+        $rebuildIblockId = array_diff($iblocksAfter, $iblocksBefore);
+        $rebuildIblockId = array_shift($rebuildIblockId);
+
+        $this->assertEquals($countIbAfter, $countIbBefore + 1, 'Данные инфоблока должны быть восстановлены');
+        $this->assertEquals($rebuildIblockId, $this->_iblockId, 'Инфоблок восстановлен, идентификатор изменен');
+
+        $rsProp = PropertyTable::getList(array(
+            'filter' => array(
+                '=IBLOCK_ID' => $rebuildIblockId
+            )
+        ));
+        $this->assertTrue($rsProp->getSelectedRowsCount() > 0, 'Должны присутствовать свойства восстановленного инфоблока - '.$rebuildIblockId);
+
+        $rsSections = SectionTable::getList(array(
+            'filter' => array(
+                '=IBLOCK_ID' => $rebuildIblockId
+            )
+        ));
+        $this->assertTrue($rsSections->getSelectedRowsCount() > 0, 'Должны присутствовать секции(разделы) восстановленного инфоблока - '.$rebuildIblockId);
     }
 }

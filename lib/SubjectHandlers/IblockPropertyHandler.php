@@ -45,6 +45,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
     /**
      * @param $data
      * @param null $dbVersion
+     * @throws \Exception
      * @return ApplyResult
      */
     public function applySnapshot($data, $dbVersion = null) {
@@ -57,6 +58,19 @@ class IblockPropertyHandler extends BaseSubjectHandler {
             $id = $this->getCurrentVersionId($extId, $dbVersion);
             if (!$id) {
                 $referenceValue = $this->getReferenceValue($extId, $dbVersion);
+            }
+        } else {
+            $id = $extId;
+        }
+        if (!$dbVersion && !PropertyTable::getList(array('filter' => array('=ID' => $id)))->fetch()) {
+            unset($data['VERSION']);
+            $addRes = PropertyTable::add(array(
+                'ID' => $id,
+                'NAME' => $data['NAME'],
+                'IBLOCK_ID' => $data['IBLOCK_ID']
+            ));
+            if (!$addRes->isSuccess()) {
+                throw new \Exception('Ќе удалось возобновить свойство текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
             }
         }
         if ($id) {
