@@ -230,6 +230,18 @@ class Module {
     }
 
     /**
+     * @return BaseSubjectHandler[]
+     */
+    public function getSubjectHandlers() {
+        $classes = array_keys($this->handlers());
+        $res = array();
+        foreach ($classes as $class) {
+            $res[] = $this->getSubjectHandler($class);
+        }
+        return $res;
+    }
+
+    /**
      * @param $class
      * @return BaseSubjectHandler
      */

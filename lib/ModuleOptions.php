@@ -4,6 +4,7 @@ namespace WS\Migrations;
  * @property string $catalogPath
  * @property string $version;
  * @property string $useAutotests;
+ * @property string $enabledSubjectHandlers;
  * @author <sokolovsky@worksolutions.ru>
  */
 final class ModuleOptions {
@@ -40,5 +41,27 @@ final class ModuleOptions {
 
     public function __get($name) {
         return $this->_getValue($name);
+    }
+
+    /**
+     * @param $class
+     */
+    public function disableSubjectHandler($class) {
+        $this->enabledSubjectHandlers = array_diff($this->enabledSubjectHandlers ?: array(), array($class));
+    }
+
+    /**
+     * @param $class
+     */
+    public function enableSubjectHandler($class) {
+        $this->enabledSubjectHandlers = array_unique(array_merge($this->enabledSubjectHandlers ?: array(), array($class)));
+    }
+
+    /**
+     * @param $class
+     * @return bool
+     */
+    public function isEnableSubjectHandler($class) {
+        return in_array($class, $this->enabledSubjectHandlers);
     }
 }

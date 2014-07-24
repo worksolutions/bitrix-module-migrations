@@ -10,5 +10,8 @@ return array(
     ),
     'errors' => array(
         'notCreateDir' => 'Невозможно создать директорию'
+    ),
+    'section' => array(
+        'disableHandlers' => 'Применять синхронизацию'
     )
 );
