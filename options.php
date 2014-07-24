@@ -4,7 +4,7 @@ $localization = \WS\Migrations\Module::getInstance()->getLocalization('setup');
 $options = \WS\Migrations\Module::getInstance()->getOptions();
 
 if ($data = $_POST['data']) {
-    //$data['catalog'] && $options->catalogPath = $data['catalog'];
+    $data['catalog'] && $options->catalogPath = $data['catalog'];
     $options->useAutotests = (bool)$data['tests'];
 }
 
