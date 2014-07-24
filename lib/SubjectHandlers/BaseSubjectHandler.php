@@ -163,6 +163,13 @@ abstract class BaseSubjectHandler {
         return $data;
     }
 
-    abstract protected  function getSubjectGroup();
+    /**
+     * ѕризнак об€зательного наличи€ в миграци€х проекта
+     * @return bool
+     */
+    public function required() {
+        return true;
+    }
 
+    abstract protected  function getSubjectGroup();
 }

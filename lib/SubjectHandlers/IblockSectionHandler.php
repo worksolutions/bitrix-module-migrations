@@ -119,4 +119,8 @@ class IblockSectionHandler extends BaseSubjectHandler {
         }
         return $res;
     }
+
+    public function required() {
+        return false;
+    }
 }
