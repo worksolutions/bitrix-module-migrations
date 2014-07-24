@@ -319,6 +319,9 @@ class Module {
         }
         $collector = $this->getDutyCollector();
         $handler = $this->getSubjectHandler($handlerClass);
+        if (!$handler->required() && !$this->getOptions()->isEnableSubjectHandler($handlerClass)) {
+            return ;
+        }
 
         $fix  = $collector->getFix();
         $fix->setSubject(get_class($handler));
@@ -447,9 +450,12 @@ class Module {
         $applyFixLog->groupLabel = $fix->getLabel();
 
         $process = $this->getProcess($fix->getProcess());
-        $subject = $this->getSubjectHandler($fix->getSubject());
+        $subjectHandler = $this->getSubjectHandler($fix->getSubject());
+        if (!$subjectHandler->required() && !$this->getOptions()->isEnableSubjectHandler($fix->getSubject())) {
+            return ;
+        }
 
-        $result = $process->update($subject, $fix, $applyFixLog);
+        $result = $process->update($subjectHandler, $fix, $applyFixLog);
         $applyFixLog->success = (bool) $result->isSuccess();
         !$result->isSuccess() && $applyFixLog->description .= '. '.$result->getMessage();
         $applyFixLog->save();
