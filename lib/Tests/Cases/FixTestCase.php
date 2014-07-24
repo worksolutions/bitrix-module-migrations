@@ -24,7 +24,7 @@ class FixTestCase extends AbstractCase {
      */
     private $_currentDutyCollector;
 
-    const VERSION = 'testVersion';
+    const VERSION = 'test';
 
     private $_iblockId, $_propertyId, $_sectionId;
 

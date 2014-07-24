@@ -22,8 +22,7 @@ class Starter {
     static public function cases() {
         return array(
             FixTestCase::className(),
-            UpdateTestCase::className(),
-            VersionTestCase::className(),
+            UpdateTestCase::className()
         );
     }
 
