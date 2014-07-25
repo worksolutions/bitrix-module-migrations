@@ -9,6 +9,8 @@ require_once __DIR__.'/../lib/SubjectHandlers/BaseSubjectHandler.php';
 require_once __DIR__.'/../lib/SubjectHandlers/IblockHandler.php';
 require_once __DIR__.'/../lib/SubjectHandlers/IblockPropertyHandler.php';
 require_once __DIR__.'/../lib/SubjectHandlers/IblockSectionHandler.php';
+require_once __DIR__.'/../lib/Reference/ReferenceController.php';
+require_once __DIR__.'/../lib/Reference/ReferenceItem.php';
 
 Class ws_migrations extends CModule {
     const MODULE_ID = 'ws.migrations';
