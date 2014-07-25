@@ -140,11 +140,8 @@ class Module {
         $self->_referenceController = new ReferenceController($self->getDbVersion());
         $fixRefProcess = self::SPECIAL_PROCESS_FIX_REFERENCE;
         $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($self, $fixRefProcess) {
-            if (!$self->hasListen()) {
-                return;
-            }
             $collector = $self->getDutyCollector();
-            $fix = $collector->getFix();
+            $fix = $collector->createFix();
             $fix
                 ->setName('Reference fix')
                 ->setProcess($fixRefProcess)
@@ -323,7 +320,7 @@ class Module {
             return ;
         }
 
-        $fix  = $collector->getFix();
+        $fix  = $collector->createFix();
         $fix->setSubject(get_class($handler));
 
         $result = false;
@@ -583,7 +580,7 @@ class Module {
         $collector = $this->_createCollector();
         // version export
         foreach ($this->_getReferenceController()->getItems() as $item) {
-            $fix = $collector->getFix();
+            $fix = $collector->createFix();
             $fix
                 ->setName('Reference fix')
                 ->setProcess(self::SPECIAL_PROCESS_FIX_REFERENCE)
@@ -602,7 +599,7 @@ class Module {
             $ids = $handler->existsIds();
             foreach ($ids as $id) {
                 $snapshot = $handler->getSnapshot($id);
-                $fix = $collector->getFix();
+                $fix = $collector->createFix();
                 $fix->setSubject(get_class($handler))
                     ->setProcess(self::SPECIAL_PROCESS_FULL_MIGRATE)
                     ->setDbVersion($this->getDbVersion())

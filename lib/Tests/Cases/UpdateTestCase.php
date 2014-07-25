@@ -132,4 +132,10 @@ class UpdateTestCase extends AbstractCase {
 
         $this->assertEmpty($arIblock, 'Инфоблок существует');
     }
+
+    public function testCreateNewReferenceFixes() {
+        $collector = Module::getInstance()->getDutyCollector();
+        $fixes = $collector->getFixes();
+        $this->assertNotEmpty($fixes, 'Необходимо наличие фиксаций добавления ссылок');
+    }
 }

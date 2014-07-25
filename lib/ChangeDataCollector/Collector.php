@@ -27,7 +27,7 @@ class Collector {
         $this->_label = $file->getName();
         $savedData = $this->_getSavedData();
         foreach ($savedData as $arFix) {
-            $fix = $this->getFix();
+            $fix = $this->createFix();
             $this->registerFix($fix);
             $fix
                 ->setUpdateData($arFix['data'])
@@ -63,7 +63,7 @@ class Collector {
     /**
      * @return CollectorFix
      */
-    public function getFix() {
+    public function createFix() {
         return new CollectorFix($this->_label);
     }
 

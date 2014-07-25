@@ -58,7 +58,7 @@ class ReferenceController {
             'ITEM_ID' => $item->id
         ));
         $onRegister = $this->_onRegister;
-        $onRegister && $onRegister($item);
+        $onRegister && $item->dbVersion == $this->_currentDbVersion && $onRegister($item);
         return $this;
     }
 
