@@ -648,7 +648,6 @@ class Module {
         foreach ($this->getSubjectHandlers() as $handler) {
             $handler->registerExistsReferences();
         }
-
     }
 }
 

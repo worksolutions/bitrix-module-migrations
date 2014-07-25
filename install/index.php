@@ -79,15 +79,15 @@ Class ws_migrations extends CModule {
             if (!$errors) {
                 $options->catalogPath = $data['catalog'];
             }
+            $this->InstallFiles();
+            $this->InstallDB();
+            RegisterModule(self::MODULE_ID);
             \WS\Migrations\Module::getInstance()->install();
         }
         if (!$data || $errors) {
             $APPLICATION->IncludeAdminFile($loc->getDataByPath('title'), __DIR__.'/form.php');
             return;
         }
-        $this->InstallFiles();
-        $this->InstallDB();
-        RegisterModule(self::MODULE_ID);
     }
 
     function DoUninstall() {
