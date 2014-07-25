@@ -1,0 +1,50 @@
+[
+    {
+        "process": "reference",
+        "subject": null,
+        "data": {
+            "reference": "d13bd5f833ec98310a112080508580b7",
+            "group": "iblockProperty",
+            "dbVersion": "test",
+            "id": 46
+        },
+        "originalData": null,
+        "name": "Reference fix",
+        "version": "test"
+    },
+    {
+        "process": "WS\\Migrations\\Processes\\DeleteProcess",
+        "subject": "WS\\Migrations\\SubjectHandlers\\IblockPropertyHandler",
+        "data": 46,
+        "originalData": {
+            "ID": "46",
+            "TIMESTAMP_X": "2014-07-23 14:05:54",
+            "IBLOCK_ID": "6",
+            "NAME": "Test Add prop 1 ++",
+            "ACTIVE": "Y",
+            "SORT": "100",
+            "CODE": "prop1",
+            "DEFAULT_VALUE": "",
+            "PROPERTY_TYPE": "S",
+            "ROW_COUNT": "1",
+            "COL_COUNT": "30",
+            "LIST_TYPE": "L",
+            "MULTIPLE": "N",
+            "XML_ID": null,
+            "FILE_TYPE": "",
+            "MULTIPLE_CNT": "5",
+            "TMP_ID": null,
+            "LINK_IBLOCK_ID": "0",
+            "WITH_DESCRIPTION": "N",
+            "SEARCHABLE": "N",
+            "FILTRABLE": "N",
+            "IS_REQUIRED": "N",
+            "VERSION": "1",
+            "USER_TYPE": null,
+            "USER_TYPE_SETTINGS": null,
+            "HINT": ""
+        },
+        "name": "\u0421\u0432\u043e\u0439\u0441\u0442\u0432\u043e \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0433\u043e \u0431\u043b\u043e\u043a\u0430. \u0423\u0434\u0430\u043b\u0435\u043d\u0438\u0435",
+        "version": "test"
+    }
+]

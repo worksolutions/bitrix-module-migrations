@@ -1,0 +1,323 @@
+[
+    {
+        "process": "reference",
+        "subject": null,
+        "data": {
+            "reference": "5c31fbec77d6a2ad88e431acbaaf0699",
+            "group": "iblock",
+            "dbVersion": "test",
+            "id": 6
+        },
+        "originalData": null,
+        "name": "Reference fix",
+        "version": "test"
+    },
+    {
+        "process": "WS\\Migrations\\Processes\\DeleteProcess",
+        "subject": "WS\\Migrations\\SubjectHandlers\\IblockHandler",
+        "data": 6,
+        "originalData": {
+            "iblock": {
+                "ID": "6",
+                "TIMESTAMP_X": "23.07.2014 14:05:54",
+                "IBLOCK_TYPE_ID": "catalog",
+                "LID": "s1",
+                "CODE": "neww",
+                "NAME": "Added Iblock Test chenge NAME",
+                "ACTIVE": "Y",
+                "SORT": "120",
+                "LIST_PAGE_URL": "#SITE_DIR#\/catalog\/index.php?ID=#IBLOCK_ID#",
+                "DETAIL_PAGE_URL": "#SITE_DIR#\/catalog\/detail.php?ID=#ELEMENT_ID#",
+                "SECTION_PAGE_URL": "#SITE_DIR#\/catalog\/list.php?SECTION_ID=#SECTION_ID#",
+                "PICTURE": null,
+                "DESCRIPTION": "",
+                "DESCRIPTION_TYPE": "text",
+                "RSS_TTL": "24",
+                "RSS_ACTIVE": "Y",
+                "RSS_FILE_ACTIVE": "N",
+                "RSS_FILE_LIMIT": null,
+                "RSS_FILE_DAYS": null,
+                "RSS_YANDEX_ACTIVE": "N",
+                "XML_ID": null,
+                "TMP_ID": "cb75d12b82d0b44bbec109847087cb17",
+                "INDEX_ELEMENT": "Y",
+                "INDEX_SECTION": "Y",
+                "WORKFLOW": "N",
+                "BIZPROC": "N",
+                "SECTION_CHOOSER": "L",
+                "LIST_MODE": "",
+                "RIGHTS_MODE": "S",
+                "SECTION_PROPERTY": null,
+                "VERSION": "1",
+                "LAST_CONV_ELEMENT": "0",
+                "SOCNET_GROUP_ID": null,
+                "EDIT_FILE_BEFORE": "",
+                "EDIT_FILE_AFTER": "",
+                "SECTIONS_NAME": "\u0420\u0430\u0437\u0434\u0435\u043b\u044b",
+                "SECTION_NAME": "\u0420\u0430\u0437\u0434\u0435\u043b",
+                "ELEMENTS_NAME": "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u044b",
+                "ELEMENT_NAME": "\u042d\u043b\u0435\u043c\u0435\u043d\u0442",
+                "ELEMENT_ADD": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u044d\u043b\u0435\u043c\u0435\u043d\u0442",
+                "ELEMENT_EDIT": "\u0418\u0437\u043c\u0435\u043d\u0438\u0442\u044c \u044d\u043b\u0435\u043c\u0435\u043d\u0442",
+                "ELEMENT_DELETE": "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u044d\u043b\u0435\u043c\u0435\u043d\u0442",
+                "SECTION_ADD": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0440\u0430\u0437\u0434\u0435\u043b",
+                "SECTION_EDIT": "\u0418\u0437\u043c\u0435\u043d\u0438\u0442\u044c \u0440\u0430\u0437\u0434\u0435\u043b",
+                "SECTION_DELETE": "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0440\u0430\u0437\u0434\u0435\u043b",
+                "FIELDS": {
+                    "IBLOCK_SECTION": {
+                        "NAME": "\u041f\u0440\u0438\u0432\u044f\u0437\u043a\u0430 \u043a \u0440\u0430\u0437\u0434\u0435\u043b\u0430\u043c",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "ACTIVE": {
+                        "NAME": "\u0410\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u044c",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": "Y"
+                    },
+                    "ACTIVE_FROM": {
+                        "NAME": "\u041d\u0430\u0447\u0430\u043b\u043e \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u0438",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "ACTIVE_TO": {
+                        "NAME": "\u041e\u043a\u043e\u043d\u0447\u0430\u043d\u0438\u0435 \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u0438",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "SORT": {
+                        "NAME": "\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0430",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": "0"
+                    },
+                    "NAME": {
+                        "NAME": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "PREVIEW_PICTURE": {
+                        "NAME": "\u041a\u0430\u0440\u0442\u0438\u043d\u043a\u0430 \u0434\u043b\u044f \u0430\u043d\u043e\u043d\u0441\u0430",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": {
+                            "FROM_DETAIL": "N",
+                            "SCALE": "N",
+                            "WIDTH": "",
+                            "HEIGHT": "",
+                            "IGNORE_ERRORS": "N",
+                            "METHOD": "resample",
+                            "COMPRESSION": 95,
+                            "DELETE_WITH_DETAIL": "N",
+                            "UPDATE_WITH_DETAIL": "N",
+                            "USE_WATERMARK_TEXT": "N",
+                            "WATERMARK_TEXT": "",
+                            "WATERMARK_TEXT_FONT": "",
+                            "WATERMARK_TEXT_COLOR": "",
+                            "WATERMARK_TEXT_SIZE": "",
+                            "WATERMARK_TEXT_POSITION": "tl",
+                            "USE_WATERMARK_FILE": "N",
+                            "WATERMARK_FILE": "",
+                            "WATERMARK_FILE_ALPHA": "",
+                            "WATERMARK_FILE_POSITION": "tl",
+                            "WATERMARK_FILE_ORDER": null
+                        }
+                    },
+                    "PREVIEW_TEXT_TYPE": {
+                        "NAME": "\u0422\u0438\u043f \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044f \u0434\u043b\u044f \u0430\u043d\u043e\u043d\u0441\u0430",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": "text"
+                    },
+                    "PREVIEW_TEXT": {
+                        "NAME": "\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u0434\u043b\u044f \u0430\u043d\u043e\u043d\u0441\u0430",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "DETAIL_PICTURE": {
+                        "NAME": "\u0414\u0435\u0442\u0430\u043b\u044c\u043d\u0430\u044f \u043a\u0430\u0440\u0442\u0438\u043d\u043a\u0430",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": {
+                            "SCALE": "N",
+                            "WIDTH": "",
+                            "HEIGHT": "",
+                            "IGNORE_ERRORS": "N",
+                            "METHOD": "resample",
+                            "COMPRESSION": 95,
+                            "USE_WATERMARK_TEXT": "N",
+                            "WATERMARK_TEXT": "",
+                            "WATERMARK_TEXT_FONT": "",
+                            "WATERMARK_TEXT_COLOR": "",
+                            "WATERMARK_TEXT_SIZE": "",
+                            "WATERMARK_TEXT_POSITION": "tl",
+                            "USE_WATERMARK_FILE": "N",
+                            "WATERMARK_FILE": "",
+                            "WATERMARK_FILE_ALPHA": "",
+                            "WATERMARK_FILE_POSITION": "tl",
+                            "WATERMARK_FILE_ORDER": null
+                        }
+                    },
+                    "DETAIL_TEXT_TYPE": {
+                        "NAME": "\u0422\u0438\u043f \u0434\u0435\u0442\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044f",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": "text"
+                    },
+                    "DETAIL_TEXT": {
+                        "NAME": "\u0414\u0435\u0442\u0430\u043b\u044c\u043d\u043e\u0435 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "XML_ID": {
+                        "NAME": "\u0412\u043d\u0435\u0448\u043d\u0438\u0439 \u043a\u043e\u0434",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "CODE": {
+                        "NAME": "\u0421\u0438\u043c\u0432\u043e\u043b\u044c\u043d\u044b\u0439 \u043a\u043e\u0434",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": {
+                            "UNIQUE": "N",
+                            "TRANSLITERATION": "N",
+                            "TRANS_LEN": 100,
+                            "TRANS_CASE": "L",
+                            "TRANS_SPACE": "-",
+                            "TRANS_OTHER": "-",
+                            "TRANS_EAT": "Y",
+                            "USE_GOOGLE": "N"
+                        }
+                    },
+                    "TAGS": {
+                        "NAME": "\u0422\u0435\u0433\u0438",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "SECTION_NAME": {
+                        "NAME": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "SECTION_PICTURE": {
+                        "NAME": "\u041a\u0430\u0440\u0442\u0438\u043d\u043a\u0430 \u0434\u043b\u044f \u0430\u043d\u043e\u043d\u0441\u0430",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": {
+                            "FROM_DETAIL": "N",
+                            "SCALE": "N",
+                            "WIDTH": "",
+                            "HEIGHT": "",
+                            "IGNORE_ERRORS": "N",
+                            "METHOD": "resample",
+                            "COMPRESSION": 95,
+                            "DELETE_WITH_DETAIL": "N",
+                            "UPDATE_WITH_DETAIL": "N",
+                            "USE_WATERMARK_TEXT": "N",
+                            "WATERMARK_TEXT": "",
+                            "WATERMARK_TEXT_FONT": "",
+                            "WATERMARK_TEXT_COLOR": "",
+                            "WATERMARK_TEXT_SIZE": "",
+                            "WATERMARK_TEXT_POSITION": "tl",
+                            "USE_WATERMARK_FILE": "N",
+                            "WATERMARK_FILE": "",
+                            "WATERMARK_FILE_ALPHA": "",
+                            "WATERMARK_FILE_POSITION": "tl",
+                            "WATERMARK_FILE_ORDER": null
+                        }
+                    },
+                    "SECTION_DESCRIPTION_TYPE": {
+                        "NAME": "\u0422\u0438\u043f \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044f",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": "text"
+                    },
+                    "SECTION_DESCRIPTION": {
+                        "NAME": "\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "SECTION_DETAIL_PICTURE": {
+                        "NAME": "\u0414\u0435\u0442\u0430\u043b\u044c\u043d\u0430\u044f \u043a\u0430\u0440\u0442\u0438\u043d\u043a\u0430",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": {
+                            "SCALE": "N",
+                            "WIDTH": "",
+                            "HEIGHT": "",
+                            "IGNORE_ERRORS": "N",
+                            "METHOD": "resample",
+                            "COMPRESSION": 95,
+                            "USE_WATERMARK_TEXT": "N",
+                            "WATERMARK_TEXT": "",
+                            "WATERMARK_TEXT_FONT": "",
+                            "WATERMARK_TEXT_COLOR": "",
+                            "WATERMARK_TEXT_SIZE": "",
+                            "WATERMARK_TEXT_POSITION": "tl",
+                            "USE_WATERMARK_FILE": "N",
+                            "WATERMARK_FILE": "",
+                            "WATERMARK_FILE_ALPHA": "",
+                            "WATERMARK_FILE_POSITION": "tl",
+                            "WATERMARK_FILE_ORDER": null
+                        }
+                    },
+                    "SECTION_XML_ID": {
+                        "NAME": "\u0412\u043d\u0435\u0448\u043d\u0438\u0439 \u043a\u043e\u0434",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": ""
+                    },
+                    "SECTION_CODE": {
+                        "NAME": "\u0421\u0438\u043c\u0432\u043e\u043b\u044c\u043d\u044b\u0439 \u043a\u043e\u0434",
+                        "IS_REQUIRED": "N",
+                        "DEFAULT_VALUE": {
+                            "UNIQUE": "N",
+                            "TRANSLITERATION": "N",
+                            "TRANS_LEN": 100,
+                            "TRANS_CASE": "L",
+                            "TRANS_SPACE": "-",
+                            "TRANS_OTHER": "-",
+                            "TRANS_EAT": "Y",
+                            "USE_GOOGLE": "N"
+                        }
+                    },
+                    "LOG_SECTION_ADD": {
+                        "NAME": "LOG_SECTION_ADD",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": null
+                    },
+                    "LOG_SECTION_EDIT": {
+                        "NAME": "LOG_SECTION_EDIT",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": null
+                    },
+                    "LOG_SECTION_DELETE": {
+                        "NAME": "LOG_SECTION_DELETE",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": null
+                    },
+                    "LOG_ELEMENT_ADD": {
+                        "NAME": "LOG_ELEMENT_ADD",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": null
+                    },
+                    "LOG_ELEMENT_EDIT": {
+                        "NAME": "LOG_ELEMENT_EDIT",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": null
+                    },
+                    "LOG_ELEMENT_DELETE": {
+                        "NAME": "LOG_ELEMENT_DELETE",
+                        "IS_REQUIRED": "Y",
+                        "DEFAULT_VALUE": null
+                    }
+                }
+            },
+            "type": {
+                "ID": "catalog",
+                "~ID": "catalog",
+                "SECTIONS": "Y",
+                "~SECTIONS": "Y",
+                "EDIT_FILE_BEFORE": null,
+                "~EDIT_FILE_BEFORE": null,
+                "EDIT_FILE_AFTER": null,
+                "~EDIT_FILE_AFTER": null,
+                "IN_RSS": "N",
+                "~IN_RSS": "N",
+                "SORT": "100",
+                "~SORT": "100"
+            }
+        },
+        "name": "\u0418\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u044b\u0439 \u0431\u043b\u043e\u043a. \u0423\u0434\u0430\u043b\u0435\u043d\u0438\u0435",
+        "version": "test"
+    }
+]
