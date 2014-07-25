@@ -137,5 +137,10 @@ class UpdateTestCase extends AbstractCase {
         $collector = Module::getInstance()->getDutyCollector();
         $fixes = $collector->getFixes();
         $this->assertNotEmpty($fixes, 'Необходимо наличие фиксаций добавления ссылок');
+        foreach ($fixes as $fix) {
+            if ($fix->getProcess() != 'reference') {
+                $this->throwError('При обновлении регистрируются только ссылки');
+            }
+        }
     }
 }
