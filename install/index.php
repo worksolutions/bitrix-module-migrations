@@ -5,6 +5,10 @@ require_once __DIR__.'/../lib/Module.php';
 require_once __DIR__.'/../lib/Localization.php';
 require_once __DIR__.'/../lib/Options.php';
 require_once __DIR__.'/../lib/ModuleOptions.php';
+require_once __DIR__.'/../lib/SubjectHandlers/BaseSubjectHandler.php';
+require_once __DIR__.'/../lib/SubjectHandlers/IblockHandler.php';
+require_once __DIR__.'/../lib/SubjectHandlers/IblockPropertyHandler.php';
+require_once __DIR__.'/../lib/SubjectHandlers/IblockSectionHandler.php';
 
 Class ws_migrations extends CModule {
     const MODULE_ID = 'ws.migrations';
