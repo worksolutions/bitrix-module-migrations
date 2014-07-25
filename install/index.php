@@ -12,6 +12,8 @@ Class ws_migrations extends CModule {
     var $MODULE_VERSION;
     var $MODULE_VERSION_DATE;
     var $MODULE_NAME;
+    var $PARTNER_NAME;
+    var $PARTNER_URI;
     var $MODULE_DESCRIPTION;
     var $MODULE_CSS;
     var $strError = '';
