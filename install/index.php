@@ -27,8 +27,9 @@ Class ws_migrations extends CModule {
         $localization = \WS\Migrations\Module::getInstance()->getLocalization('info');
         $this->MODULE_NAME = $localization->getDataByPath("name");
         $this->MODULE_DESCRIPTION = $localization->getDataByPath("description");
+        $this->PARTNER_NAME = GetMessage('PARTNER_NAME');
         $this->PARTNER_NAME = $localization->getDataByPath("partner.name");
-        $this->PARTNER_URI = $localization->getDataByPath("partner.url");
+        $this->PARTNER_URI = 'http://worksolutions.ru';
     }
 
     function InstallDB($arParams = array()) {
