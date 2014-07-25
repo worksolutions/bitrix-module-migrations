@@ -643,6 +643,13 @@ class Module {
     public function clearReferences() {
         $this->_getReferenceController()->deleteAll();
     }
+
+    public function install() {
+        foreach ($this->getSubjectHandlers() as $handler) {
+            $handler->registerExistsReferences();
+        }
+
+    }
 }
 
 function jsonToArray($json) {

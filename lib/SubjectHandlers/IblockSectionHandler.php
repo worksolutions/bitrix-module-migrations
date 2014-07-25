@@ -125,4 +125,15 @@ class IblockSectionHandler extends BaseSubjectHandler {
     public function required() {
         return false;
     }
+
+    protected function getExistsSubjectIds() {
+        $rs = SectionTable::getList(array(
+            'select' => array('ID')
+        ));
+        $res = array();
+        while ($arSection = $rs->fetch()) {
+            $res[] = $arSection['ID'];
+        }
+        return $res;
+    }
 }

@@ -9,6 +9,7 @@ namespace WS\Migrations\Tests;
 use WS\Migrations\Module;
 use WS\Migrations\Tests\Cases\ErrorException;
 use WS\Migrations\Tests\Cases\FixTestCase;
+use WS\Migrations\Tests\Cases\InstallTestCase;
 use WS\Migrations\Tests\Cases\UpdateTestCase;
 use WS\Migrations\Tests\Cases\VersionTestCase;
 
@@ -23,7 +24,8 @@ class Starter {
     static public function cases() {
         return array(
             FixTestCase::className(),
-            UpdateTestCase::className()
+            UpdateTestCase::className(),
+            InstallTestCase::className()
         );
     }
 

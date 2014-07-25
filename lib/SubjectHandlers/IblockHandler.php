@@ -140,4 +140,15 @@ class IblockHandler extends BaseSubjectHandler  {
         }
         return $res;
     }
+
+    protected function getExistsSubjectIds() {
+        $rs = IblockTable::getList(array(
+            'select' => array('ID')
+        ));
+        $res = array();
+        while ($arIblock = $rs->fetch()) {
+            $res[] = $arIblock['ID'];
+        }
+        return $res;
+    }
 }

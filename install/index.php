@@ -76,6 +76,7 @@ Class ws_migrations extends CModule {
             if (!$errors) {
                 $options->catalogPath = $data['catalog'];
             }
+            \WS\Migrations\Module::getInstance()->install();
         }
         if (!$data || $errors) {
             $APPLICATION->IncludeAdminFile($loc->getDataByPath('title'), __DIR__.'/form.php');

@@ -114,4 +114,15 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         }
         return $res;
     }
+
+    protected function getExistsSubjectIds() {
+        $rs = PropertyTable::getList(array(
+            'select' => array('ID')
+        ));
+        $res = array();
+        while ($arProperty = $rs->fetch()) {
+            $res[] = $arProperty['ID'];
+        }
+        return $res;
+    }
 }
