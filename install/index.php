@@ -5,12 +5,6 @@ require_once __DIR__.'/../lib/Module.php';
 require_once __DIR__.'/../lib/Localization.php';
 require_once __DIR__.'/../lib/Options.php';
 require_once __DIR__.'/../lib/ModuleOptions.php';
-require_once __DIR__.'/../lib/SubjectHandlers/BaseSubjectHandler.php';
-require_once __DIR__.'/../lib/SubjectHandlers/IblockHandler.php';
-require_once __DIR__.'/../lib/SubjectHandlers/IblockPropertyHandler.php';
-require_once __DIR__.'/../lib/SubjectHandlers/IblockSectionHandler.php';
-require_once __DIR__.'/../lib/Reference/ReferenceController.php';
-require_once __DIR__.'/../lib/Reference/ReferenceItem.php';
 
 Class ws_migrations extends CModule {
     const MODULE_ID = 'ws.migrations';
@@ -88,6 +82,8 @@ Class ws_migrations extends CModule {
             $this->InstallFiles();
             $this->InstallDB();
             RegisterModule(self::MODULE_ID);
+            \Bitrix\Main\Loader::includeModule(self::MODULE_ID);
+            \Bitrix\Main\Loader::includeModule('iblock');
             \WS\Migrations\Module::getInstance()->install();
         }
         if (!$data || $errors) {
