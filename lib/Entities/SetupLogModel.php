@@ -35,7 +35,9 @@ class SetupLogModel extends BaseEntity {
 
     static protected function modifyFromDb($data) {
         if ($data['date'] instanceof DateTime) {
-            $data['date'] = $data['date']->getValue();
+            $timestamp = $data['date']->getTimestamp();
+            $data['date'] = new \DateTime();
+            $data['date']->setTimestamp($timestamp);
         } else {
             $data['date']= new \DateTime($data['date']);
         }
