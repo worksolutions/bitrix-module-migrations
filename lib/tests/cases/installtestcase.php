@@ -17,11 +17,11 @@ use WS\Migrations\Tests\AbstractCase;
 class InstallTestCase extends AbstractCase {
 
     public function name() {
-        return 'Тестирование процедуры установки';
+        return $this->localization->message('name');
     }
 
     public function description() {
-        return '';
+        return $this->localization->message('description');
     }
 
     public function init() {
@@ -39,7 +39,7 @@ class InstallTestCase extends AbstractCase {
             )
         ));
         $dbRsIblock = IblockTable::getList();
-        $this->assertEquals($dbRsIblock->getSelectedRowsCount(), $dbRsRef->getSelectedRowsCount(), 'Количество ссылок по инфоблокам и записей инфоблоков должно совпадать');
+        $this->assertEquals($dbRsIblock->getSelectedRowsCount(), $dbRsRef->getSelectedRowsCount(), $this->errorMessage('number of links to the information block and the information block entries must match'));
 
         $dbRsRef = DbVersionReferencesTable::getList(array(
             'filter' => array(
@@ -47,7 +47,7 @@ class InstallTestCase extends AbstractCase {
             )
         ));
         $dbRsProp = PropertyTable::getList();
-        $this->assertEquals($dbRsProp->getSelectedRowsCount(), $dbRsRef->getSelectedRowsCount(), 'Количество ссылок по свойствам инфоблоков и записей должно совпадать');
+        $this->assertEquals($dbRsProp->getSelectedRowsCount(), $dbRsRef->getSelectedRowsCount(), $this->errorMessage('number of links on the properties of information blocks and records must match'));
 
         $dbRsRef = DbVersionReferencesTable::getList(array(
             'filter' => array(
@@ -55,7 +55,7 @@ class InstallTestCase extends AbstractCase {
             )
         ));
         $dbRsSection = SectionTable::getList();
-        $this->assertEquals($dbRsSection->getSelectedRowsCount(), $dbRsRef->getSelectedRowsCount(), 'Количество ссылок по разделам инфоблоков и записей должно совпадать');
+        $this->assertEquals($dbRsSection->getSelectedRowsCount(), $dbRsRef->getSelectedRowsCount(), $this->errorMessage('number of links to information block sections and records must match'));
     }
 
 }

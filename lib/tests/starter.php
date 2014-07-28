@@ -21,12 +21,23 @@ class Starter {
         return get_called_class();
     }
 
+    /**
+     * @return \WS\Migrations\Localization
+     */
+    static public function getLocalization() {
+        return Module::getInstance()->getLocalization('tests');
+    }
+
     static public function cases() {
         return array(
             FixTestCase::className(),
             UpdateTestCase::className(),
             InstallTestCase::className()
         );
+    }
+
+    static private function _getLocalizationByCase ($class) {
+        return static::getLocalization()->fork('cases.'.$class);
     }
 
     /**
@@ -45,10 +56,12 @@ class Starter {
             return array_pop($arClass);
         };
         foreach (self::cases() as $caseClass) {
+            /** @var $case AbstractCase */
+            $case = new $caseClass(static::_getLocalizationByCase($caseClass));
             $points[self::SECTION.'-'.$i++] = array(
                 'AUTO' => 'Y',
-                'NAME' => $caseClass::name(),
-                'DESC' => $caseClass::description(),
+                'NAME' => $case->name(),
+                'DESC' => $case->description(),
                 'CLASS_NAME' => get_called_class(),
                 'METHOD_NAME' => 'run',
                 'PARENT' => self::SECTION,
@@ -61,7 +74,7 @@ class Starter {
         return array(
             'CATEGORIES' => array(
                 self::SECTION => array(
-                    'NAME' => 'Рабочие решения. Модуль миграций'
+                    'NAME' => static::getLocalization()->message('run.name')
                 )
             ),
             'POINTS' => $points
@@ -76,7 +89,7 @@ class Starter {
             $result->setMessage('Params not is correct');
             return $result->toArray();
         }
-        $testCase = new $class();
+        $testCase = new $class(static::_getLocalizationByCase($class));
         if (!$testCase instanceof AbstractCase) {
             $result->setSuccess(false);
             $result->setMessage('Case class is not correct');
@@ -104,7 +117,7 @@ class Starter {
         }
         $testCase->close();
         return $result->setSuccess(true)
-            ->setMessage('Успешно пройдено: '.$count."\n".'Проверок: '.$testCase->getAssertsCount())
+            ->setMessage(static::getLocalization()->message('run.report.completed').':'.$count."\n".static::getLocalization()->message('run.report.assertions').': '.$testCase->getAssertsCount())
             ->toArray();
     }
 }

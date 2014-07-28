@@ -27,16 +27,13 @@ class Localization {
     }
 
     /**
-     * @param str $path @see Options
+     * @param string $path @see Options
      * @param array $replace
      * @return mixed
      */
     public function message($path, $replace = null) {
         $m = $this->getData()->get($path, '');
-        if ( ! is_scalar($m) || ! $m) {
-            return '';
-        }
-        $result = $m;
+        $result = $m ?: $path;
         if (is_array($replace)) {
             $result = str_replace(array_keys($replace), array_values($replace), $m);
         }
@@ -44,7 +41,7 @@ class Localization {
     }
 
     /**
-     * @param str $path @see Options
+     * @param string $path @see Options
      * @return Localization
      */
     public function fork($path) {

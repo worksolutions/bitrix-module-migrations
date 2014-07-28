@@ -6,11 +6,31 @@
 namespace WS\Migrations\Tests;
 
 
+use WS\Migrations\Localization;
 use WS\Migrations\Tests\Cases\ErrorException;
 
 abstract class AbstractCase {
 
     private $_assertCount = 0;
+
+    /**
+     * @var \WS\Migrations\Localization
+     */
+    protected $localization;
+
+    public function __construct(Localization $loc) {
+        $this->localization = $loc;
+    }
+
+    /**
+     * Генерация сообщения об ошибке
+     * @param $path
+     * @param null $replace
+     * @return mixed
+     */
+    protected function errorMessage($path, $replace = null) {
+        return $this->localization->message('errors.'.$path, $replace);
+    }
 
     static public function className() {
         return get_called_class();

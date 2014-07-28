@@ -31,11 +31,11 @@ class FixTestCase extends AbstractCase {
     private $_iblockId, $_propertyId, $_sectionId;
 
     public function name() {
-        return 'Тестирование фиксаций изменений';
+        return $this->localization->message('name');
     }
 
     public function description() {
-        return 'Проверка фиксации изменений при изменении структуры предметной области';
+        return $this->localization->message('description');
     }
 
     public function init() {
@@ -88,7 +88,9 @@ class FixTestCase extends AbstractCase {
             'SITE_ID' => 's1'
         ));
 
-        $this->assertNotEmpty($ibId, 'Не создан идентификатор инфоблока.'.$ib->LAST_ERROR);
+        $this->assertNotEmpty($ibId, $this->errorMessage('not create iblock id', array(
+            ':lastError' => $ib->LAST_ERROR
+        )));
 
         $prop = new \CIBlockProperty();
         $propId = $prop->Add(array(
@@ -96,14 +98,20 @@ class FixTestCase extends AbstractCase {
             'CODE' => 'propCode',
             'NAME' => 'Property NAME'
         ));
-        $this->assertNotEmpty($propId, 'Не создано свойство инфоблока.'.$prop->LAST_ERROR);
+
+        $this->assertNotEmpty($propId, $this->errorMessage('not create property iblock id', array(
+            ':lastError' => $ib->LAST_ERROR
+        )));
 
         $sec = new \CIBlockSection();
         $secId = $sec->Add(array(
             'IBLOCK_ID' => $ibId,
             'NAME' => 'Iblock Section'
         ));
-        $this->assertNotEmpty($secId, 'Не создана секция инфоблока.'.$sec->LAST_ERROR);
+
+        $this->assertNotEmpty($secId, $this->errorMessage('not create section iblock id', array(
+            ':lastError' => $ib->LAST_ERROR
+        )));
 
         // В итоге должны получится
 
@@ -129,24 +137,39 @@ class FixTestCase extends AbstractCase {
         $this->assertEquals(3, count($logRecords));
         foreach ($logRecords as $logRecord) {
             if ($logRecord->processName != AddProcess::className()) {
-                $this->throwError('Последними записями лога должен быть процесс добавления');
+                $this->throwError($this->errorMessage('last log records need been update process'));
             }
             $data = $logRecord->updateData;
             switch ($logRecord->subjectName) {
                 case IblockHandler::className():
-                    (!$data['iblock'] || ($data['iblock']['ID'] != $ibId)) && $this->throwError('Инфоблок незарегистрирован в обновлении, тут '.$data['iblock']['ID'].', нужен '.$ibId);
+                    (!$data['iblock'] || ($data['iblock']['ID'] != $ibId))
+                    &&
+                    $this->throwError($this->errorMessage('iblock not registered after update', array(
+                        ':actual' => $data['iblock']['ID'],
+                        ':need' => $ibId
+                    )));
                     break;
                 case IblockPropertyHandler::className():
-                    ($data['ID'] != $propId) && $this->throwError('Свойство незарегистрировано в обновлении, оригинал - '.$propId.' получено '.$data['ID']);
+                    ($data['ID'] != $propId)
+                    &&
+                    $this->throwError($this->errorMessage('property iblock not registered after update', array(
+                        ':original' => $propId,
+                        ':actual' => $data['ID']
+                    )));
                     break;
                 case IblockSectionHandler::className():
-                    $data['ID'] != $secId && $this->throwError('Секция незарегистрирована в обновлении, оригинал - '.$secId.' получено '.$data['ID']);
+                    $data['ID'] != $secId
+                    &&
+                    $this->throwError($this->errorMessage('section iblock not registered after update', array(
+                        ':original' => $secId,
+                        ':actual' => $data['ID']
+                    )));
                     break;
             }
         }
 
         // добавлены три вида ссылок в фиксациях
-        $this->assertEquals(3, count($refFixes), 'Ссылок должно быть 3');
+        $this->assertEquals(3, count($refFixes), $this->errorMessage('links expected count', array(':count' => 3)));
 
         $this->_iblockId = $ibId;
         $this->_propertyId = $propId;
@@ -170,11 +193,11 @@ class FixTestCase extends AbstractCase {
         $iblock = new \CIBlock();
         $updateResult = $iblock->Update($this->_iblockId, $arIblock);
 
-        $this->assertTrue($updateResult, 'Результат обновления отрицательный');
+        $this->assertTrue($updateResult, $this->errorMessage('error update result'));
         // для начала определяется просто как снимок
         $fixes = $this->_getCollectorFixes(UpdateProcess::className());
-        $this->assertEquals(count($fixes), 1, 'Наличие одной фиксации обновления');
-        $this->assertEquals($fixes[0]['data']['iblock']['NAME'], $name, 'Фиксация на изменение имени');
+        $this->assertEquals(count($fixes), 1, $this->errorMessage('having one fixing updates'));
+        $this->assertEquals($fixes[0]['data']['iblock']['NAME'], $name, $this->errorMessage('fixing name change'));
 
         // фиксация изменений
         Module::getInstance()->commitDutyChanges();
@@ -188,22 +211,28 @@ class FixTestCase extends AbstractCase {
         $this->_injectDutyCollector();
         $deleteResult = \CIBlock::Delete($this->_iblockId);
 
-        $this->assertTrue($deleteResult, 'Инфоблок должен быть удален из БД');
+        $this->assertTrue($deleteResult, $this->errorMessage('iblock must be removed from the database'));
 
-        $this->assertCount($this->_getCollectorFixes(DeleteProcess::className()), 3, 'Должны быть записи удалений: секция, свойство, инфоблок');
-        $this->assertCount($sectionFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, 'Должны быть записи удалений: секция');
-        $this->assertCount($propsFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockPropertyHandler::className()), 1, 'Должны быть записи удалений: свойство инфоблока');
-        $this->assertCount($iblockFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockHandler::className()), 1, 'Должны быть записи удалений: инфоблок');
+        $this->assertCount($this->_getCollectorFixes(DeleteProcess::className()), 3, $this->errorMessage('uninstall entries must be: section, property information, iblock'));
+        $this->assertCount($sectionFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, $this->errorMessage('should be uninstall entries: Section'));
+        $this->assertCount($propsFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockPropertyHandler::className()), 1, $this->errorMessage('should be uninstall entries: Property'));
+        $this->assertCount($iblockFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockHandler::className()), 1, $this->errorMessage('should be uninstall entries: Iblock'));
 
         $sectionFixData = array_shift($sectionFixesList);
-        $this->assertTrue(is_scalar($sectionFixData['data']), 'Данными обновления при удалении секции должен быть идентификатор, а тут - '.self::exportValue($sectionFixData['data']));
+        $this->assertTrue(is_scalar($sectionFixData['data']), $this->errorMessage('data pack when you remove the section must be an identifier', array(
+            ':value' => self::exportValue($sectionFixData['data'])
+        )));
 
         $propFixData = array_shift($propsFixesList);
-        $this->assertTrue(is_scalar($propFixData['data']), 'Данными обновления при удалении свойства инфолбока должен быть идентификатор, а тут - '.self::exportValue($propFixData['data']));
+        $this->assertTrue(is_scalar($propFixData['data']), $this->errorMessage('data pack when you remove the property must be an identifier', array(
+            ':value' => self::exportValue($propFixData['data'])
+        )));
 
         $iblockFixData = array_shift($iblockFixesList);
-        $this->assertTrue(is_scalar($iblockFixData['data']), 'Данными обновления при удалении инфоблока должен быть идентификатор, а тут - '.self::exportValue($iblockFixData['data']));
-        $this->assertNotEmpty($iblockFixData['originalData'], 'Должны хранится данные удаленного инфоблока');
+        $this->assertTrue(is_scalar($iblockFixData['data']), $this->errorMessage('data pack when you remove the iblock must be an identifier', array(
+            ':value' => self::exportValue($iblockFixData['data'])
+        )));
+        $this->assertNotEmpty($iblockFixData['originalData'], $this->errorMessage('data should be stored remotely information block'));
 
         // фиксация изменений
         Module::getInstance()->commitDutyChanges();
@@ -218,10 +247,10 @@ class FixTestCase extends AbstractCase {
             'limit' => 3,
             'order' => array('id' => 'DESC')
         ));
-        $this->assertCount($list, 3, 'Должны быть доступены три записи');
+        $this->assertCount($list, 3, $this->errorMessage('should be in an amount of writable', array(':count' => 3)));
 
         foreach ($list as $lItem) {
-            $this->assertTrue($lItem->processName == DeleteProcess::className(), 'Журналируемый процесс должен быть - удалением');
+            $this->assertTrue($lItem->processName == DeleteProcess::className(), $this->errorMessage('logging process should be - Disposal'));
         }
         $rsIblock = \CIBlock::getList();
         $countIbBefore = $rsIblock->SelectedRowsCount();
@@ -239,21 +268,21 @@ class FixTestCase extends AbstractCase {
         $rebuildIblockId = array_diff($iblocksAfter, $iblocksBefore);
         $rebuildIblockId = array_shift($rebuildIblockId);
 
-        $this->assertEquals($countIbAfter, $countIbBefore + 1, 'Данные инфоблока должны быть восстановлены');
-        $this->assertEquals($rebuildIblockId, $this->_iblockId, 'Инфоблок восстановлен, идентификатор изменен');
+        $this->assertEquals($countIbAfter, $countIbBefore + 1, $this->errorMessage('information block data to be restored'));
+        $this->assertEquals($rebuildIblockId, $this->_iblockId, $this->errorMessage('iblock restored identifier changed'));
 
         $rsProp = PropertyTable::getList(array(
             'filter' => array(
                 '=IBLOCK_ID' => $rebuildIblockId
             )
         ));
-        $this->assertTrue($rsProp->getSelectedRowsCount() > 0, 'Должны присутствовать свойства восстановленного инфоблока - '.$rebuildIblockId);
+        $this->assertTrue($rsProp->getSelectedRowsCount() > 0, $this->errorMessage('must present properties of reduced information iblock'), array(':iblockId' => $rebuildIblockId));
 
         $rsSections = SectionTable::getList(array(
             'filter' => array(
                 '=IBLOCK_ID' => $rebuildIblockId
             )
         ));
-        $this->assertTrue($rsSections->getSelectedRowsCount() > 0, 'Должны присутствовать секции(разделы) восстановленного инфоблока - '.$rebuildIblockId);
+        $this->assertTrue($rsSections->getSelectedRowsCount() > 0, $this->errorMessage('must present sections of reduced information iblock', array(':iblockId' => $rebuildIblockId)));
     }
 }

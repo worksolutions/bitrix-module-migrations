@@ -23,11 +23,11 @@ class UpdateTestCase extends AbstractCase {
     private $_processIblockId = null;
 
     public function name() {
-        return 'Обновление изменений';
+        return $this->localization->message('name');
     }
 
     public function description() {
-        return 'Тестирование обновления изменений согласно фиксациям';
+        return $this->localization->message('description');
     }
 
     public function init() {
@@ -62,15 +62,15 @@ class UpdateTestCase extends AbstractCase {
         $this->_processIblockId = array_shift($aAddedId);
 
 
-        $this->assertNotEmpty($ibCountAfter, 'Запись ИБ должна присутствовать');
-        $this->assertNotEquals($ibCountAfter, $ibCountBefore, 'Не добавилась запись инфоблока');
-        $this->assertNotEmpty($this->_processIblockId, 'Недоступен идентификатор нового инфоблока');
+        $this->assertNotEmpty($ibCountAfter, $this->errorMessage('record IB must be present'));
+        $this->assertNotEquals($ibCountAfter, $ibCountBefore, $this->errorMessage('not also recording information block'));
+        $this->assertNotEmpty($this->_processIblockId, $this->errorMessage('unavailable identifier of the new information block'));
 
         $rsProps = \CIBlockProperty::GetList(null, array('IBLOCK_ID' => $this->_processIblockId));
-        $this->assertNotEmpty($rsProps->AffectedRowsCount(), 'Недоступны добавленные свойства информационного блока');
+        $this->assertNotEmpty($rsProps->AffectedRowsCount(), $this->errorMessage('added properties not available information block'));
 
         $rsSections = \CIBlockSection::getList(null, array('IBLOCK_ID' => $this->_processIblockId), false, array('ID'));
-        $this->assertNotEmpty($rsSections->AffectedRowsCount(), 'Недоступны добавленные секции информационного блока');
+        $this->assertNotEmpty($rsSections->AffectedRowsCount(), $this->errorMessage('added sections not available information block'));
     }
 
     public function testUpdate() {
@@ -79,21 +79,21 @@ class UpdateTestCase extends AbstractCase {
                 '=ID' => $this->_processIblockId
             )
         ))->fetch();
-        $this->assertEquals($arIblock['NAME'], 'Added Iblock Test', 'Несоответствует инициализационному имени');
+        $this->assertEquals($arIblock['NAME'], 'Added Iblock Test', $this->errorMessage('inconsistencies initialization name'));
         $this->_applyFixtures(self::FIXTURE_TYPE_UPDATE);
         $arIblock = IblockTable::getList(array(
             'filter' => array(
                 '=ID' => $this->_processIblockId
             )
         ))->fetch();
-        $this->assertEquals($arIblock['NAME'], 'Added Iblock Test chenge NAME', 'Имя инфоблока не изменилось');
+        $this->assertEquals($arIblock['NAME'], 'Added Iblock Test chenge NAME', $this->errorMessage('Name information block has not changed'));
 
         $sectionData = SectionTable::getList(array(
             'filter' => array(
                 '=IBLOCK_ID' => $this->_processIblockId
             )
         ))->fetch();
-        $this->assertEquals($sectionData['NAME'], 'Test Section', 'Имя инфоблока не изменилось');
+        $this->assertEquals($sectionData['NAME'], 'Test Section', $this->errorMessage('Name information block has not changed'));
     }
 
     public function testDelete() {
@@ -104,7 +104,7 @@ class UpdateTestCase extends AbstractCase {
                 '=IBLOCK_ID' => $this->_processIblockId
             )
         ));
-        $this->assertEmpty($rsSection->getSelectedRowsCount(), 'Секции быть недолжно');
+        $this->assertEmpty($rsSection->getSelectedRowsCount(), $this->errorMessage('section should not be'));
 
         $this->_applyFixtures(self::FIXTURE_TYPE_PROPERTY_DELETE);
         $rsProps = PropertyTable::getList(array(
@@ -112,7 +112,7 @@ class UpdateTestCase extends AbstractCase {
                 '=IBLOCK_ID' => $this->_processIblockId
             )
         ));
-        $this->assertEquals($rsProps->getSelectedRowsCount(), 1, 'У инфоблока остается только одно свойство');
+        $this->assertEquals($rsProps->getSelectedRowsCount(), 1, $this->errorMessage('in the information block is only one property'));
 
         $dbList = \CIBlock::GetList();
         $ibCountBefore = $dbList->SelectedRowsCount();
@@ -122,7 +122,7 @@ class UpdateTestCase extends AbstractCase {
         $dbList = \CIBlock::GetList();
         $ibCountAfter = $dbList->SelectedRowsCount();
 
-        $this->assertNotEquals($ibCountBefore, $ibCountAfter, 'Инфоблок небыл удален');
+        $this->assertNotEquals($ibCountBefore, $ibCountAfter, $this->errorMessage('iblock not been deleted'));
 
         $arIblock = IblockTable::getList(array(
             'filter' => array(
@@ -130,16 +130,16 @@ class UpdateTestCase extends AbstractCase {
             )
         ))->fetch();
 
-        $this->assertEmpty($arIblock, 'Инфоблок существует');
+        $this->assertEmpty($arIblock, $this->errorMessage('iblock exists'));
     }
 
     public function testCreateNewReferenceFixes() {
         $collector = Module::getInstance()->getDutyCollector();
         $fixes = $collector->getFixes();
-        $this->assertNotEmpty($fixes, 'Необходимо наличие фиксаций добавления ссылок');
+        $this->assertNotEmpty($fixes, $this->errorMessage('requires fixations adding links'));
         foreach ($fixes as $fix) {
             if ($fix->getProcess() != 'reference') {
-                $this->throwError('При обновлении регистрируются только ссылки');
+                $this->throwError($this->errorMessage('when upgrading recorded only links'));
             }
         }
     }
