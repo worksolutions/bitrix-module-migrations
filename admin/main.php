@@ -63,7 +63,7 @@ $form->BeginCustomField('list', 'vv');
 <?endforeach;?>
         </ul>
 <?else:?>
-<b>Список пуст</b>
+<b><?=$localization->message('common.listEmpty')?></b>
 <?endif;?>
     </td>
 </tr>
@@ -87,7 +87,7 @@ if ($lastSetupLog) {
     <?endforeach;?>
             </ul>
     <?else:?>
-    <b>Список пуст</b>
+    <b><?=$localization->message('common.listEmpty')?></b>
     <?endif;?>
         </td>
     </tr>
@@ -106,7 +106,7 @@ if ($lastSetupLog) {
     <?endforeach;?>
             </ul>
     <?else:?>
-    <b>Список пуст</b>
+    <b><?=$localization->message('common.listEmpty')?></b>
     <?endif;?>
         </td>
     </tr>

@@ -9,6 +9,9 @@ return array(
         'btnRollback' => 'Откатить последние изменения',
         'lastSetup' => array(
             'sectionName' => 'Последнее обновление :time: - :user:'
+        ),
+        'common' => array(
+            'listEmpty' => 'Список пуст'
         )
     ),
     'export' => array(
