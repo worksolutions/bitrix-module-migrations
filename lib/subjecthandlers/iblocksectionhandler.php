@@ -42,7 +42,9 @@ class IblockSectionHandler extends BaseSubjectHandler {
         }
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
-        return \CIBlockSection::GetByID($id)->Fetch();
+        $data = SectionTable::GetByID($id)->Fetch();
+        $data['~reference'] = $this->getReferenceController()->getReferenceValue($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+        return $data;
     }
 
     /**
@@ -59,10 +61,8 @@ class IblockSectionHandler extends BaseSubjectHandler {
         $extId = $data['ID'];
         if ($dbVersion) {
             $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+            !$data['IBLOCK_ID'] && $data['IBLOCK_ID'] = $this->getCurrentIdByReference($data['~reference']);
             $id = $this->getCurrentVersionId($extId, $dbVersion);
-            if (!$id) {
-                $referenceValue = $this->getReferenceValue($extId, $dbVersion);
-            }
         } else {
             $id = $extId;
         }
@@ -78,11 +78,11 @@ class IblockSectionHandler extends BaseSubjectHandler {
                 throw new \Exception('Не удалось возобновить секцию(раздел) текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
             }
         }
-        if ($id) {
+        if ($id && SectionTable::getById($id)->fetch()) {
             $res->setSuccess((bool)$sec->Update($id, $data));
         } else {
             $res->setSuccess((bool) ($id = $sec->Add($data)));
-            $this->registerCurrentVersionId($id, $referenceValue);
+            $this->registerCurrentVersionId($id, $this->getReferenceValue($extId, $dbVersion));
         }
         $res->setId($id);
         $res->setMessage($sec->LAST_ERROR);

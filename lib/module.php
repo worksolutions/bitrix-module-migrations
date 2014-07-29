@@ -454,7 +454,6 @@ class Module {
             $applyFixLog->save();
             return ;
         }
-
         $result = $process->update($subjectHandler, $fix, $applyFixLog);
         $applyFixLog->success = (bool) $result->isSuccess();
         !$result->isSuccess() && $applyFixLog->description .= '. '.$result->getMessage();
@@ -483,12 +482,13 @@ class Module {
             return 0;
         }
         $this->_disableListen();
+        $setupLog = $this->_createSetupLog();
         foreach ($fixes as $fix) {
             if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
                 $this->_applyReferenceFix($fix);
                 continue;
             }
-            $this->_applyFix($fix);
+            $this->_applyFix($fix, $setupLog);
         }
         $this->_enableListen();
         return count($fixes);
@@ -628,6 +628,7 @@ class Module {
         $data = jsonToArray($json);
         // Коллектор проинициализировать без участия файлов
         $collector = $this->_createCollector($data);
+        $setupLog = $this->_createSetupLog();
         foreach ($collector->getFixes() as $fix) {
             $subjectHandlerClass = $fix->getSubject();
             if (!$subjectHandlerClass) {
@@ -636,7 +637,7 @@ class Module {
                 continue;
             }
             // обработчиками применить снимки ПО
-            $this->_applyFix($fix);
+            $this->_applyFix($fix, $setupLog);
         }
     }
 

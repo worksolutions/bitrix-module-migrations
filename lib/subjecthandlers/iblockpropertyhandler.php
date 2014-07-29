@@ -39,7 +39,9 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         }
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
-        return \CIBlockProperty::GetByID($id)->Fetch();
+        $data = PropertyTable::GetByID($id)->Fetch();
+        $data['~reference'] = $this->getReferenceController()->getReferenceValue($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+        return $data;
     }
 
     /**
@@ -54,15 +56,13 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $res = new ApplyResult();
         $extId = $data['ID'];
         if ($dbVersion) {
-            $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+            $data['IBLOCK_ID'] = $this->getCurrentIdByReference($data['~reference']);
+            !$data['IBLOCK_ID'] && $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
             $id = $this->getCurrentVersionId($extId, $dbVersion);
-            if (!$id) {
-                $referenceValue = $this->getReferenceValue($extId, $dbVersion);
-            }
         } else {
             $id = $extId;
         }
-        if (!$dbVersion && !PropertyTable::getList(array('filter' => array('=ID' => $id)))->fetch()) {
+        if (!$dbVersion && !PropertyTable::getById($id)->fetch()) {
             unset($data['VERSION']);
             $addRes = PropertyTable::add(array(
                 'ID' => $id,
@@ -73,11 +73,11 @@ class IblockPropertyHandler extends BaseSubjectHandler {
                 throw new \Exception('Ќе удалось возобновить свойство текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
             }
         }
-        if ($id) {
+        if ($id && PropertyTable::getById($id)->fetch()) {
             $res->setSuccess((bool) $prop->Update($id, $data));
         } else {
             $res->setSuccess((bool) ($id = $prop->Add($data)));
-            $this->registerCurrentVersionId($id, $referenceValue);
+            $this->registerCurrentVersionId($id, $this->getReferenceValue($extId, $dbVersion));
         }
         $res->setId($id);
         return $res->setMessage($prop->LAST_ERROR);

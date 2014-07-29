@@ -23,11 +23,7 @@ class DeleteProcess extends BaseProcess {
 
         $log->description = $fix->getName();
         $log->originalData = $originalData;
-        $log->updateData = array(
-            'id' => $id,
-            'version' => $fix->getDbVersion()
-        );
-
+        $log->updateData = $id;
         return $result;
     }
 

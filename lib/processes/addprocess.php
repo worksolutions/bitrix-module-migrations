@@ -20,10 +20,7 @@ class AddProcess extends BaseProcess {
         $data = $subjectHandler->getSnapshot($result->getId());
         $log->description = $fix->getName();
         $log->originalData = array();
-        $log->updateData = array(
-            'fields' => $data,
-            'version' => $fix->getDbVersion()
-        );
+        $log->updateData = $data;
         return $result;
     }
 

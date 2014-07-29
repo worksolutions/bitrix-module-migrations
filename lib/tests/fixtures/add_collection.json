@@ -362,7 +362,8 @@
             "VERSION": "1",
             "USER_TYPE": null,
             "USER_TYPE_SETTINGS": null,
-            "HINT": ""
+            "HINT": "",
+            "~reference": "5c31fbec77d6a2ad88e431acbaaf0699"
         },
         "originalData": [],
         "name": "\u0421\u0432\u043e\u0439\u0441\u0442\u0432\u043e \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0433\u043e \u0431\u043b\u043e\u043a\u0430. \u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435",
@@ -410,7 +411,8 @@
             "VERSION": "1",
             "USER_TYPE": null,
             "USER_TYPE_SETTINGS": null,
-            "HINT": ""
+            "HINT": "",
+            "~reference": "5c31fbec77d6a2ad88e431acbaaf0699"
         },
         "originalData": [],
         "name": "\u0421\u0432\u043e\u0439\u0441\u0442\u0432\u043e \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0433\u043e \u0431\u043b\u043e\u043a\u0430. \u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435",
@@ -461,7 +463,8 @@
             "IBLOCK_TYPE_ID": "catalog",
             "IBLOCK_CODE": "neww",
             "IBLOCK_EXTERNAL_ID": null,
-            "EXTERNAL_ID": null
+            "EXTERNAL_ID": null,
+            "~reference": "5c31fbec77d6a2ad88e431acbaaf0699"
         },
         "originalData": [],
         "name": "\u0420\u0430\u0437\u0434\u0435\u043b \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0433\u043e \u0431\u043b\u043e\u043a\u0430. \u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435",

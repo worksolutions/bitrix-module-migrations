@@ -36,9 +36,7 @@ class ReferenceController {
                 '=DB_VERSION' => $item->dbVersion
             )
         ))->fetch();
-        if ($hasRefByVersion) {
-            throw new \Exception('Reference '.$item->reference.' by version '.$item->dbVersion.' been registered before');
-        }
+        $hasRefByVersion && DbVersionReferencesTable::delete($hasRefByVersion['ID']);
 
         $hasItem = DbVersionReferencesTable::getList(array(
             'filter' => array(

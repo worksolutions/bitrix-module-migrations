@@ -67,7 +67,9 @@ class UpdateTestCase extends AbstractCase {
         $this->assertNotEmpty($this->_processIblockId, $this->errorMessage('unavailable identifier of the new information block'));
 
         $rsProps = \CIBlockProperty::GetList(null, array('IBLOCK_ID' => $this->_processIblockId));
-        $this->assertNotEmpty($rsProps->AffectedRowsCount(), $this->errorMessage('added properties not available information block'));
+        $this->assertNotEmpty($rsProps->AffectedRowsCount(), $this->errorMessage('added properties not available information block', array(
+            ':iblockId' => $this->_processIblockId
+        )));
 
         $rsSections = \CIBlockSection::getList(null, array('IBLOCK_ID' => $this->_processIblockId), false, array('ID'));
         $this->assertNotEmpty($rsSections->AffectedRowsCount(), $this->errorMessage('added sections not available information block'));

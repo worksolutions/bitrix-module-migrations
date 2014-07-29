@@ -86,14 +86,11 @@ class IblockHandler extends BaseSubjectHandler  {
         $extId = $iblockData['ID'];
         if ($dbVersion) {
             $id = $this->getCurrentVersionId($extId, $dbVersion);
-            if (!$id) {
-                $referenceValue = $this->getReferenceValue($extId, $dbVersion);
-            }
         } else {
             $id = $extId;
         }
 
-        if (!$dbVersion && !\CIBlock::GetArrayByID($id)) {
+        if (!$dbVersion && !IblockTable::getById($id)->fetch()) {
             $addRes = IblockTable::add(array('ID' => $id, 'IBLOCK_TYPE_ID' => $typeData['ID'], 'NAME' => 'add'));
             if (!$addRes->isSuccess()) {
                 throw new \Exception('add iblock error ' . implode(', ', $addRes->getErrorMessages()));
@@ -101,11 +98,11 @@ class IblockHandler extends BaseSubjectHandler  {
         }
 
         $iblock = new \CIBlock();
-        if ($id) {
+        if ($id && IblockTable::getById($id)->fetch()) {
             $res->setSuccess((bool)$iblock->Update($id, $iblockData));
         } else {
             $res->setSuccess((bool)($id = $iblock->Add($iblockData)));
-            $this->registerCurrentVersionId($id, $referenceValue);
+            $this->registerCurrentVersionId($id, $this->getReferenceValue($extId, $dbVersion));
         }
         $res->setId($id);
         return $res->setMessage($iblock->LAST_ERROR);

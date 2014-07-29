@@ -18,8 +18,8 @@ return array(
                 'last log records need been update process' => 'Последними записями лога должен быть процесс добавления',
                 'last log records need been update process' => 'Последними записями лога должен быть процесс добавления',
                 'iblock not registered after update' => 'Инфоблок незарегистрирован в обновлении, тут :actual, нужен :need',
-                'property iblock not registered after update' => 'Свойство незарегистрировано в обновлении, оригинал - :original, получено :actual',
-                'section iblock not registered after update' => 'Секция незарегистрирована в обновлении, оригинал - :original, получено :actual',
+                'property iblock not registered after update' => 'Свойство незарегистрировано в обновлении, оригинал - :original, получено - :actual',
+                'section iblock not registered after update' => 'Секция незарегистрирована в обновлении, оригинал - :original, получено - :actual',
                 'links expected count' => 'Ссылок должно быть :count',
                 'error update result' => 'Результат обновления отрицательный',
                 'having one fixing updates' => 'Наличие одной фиксации обновления',
@@ -57,7 +57,7 @@ return array(
                 'record IB must be present' => 'Запись ИБ должна присутствовать',
                 'not also recording information block' => 'Не добавилась запись инфоблока',
                 'unavailable identifier of the new information block' => 'Недоступен идентификатор нового инфоблока',
-                'added properties not available information block' => 'Недоступны добавленные свойства информационного блока',
+                'added properties not available information block' => 'Недоступны добавленные свойства информационного блока, ИБ ID - :iblockId',
                 'added sections not available information block' => 'Недоступны добавленные секции информационного блока',
                 'inconsistencies initialization name' => 'Недоступны добавленные секции информационного блока',
                 'name information block has not changed' => 'Имя инфоблока не изменилось',
@@ -67,6 +67,12 @@ return array(
                 'iblock exists' => 'Инфоблок существует',
                 'requires fixations adding links' => 'Необходимо наличие фиксаций добавления ссылок',
                 'when upgrading recorded only links' => 'При обновлении регистрируются только ссылки',
+            )
+        ),
+        \WS\Migrations\Tests\Cases\RollbackTestCase::className() => array(
+            'name' => 'Откат изменений',
+            'description' => '',
+            'errors' => array(
             )
         )
     )

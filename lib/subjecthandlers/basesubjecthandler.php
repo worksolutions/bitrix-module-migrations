@@ -69,6 +69,11 @@ abstract class BaseSubjectHandler {
         return $this->getReferenceController()->getCurrentIdByOtherVersion($id, $this->getSubjectGroup(), $dbVersion);
     }
 
+    protected function getCurrentIdByReference($reference) {
+        $item = $this->getReferenceController()->getItemCurrentVersionByReference($reference);
+        return $item->id;
+    }
+
     abstract protected function getExistsSubjectIds();
 
     public function registerExistsReferences() {

@@ -23,11 +23,7 @@ class UpdateProcess extends BaseProcess {
 
         $log->description = $fix->getName();
         $log->originalData = $originalData;
-        $log->updateData = array(
-            'fields' => $data,
-            'version' => $fix->getDbVersion()
-        );
-
+        $log->updateData = $data;
         return $result;
     }
 

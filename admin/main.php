@@ -1,11 +1,15 @@
 <?php
+$apply = false;
 if ($_POST['rollback']) {
     \WS\Migrations\Module::getInstance()->rollbackLastChanges();
+    $apply = true;
 }
 
 if ($_POST['apply']) {
     \WS\Migrations\Module::getInstance()->applyNewFixes();
+    $apply = true;
 }
+$apply && LocalRedirect($APPLICATION->GetCurUri());
 
 $fixes = array();
 $notAppliedFixes = \WS\Migrations\Module::getInstance()->getNotAppliedFixes();
