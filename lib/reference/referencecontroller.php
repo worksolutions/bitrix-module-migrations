@@ -93,7 +93,7 @@ class ReferenceController {
     public function getReferenceValue($id, $group, $dbVersion = null) {
         $item = $this->getItemById($id, $group, $dbVersion);
         if (!$item) {
-            return null;
+            throw new \Exception('References item not exists by '.var_export(array('id' => $id, 'group' => $group, 'dbVersion' => $dbVersion), true));
         }
         return $item->reference;
     }
@@ -102,6 +102,8 @@ class ReferenceController {
      * @param $id
      * @param $group
      * @param $dbVersion
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      * @return null|ReferenceItem
      */
     public function getItemById($id, $group, $dbVersion = null) {
@@ -113,7 +115,7 @@ class ReferenceController {
             )
         ));
         if (!$data = $res->fetch()) {
-            return null;
+            throw new \Exception('References item not exists by '.var_export(array('id' => $id, 'group' => $group, 'dbVersion' => $dbVersion), true));
         }
         return $this->_createItemByDBData($data);
     }
@@ -140,7 +142,7 @@ class ReferenceController {
     public function getCurrentIdByOtherVersion($id, $group, $dbVersion) {
         $reference = $this->getReferenceValue($id, $group, $dbVersion);
         if (!$reference) {
-            return null;
+            throw new \Exception('References not exists by '.var_export(array('id' => $id, 'group' => $group, 'dbVersion' => $dbVersion), true));
         }
         $item = $this->getItemCurrentVersionByReference($reference);
         return $item->id;
@@ -148,7 +150,7 @@ class ReferenceController {
 
     public function registerCloneVersion($cloneVersion) {
         if (!$cloneVersion) {
-            return false;
+            throw new \Exception('Clone version empty');
         }
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
