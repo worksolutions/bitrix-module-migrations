@@ -615,7 +615,7 @@ class Module {
      */
     public function runRefreshVersion() {
         $cloneVersion = md5(time());
-        $registerResult = $this->_getReferenceController()->registerCloneVersion($cloneVersion);
+        $registerResult = $this->_getReferenceController()->setupNewVersion($cloneVersion);
         if (!$registerResult) {
             return false;
         }

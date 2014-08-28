@@ -148,7 +148,7 @@ class ReferenceController {
         return $item->id;
     }
 
-    public function registerCloneVersion($cloneVersion) {
+    public function setupNewVersion($cloneVersion) {
         if (!$cloneVersion) {
             throw new \Exception('Clone version empty');
         }
@@ -157,6 +157,7 @@ class ReferenceController {
                 'DB_VERSION' => $this->_currentDbVersion
             )
         ));
+        $this->_currentDbVersion = $cloneVersion;
         while ($itemData = $res->fetch()) {
             $item = $this->_createItemByDBData($itemData);
             $item->dbVersion = $cloneVersion;
