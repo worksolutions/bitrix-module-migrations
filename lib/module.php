@@ -438,14 +438,7 @@ class Module {
     }
 
 
-    private function _applyFix(CollectorFix $fix, SetupLogModel $setupLog = null) {
-        $setupLog = $setupLog ?: $this->_createSetupLog();
-        $applyFixLog = new AppliedChangesLogModel();
-        $applyFixLog->processName = $fix->getProcess();
-        $applyFixLog->subjectName = $fix->getSubject();
-        $applyFixLog->setSetupLog($setupLog);
-        $applyFixLog->groupLabel = $fix->getLabel();
-
+    private function _applyFix(CollectorFix $fix, AppliedChangesLogModel $applyFixLog = null) {
         $process = $this->getProcess($fix->getProcess());
         $subjectHandler = $this->getSubjectHandler($fix->getSubject());
         if (!$subjectHandler->required() && !$this->getOptions()->isEnableSubjectHandler($fix->getSubject())) {
@@ -457,7 +450,6 @@ class Module {
         $result = $process->update($subjectHandler, $fix, $applyFixLog);
         $applyFixLog->success = (bool) $result->isSuccess();
         !$result->isSuccess() && $applyFixLog->description .= '. '.$result->getMessage();
-        $applyFixLog->save();
     }
 
     private function _applyReferenceFix(CollectorFix $fix) {
@@ -469,11 +461,15 @@ class Module {
         $item->group = $data['group'];
         $item->dbVersion = $data['dbVersion'];
 
-        !$this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion)
-            &&
-        !$this->_getReferenceController()->getItemCurrentVersionByReference($item->reference)
-            &&
-        $this->_getReferenceController()->registerItem($item);
+        try {
+            $this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion)
+                &&
+            !$this->_getReferenceController()->getItemCurrentVersionByReference($item->reference)
+                &&
+            $this->_getReferenceController()->registerItem($item);
+        } catch (\Exception $e) {
+            $this->_getReferenceController()->registerItem($item);
+        }
     }
 
 
@@ -484,11 +480,18 @@ class Module {
         $this->_disableListen();
         $setupLog = $this->_createSetupLog();
         foreach ($fixes as $fix) {
+            $applyFixLog = new AppliedChangesLogModel();
+            $applyFixLog->processName = $fix->getProcess();
+            $applyFixLog->subjectName = $fix->getSubject();
+            $applyFixLog->setSetupLog($setupLog);
+            $applyFixLog->groupLabel = $fix->getLabel();
+
             if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
                 $this->_applyReferenceFix($fix);
-                continue;
+            } else {
+                $this->_applyFix($fix, $applyFixLog);
             }
-            $this->_applyFix($fix, $setupLog);
+            $applyFixLog->save();
         }
         $this->_enableListen();
         return count($fixes);
@@ -625,20 +628,9 @@ class Module {
     }
 
     public function import($json) {
-        $data = jsonToArray($json);
         // Коллектор проинициализировать без участия файлов
-        $collector = $this->_createCollector($data);
-        $setupLog = $this->_createSetupLog();
-        foreach ($collector->getFixes() as $fix) {
-            $subjectHandlerClass = $fix->getSubject();
-            if (!$subjectHandlerClass) {
-                // в первую очередь обработка версий
-                $this->_applyReferenceFix($fix);
-                continue;
-            }
-            // обработчиками применить снимки ПО
-            $this->_applyFix($fix, $setupLog);
-        }
+        $collector = $this->_createCollector(jsonToArray($json));
+        $this->applyFixesList($collector->getFixes());
     }
 
     public function clearReferences() {
