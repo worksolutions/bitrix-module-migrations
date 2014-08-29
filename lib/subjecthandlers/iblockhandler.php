@@ -7,6 +7,7 @@ namespace ws\migrations\SubjectHandlers;
 
 
 use Bitrix\Iblock\IblockTable;
+use Bitrix\Iblock\TypeLanguageTable;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
@@ -61,6 +62,15 @@ class IblockHandler extends BaseSubjectHandler  {
         }
         $iblock['~reference'] = $this->getReferenceValue($id);
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
+        $rsTypeLangs = TypeLanguageTable::getList(array(
+            'filter' => array(
+                'IBLOCK_TYPE_ID' => $iblock['IBLOCK_TYPE_ID']
+            )
+        ));
+        while ($lang = $rsTypeLangs->fetch()) {
+            $type['LANG'][$lang['LANGUAGE_ID']] = $lang;
+        }
+
         return array(
             'iblock' => $iblock,
             'type' => $type
