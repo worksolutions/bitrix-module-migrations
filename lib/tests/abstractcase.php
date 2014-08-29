@@ -44,8 +44,10 @@ abstract class AbstractCase {
 
     abstract public function description();
 
-    protected function throwError($message) {
-        throw new ErrorException($message);
+    protected function throwError($message, $dump = null) {
+        $e = new ErrorException($message);
+        $dump  && $e->setDump($dump);
+        throw $e;
     }
 
     private function generateMessage($systemMessage, $userMassage) {

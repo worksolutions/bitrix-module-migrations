@@ -110,10 +110,14 @@ class Starter {
                 $count++;
             }
         } catch (\Exception $e) {
-            return $result->setSuccess(false)
-                ->setMessage($method->getShortName(). ', '. $e->getMessage())
-                ->setTrace($e->getTraceAsString())
-                ->toArray();
+            $result->setSuccess(false)
+                ->setTrace($e->getTraceAsString());
+            $message = $method->getShortName(). ', '. $e->getMessage();
+            if ($e instanceof \WS\Migrations\Tests\Cases\ErrorException) {
+                $e->getDump() && $message .= "\ndump: \n" . var_export($e->getDump(), true);
+            }
+            $result->setMessage($message);
+            return $result->toArray();
         }
         $testCase->close();
         return $result->setSuccess(true)
