@@ -155,16 +155,21 @@ class Module {
         });
     }
 
-    static public function commitDutyChanges() {
-        $self = self::getInstance();
-        if (!$self->_dutyCollector) {
-            return null;
+    /**
+     * @param CollectorFix[] $fixes
+     * @throws \Exception
+     */
+    private function _logOwnChanges($fixes) {
+        $hasRealChanges = (bool) array_filter($fixes, function ($item) {
+            if (!$item instanceof CollectorFix) {
+                return false;
+            }
+            return $item->getProcess() != Module::SPECIAL_PROCESS_FIX_REFERENCE;
+        });
+        $setupLog = null;
+        if ($hasRealChanges) {
+            $setupLog = $this->_createSetupLog();
         }
-        $fixes = $self->getDutyCollector()->getUsesFixed();
-        if (!$fixes) {
-            return;
-        }
-        $setupLog = $self->_createSetupLog();
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
             $applyLog = new AppliedChangesLogModel();
@@ -184,8 +189,19 @@ class Module {
             if (!$applyLog->save()) {
                 throw new \Exception('Not save current changes in log ' . var_export($applyLog->getErrors()));
             }
-
         }
+    }
+
+    static public function commitDutyChanges() {
+        $self = self::getInstance();
+        if (!$self->_dutyCollector) {
+            return null;
+        }
+        $fixes = $self->getDutyCollector()->getUsesFixed();
+        if (!$fixes) {
+            return;
+        }
+        $self->_logOwnChanges($fixes);
         $self->getDutyCollector()->commit($self->getDbVersion());
     }
 

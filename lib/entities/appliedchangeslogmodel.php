@@ -77,7 +77,7 @@ class AppliedChangesLogModel extends BaseEntity {
         return $this->_setupLog;
     }
 
-    public function setSetupLog(SetupLogModel $model) {
+    public function setSetupLog(SetupLogModel $model = null) {
         $this->_setupLog = $model;
         $model->id && $this->setupLogId = $model->id;
         return $this;
