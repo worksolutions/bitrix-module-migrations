@@ -10,7 +10,9 @@ use Bitrix\Iblock\IblockTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\SectionTable;
 use WS\Migrations\ChangeDataCollector\Collector;
+use WS\Migrations\Entities\DbVersionReferencesTable;
 use WS\Migrations\Module;
+use WS\Migrations\Reference\ReferenceController;
 use WS\Migrations\Tests\AbstractCase;
 
 class UpdateTestCase extends AbstractCase {
@@ -73,6 +75,15 @@ class UpdateTestCase extends AbstractCase {
 
         $rsSections = \CIBlockSection::getList(null, array('IBLOCK_ID' => $this->_processIblockId), false, array('ID'));
         $this->assertNotEmpty($rsSections->AffectedRowsCount(), $this->errorMessage('added sections not available information block'));
+
+        $registerRef = (bool)DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                '=DB_VERSION' => Module::getInstance()->getDbVersion(),
+                '=GROUP' => ReferenceController::GROUP_IBLOCK,
+                '=ITEM_ID' => $this->_processIblockId
+            )
+        ))->fetch();
+        $this->assertTrue($registerRef, $this->errorMessage('In added apply not created iblock reference '. $this->_processIblockId));
     }
 
     public function testUpdate() {

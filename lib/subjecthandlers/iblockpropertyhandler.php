@@ -9,6 +9,7 @@ use Bitrix\Iblock\PropertyTable;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
+use WS\Migrations\Tests\Cases\ErrorException;
 
 class IblockPropertyHandler extends BaseSubjectHandler {
 
@@ -40,7 +41,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
         $data = PropertyTable::GetByID($id)->Fetch();
-        $data['~reference'] = $this->getReferenceController()->getReferenceValue($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+        $data['~reference'] = $this->getReferenceValue($id);
         return $data;
     }
 
@@ -56,8 +57,8 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $res = new ApplyResult();
         $extId = $data['ID'];
         if ($dbVersion) {
-            $data['IBLOCK_ID'] = $this->getCurrentIdByReference($data['~reference']);
-            !$data['IBLOCK_ID'] && $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+            $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+            !$data['IBLOCK_ID'] && $data['IBLOCK_ID'] = $this->getCurrentIdByReference($data['~reference']);
             $id = $this->getCurrentVersionId($extId, $dbVersion);
         } else {
             $id = $extId;

@@ -54,7 +54,7 @@ abstract class BaseSubjectHandler {
     }
 
     protected function hasCurrentReference($id) {
-        return (bool)$this->getReferenceController()->getItemId($id, $this->getSubjectGroup());
+        return $this->getReferenceController()->hasItemId($id, $this->getSubjectGroup());
     }
 
     protected function getIdByVersion($id, $dbVersion = null) {

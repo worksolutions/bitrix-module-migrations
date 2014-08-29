@@ -5,19 +5,6 @@
         "data": {
             "reference": "5c31fbec77d6a2ad88e431acbaaf0699",
             "group": "iblock",
-            "dbVersion": "ab6fe0db4d7681c2f9fd28636cf577d8",
-            "id": 6
-        },
-        "originalData": null,
-        "name": "Reference fix",
-        "version": "test"
-    },
-    {
-        "process": "reference",
-        "subject": null,
-        "data": {
-            "reference": "5c31fbec77d6a2ad88e431acbaaf0699",
-            "group": "iblock",
             "dbVersion": "test",
             "id": 6
         },
@@ -639,20 +626,7 @@
         "data": {
             "reference": "d13bd5f833ec98310a112080508580b7",
             "group": "iblockProperty",
-            "dbVersion": "ab6fe0db4d7681c2f9fd28636cf577d8",
-            "id": 46
-        },
-        "originalData": null,
-        "name": "Reference fix",
-        "version": "test"
-    },
-    {
-        "process": "reference",
-        "subject": null,
-        "data": {
-            "reference": "d13bd5f833ec98310a112080508580b7",
-            "group": "iblockProperty",
-            "dbVersion": "ab6fe0db4d7681c2f9fd28636cf577d8",
+            "dbVersion": "test",
             "id": 46
         },
         "originalData": null,
@@ -727,25 +701,12 @@
         "data": {
             "reference": "99b1e665073d4c349623fc759469210f",
             "group": "iblockProperty",
-            "dbVersion": "ab6fe0db4d7681c2f9fd28636cf577d8",
-            "id": 47
-        },
-        "originalData": null,
-        "name": "Reference fix",
-        "version": "test"
-    },
-    {
-        "process": "reference",
-        "subject": null,
-        "data": {
-            "reference": "99b1e665073d4c349623fc759469210f",
-            "group": "iblockProperty",
             "dbVersion": "test",
             "id": 47
         },
         "originalData": null,
         "name": "Reference fix",
-        "version": "ab6fe0db4d7681c2f9fd28636cf577d8"
+        "version": "test"
     },
     {
         "process": "WS\\Migrations\\Processes\\UpdateProcess",

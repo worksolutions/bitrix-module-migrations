@@ -43,7 +43,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
         $data = SectionTable::GetByID($id)->Fetch();
-        $data['~reference'] = $this->getReferenceController()->getReferenceValue($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+        $data['~reference'] = $this->getReferenceValue($id);
         return $data;
     }
 

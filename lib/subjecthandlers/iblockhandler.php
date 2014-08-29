@@ -59,6 +59,7 @@ class IblockHandler extends BaseSubjectHandler  {
         if (!$iblock) {
             return false;
         }
+        $iblock['~reference'] = $this->getReferenceValue($id);
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
         return array(
             'iblock' => $iblock,

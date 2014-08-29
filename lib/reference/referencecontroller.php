@@ -131,6 +131,21 @@ class ReferenceController {
         return $item->id;
     }
 
+    /**
+     * @param $id
+     * @param $group
+     * @param string|null $dbVersion
+     * @return bool
+     */
+    public function hasItemId($id, $group, $dbVersion = null) {
+        try {
+            $item = $this->getItemById($id, $group, $dbVersion);
+            return (bool) $item;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
     public function onRegister($callback) {
         if (!is_callable($callback)) {
             return ;

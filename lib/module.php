@@ -165,6 +165,7 @@ class Module {
             return;
         }
         $setupLog = $self->_createSetupLog();
+        /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
             $applyLog = new AppliedChangesLogModel();
             $applyLog->subjectName = $fix->getSubject();
@@ -175,7 +176,15 @@ class Module {
             $applyLog->updateData = $fix->getUpdateData();
             $applyLog->success = true;
             $applyLog->setSetupLog($setupLog);
-            $applyLog->save();
+
+            if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
+                $applyLog->description = 'Insert reference';
+                $applyLog->subjectName = 'reference';
+            }
+            if (!$applyLog->save()) {
+                throw new \Exception('Not save current changes in log ' . var_export($applyLog->getErrors()));
+            }
+
         }
         $self->getDutyCollector()->commit($self->getDbVersion());
     }
@@ -240,6 +249,7 @@ class Module {
 
     /**
      * @param $class
+     * @throws \Exception
      * @return BaseSubjectHandler
      */
     public function getSubjectHandler($class) {
@@ -252,7 +262,11 @@ class Module {
                 }
             }
         }
+        if (!class_exists($class)) {
+            throw new \Exception('Class not exists');
+        }
         if (!$this->_handlers[$class]) {
+
             $this->_handlers[$class] = new $class($this->_getReferenceController());
         }
         return $this->_handlers[$class];
@@ -485,9 +499,12 @@ class Module {
             $applyFixLog->subjectName = $fix->getSubject();
             $applyFixLog->setSetupLog($setupLog);
             $applyFixLog->groupLabel = $fix->getLabel();
+            $applyFixLog->description = 'References updates';
 
             if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
                 $this->_applyReferenceFix($fix);
+                $applyFixLog->subjectName = 'references';
+                $applyFixLog->success = true;
             } else {
                 $this->_applyFix($fix, $applyFixLog);
             }
@@ -558,8 +575,13 @@ class Module {
                 continue;
             }
             $process = $this->getProcess($log->processName);
-            $subjectHandler = $this->getSubjectHandler($log->subjectName);
-            $process->rollback($subjectHandler, $log);
+            try {
+                $subjectHandler = $this->getSubjectHandler($log->subjectName);
+                $process->rollback($subjectHandler, $log);
+            } catch (\Exception $e) {
+                // возможны ссылочные данные
+                continue;
+            }
         }
         $this->_enableListen();
     }
@@ -579,7 +601,6 @@ class Module {
      * @return string
      */
     public function getExportText() {
-        $handlerClasses = array_keys($this->handlers());
         $collector = $this->_createCollector();
         // version export
         foreach ($this->_getReferenceController()->getItems() as $item) {
@@ -597,8 +618,7 @@ class Module {
         }
 
         // entities scheme export
-        foreach ($handlerClasses as $class) {
-            $handler = $this->getSubjectHandler($class);
+        foreach ($this->getSubjectHandlers() as $handler) {
             $ids = $handler->existsIds();
             foreach ($ids as $id) {
                 $snapshot = $handler->getSnapshot($id);
