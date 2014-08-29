@@ -11,6 +11,7 @@ abstract class BaseEntity {
 
     private $_isNew = true;
 
+    private $_errors = array();
     /**
      * @param $props
      * @return $this
@@ -135,16 +136,22 @@ abstract class BaseEntity {
     public function insert() {
         $res = static::callGatewayMethod('add', $this->_getRawFields());
         $this->id = $res->getId();
+        $this->_errors = $res->getErrors() ?: array();
         return !(bool)$res->getErrors();
     }
 
     public function update() {
         $res = static::callGatewayMethod('update', $this->id, $this->_getRawFields());
+        $this->_errors = $res->getErrors() ?: array();
         return !(bool)$res->getErrors();
     }
 
     public function save() {
         return $this->_isNew ? $this->insert() : $this->update();
+    }
+
+    public function getErrors() {
+        return $this->_errors;
     }
 
     abstract static protected function map();
