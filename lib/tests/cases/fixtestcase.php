@@ -131,13 +131,20 @@ class FixTestCase extends AbstractCase {
             'order' => array(
                 'id' => 'desc'
             ),
-            'limit' => 3
+            'limit' => 10
         ));
 
-        $this->assertEquals(3, count($logRecords));
+        $this->assertTrue(count($logRecords) > 3);
+        $iterationsCount = 0;
         foreach ($logRecords as $logRecord) {
+            if ($logRecord->processName == Module::SPECIAL_PROCESS_FIX_REFERENCE) {
+                continue;
+            }
             if ($logRecord->processName != AddProcess::className()) {
-                $this->throwError($this->errorMessage('last log records need been update process'));
+                $this->throwError($this->errorMessage('last log records need been update process'), $logRecord->processName);
+            }
+            if (++$iterationsCount > 3) {
+                break;
             }
             $data = $logRecord->updateData;
             switch ($logRecord->subjectName) {
