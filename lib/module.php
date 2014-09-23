@@ -31,14 +31,17 @@ use WS\Migrations\Tests\Starter;
  */
 class Module {
 
-    const FIX_CHANGES_ADD_KEY = 'add';
+    const FIX_CHANGES_ADD_KEY           = 'add';
     const FIX_CHANGES_BEFORE_CHANGE_KEY = 'beforeChange';
-    const FIX_CHANGES_AFTER_CHANGE_KEY = 'afterChange';
+    const FIX_CHANGES_AFTER_CHANGE_KEY  = 'afterChange';
     const FIX_CHANGES_BEFORE_DELETE_KEY = 'beforeDelete';
-    const FIX_CHANGES_AFTER_DELETE_KEY = 'afterDelete';
+    const FIX_CHANGES_AFTER_DELETE_KEY  = 'afterDelete';
 
     const SPECIAL_PROCESS_FIX_REFERENCE = 'reference';
-    const SPECIAL_PROCESS_FULL_MIGRATE = 'fullMigrate';
+    const SPECIAL_PROCESS_FULL_MIGRATE  = 'fullMigrate';
+
+    const REFERENCE_SUBJECT_ADD    = 'add';
+    const REFERENCE_SUBJECT_REMOVE = 'remove';
 
     private $localizePath = null,
             $localizations = array();
@@ -139,19 +142,32 @@ class Module {
         }
         $self->_referenceController = new ReferenceController($self->getDbVersion());
         $fixRefProcess = self::SPECIAL_PROCESS_FIX_REFERENCE;
-        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($self, $fixRefProcess) {
+
+        $fSetupReferenceFix = function (ReferenceItem $item, $subject) use ($self, $fixRefProcess) {
             $collector = $self->getDutyCollector();
             $fix = $collector->createFix();
             $fix
                 ->setName('Reference fix')
                 ->setProcess($fixRefProcess)
+                ->setSubject($subject)
                 ->setUpdateData(array(
                     'reference' => $item->reference,
                     'group' => $item->group,
                     'dbVersion' => $item->dbVersion,
                     'id' => $item->id
-            ));
+                ));
             $collector->registerFix($fix);
+        };
+
+        $referenceAddSubject = self::REFERENCE_SUBJECT_ADD;
+        $referenceRemoveSubject = self::REFERENCE_SUBJECT_REMOVE;
+
+        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceAddSubject) {
+            $fSetupReferenceFix($item, $referenceAddSubject);
+        });
+
+        $self->_getReferenceController()->onRemove(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceRemoveSubject) {
+            $fSetupReferenceFix($item, $referenceRemoveSubject);
         });
     }
 
@@ -486,19 +502,27 @@ class Module {
         $item = new ReferenceItem();
         $data = $fix->getUpdateData();
 
+        $subject = $fix->getSubject() ?: self::REFERENCE_SUBJECT_ADD;
+
         $item->reference = $data['reference'];
         $item->id = $data['id'];
         $item->group = $data['group'];
         $item->dbVersion = $data['dbVersion'];
 
-        try {
-            $this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion)
-                &&
-            !$this->_getReferenceController()->getItemCurrentVersionByReference($item->reference)
-                &&
-            $this->_getReferenceController()->registerItem($item);
-        } catch (\Exception $e) {
-            $this->_getReferenceController()->registerItem($item);
+        if ($subject == self::REFERENCE_SUBJECT_ADD) {
+            try {
+                $this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion)
+                    &&
+                !$this->_getReferenceController()->getItemCurrentVersionByReference($item->reference)
+                    &&
+                $this->_getReferenceController()->registerItem($item);
+            } catch (\Exception $e) {
+                $this->_getReferenceController()->registerItem($item);
+            }
+        }
+        if ($subject == self::REFERENCE_SUBJECT_REMOVE) {
+            $this->_getReferenceController()
+                ->removeItemById($item->id, $item->group, $item->dbVersion);
         }
     }
 

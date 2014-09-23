@@ -13,9 +13,20 @@ class ReferenceController {
     const GROUP_IBLOCK_PROPERTY = 'iblockProperty';
     const GROUP_IBLOCK_SECTION = 'iblockSection';
 
+    /**
+     * @var string
+     */
     private $_currentDbVersion;
 
+    /**
+     * @var callable
+     */
     private $_onRegister;
+
+    /**
+     * @var callable
+     */
+    private $_onRemove;
 
     public function __construct($currentDbVersion) {
         $this->_currentDbVersion = $currentDbVersion;
@@ -60,14 +71,23 @@ class ReferenceController {
         return $this;
     }
 
-    public function removeCurrentVersion($id, $group) {
-        $item = $this->getItemById($id, $group);
+    /**
+     * Remove current version item
+     * @param $id
+     * @param $group
+     * @param string|null $dbVersion
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
+     * @return bool
+     */
+    public function removeItemById($id, $group, $dbVersion = null) {
+        $item = $this->getItemById($id, $group, $dbVersion);
         if (!$item) {
             return false;
         }
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
-                '=DB_VERSION' => $this->_currentDbVersion,
+                '=DB_VERSION' => $dbVersion ?: $this->_currentDbVersion,
                 '=GROUP' => $group,
                 '=ITEM_ID' => $id
             )
@@ -77,7 +97,7 @@ class ReferenceController {
         }
         $deleteResult = DbVersionReferencesTable::delete($res['ID']);
         $onRemove = $this->_onRemove;
-        $onRemove && $onRemove($item);
+        $onRemove && $item->dbVersion == $this->_currentDbVersion && $onRemove($item);
         return $deleteResult->isSuccess();
     }
 
@@ -167,11 +187,29 @@ class ReferenceController {
         }
     }
 
+    /**
+     * Inject function callable by register new reference element
+     * @param $callback
+     * @return $this
+     */
     public function onRegister($callback) {
         if (!is_callable($callback)) {
             return ;
         }
         $this->_onRegister = $callback;
+        return $this;
+    }
+
+    /**
+     * Register function callable by remove reference element (for current version)
+     * @param $callback
+     * @return $this
+     */
+    public function onRemove($callback) {
+        if (!is_callable($callback)) {
+            return ;
+        }
+        $this->_onRemove = $callback;
         return $this;
     }
 

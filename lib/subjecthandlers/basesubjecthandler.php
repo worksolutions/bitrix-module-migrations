@@ -76,7 +76,7 @@ abstract class BaseSubjectHandler {
 
     protected function removeCurrentVersion($id) {
         return
-            $this->getReferenceController()->removeCurrentVersion($id, $this->getSubjectGroup());
+            $this->getReferenceController()->removeItemById($id, $this->getSubjectGroup());
     }
 
     abstract protected function getExistsSubjectIds();

@@ -7,6 +7,7 @@ namespace WS\Migrations\SubjectHandlers;
 
 
 use Bitrix\Iblock\SectionTable;
+use Bitrix\Main\DB\Exception;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use WS\Migrations\ApplyResult;
@@ -61,7 +62,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
         $extId = $data['ID'];
         if ($dbVersion) {
             $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
-            !$data['IBLOCK_ID'] && $data['IBLOCK_ID'] = $this->getCurrentIdByReference($data['~reference']);
+            $data['IBLOCK_SECTION_ID'] && $data['IBLOCK_SECTION_ID'] = $this->getCurrentVersionId($data['IBLOCK_SECTION_ID'], $dbVersion);
             $id = $this->getCurrentVersionId($extId, $dbVersion);
         } else {
             $id = $extId;
