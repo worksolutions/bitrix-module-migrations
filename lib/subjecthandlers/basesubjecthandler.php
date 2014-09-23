@@ -74,6 +74,11 @@ abstract class BaseSubjectHandler {
         return $item->id;
     }
 
+    protected function removeCurrentVersion($id) {
+        return
+            $this->getReferenceController()->removeCurrentVersion($id, $this->getSubjectGroup());
+    }
+
     abstract protected function getExistsSubjectIds();
 
     public function registerExistsReferences() {

@@ -94,7 +94,9 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
         $res = new ApplyResult();
-        return $res->setSuccess((bool)\CIBlockProperty::Delete($id));
+        $res->setSuccess((bool)\CIBlockProperty::Delete($id));
+        $res->isSuccess() && $this->removeCurrentVersion($id);
+        return $res;
     }
 
     protected function getSubjectGroup() {

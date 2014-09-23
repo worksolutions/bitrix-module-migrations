@@ -60,6 +60,27 @@ class ReferenceController {
         return $this;
     }
 
+    public function removeCurrentVersion($id, $group) {
+        $item = $this->getItemById($id, $group);
+        if (!$item) {
+            return false;
+        }
+        $res = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                '=DB_VERSION' => $this->_currentDbVersion,
+                '=GROUP' => $group,
+                '=ITEM_ID' => $id
+            )
+        ))->fetch();
+        if (!$res) {
+            return false;
+        }
+        $deleteResult = DbVersionReferencesTable::delete($res['ID']);
+        $onRemove = $this->_onRemove;
+        $onRemove && $onRemove($item);
+        return $deleteResult->isSuccess();
+    }
+
     private function _createItemByDBData(array $data) {
         $item = new ReferenceItem();
         $item->reference = $data['REFERENCE'];

@@ -102,9 +102,11 @@ class IblockSectionHandler extends BaseSubjectHandler {
 
         $sec = new \CIBlockSection();
         $res = new ApplyResult();
-        return $res
+        $res
             ->setSuccess((bool) $sec->Delete($id))
             ->setMessage($sec->LAST_ERROR);
+        $res->isSuccess() && $this->removeCurrentVersion($id);
+        return $res;
     }
 
     protected function getSubjectGroup() {
