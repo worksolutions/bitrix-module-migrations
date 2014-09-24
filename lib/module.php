@@ -460,6 +460,7 @@ class Module {
         }, $result->fetchAll());
         $dir = new Directory($this->_getFixFilesDir());
         $collectors = array();
+        $files = array();
         foreach ($dir->getChildren() as $file) {
             if ($file->isDirectory()) {
                 continue;
@@ -467,6 +468,10 @@ class Module {
             if (in_array($file->getName(), $usesGroups)) {
                 continue;
             }
+            $files[$file->getName()] = $file;
+        }
+        ksort($files);
+        foreach ($files as $file) {
             $collectors[] = Collector::createByFile($file->getPath(), $this);
         }
         return $collectors;
