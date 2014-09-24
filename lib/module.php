@@ -2,6 +2,7 @@
 
 namespace WS\Migrations;
 use Bitrix\Main\Application;
+use Bitrix\Main\DB\Exception;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
@@ -534,19 +535,25 @@ class Module {
         $this->_disableListen();
         $setupLog = $this->_createSetupLog();
         foreach ($fixes as $fix) {
-            $applyFixLog = new AppliedChangesLogModel();
-            $applyFixLog->processName = $fix->getProcess();
-            $applyFixLog->subjectName = $fix->getSubject();
-            $applyFixLog->setSetupLog($setupLog);
-            $applyFixLog->groupLabel = $fix->getLabel();
-            $applyFixLog->description = 'References updates';
+            try {
+                $applyFixLog = new AppliedChangesLogModel();
+                $applyFixLog->processName = $fix->getProcess();
+                $applyFixLog->subjectName = $fix->getSubject();
+                $applyFixLog->setSetupLog($setupLog);
+                $applyFixLog->groupLabel = $fix->getLabel();
+                $applyFixLog->description = 'References updates';
 
-            if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
-                $this->_applyReferenceFix($fix);
-                $applyFixLog->subjectName = 'references';
-                $applyFixLog->success = true;
-            } else {
-                $this->_applyFix($fix, $applyFixLog);
+                if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
+                    $applyFixLog->subjectName = 'references';
+                    $applyFixLog->success = true;
+                    $this->_applyReferenceFix($fix);
+                } else {
+                    $this->_applyFix($fix, $applyFixLog);
+                }
+            }
+            catch (\Exception $e) {
+                $applyFixLog->success = false;
+                $applyFixLog->description = 'Exception error: '.$e->getMessage();
             }
             $applyFixLog->save();
         }
