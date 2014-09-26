@@ -109,9 +109,11 @@ class IblockHandler extends BaseSubjectHandler  {
         }
 
         $iblock = new \CIBlock();
-        if ($id && IblockTable::getById($id)->fetch()) {
+        if ($id && ($currentData = IblockTable::getById($id)->fetch())) {
+            $iblockData['PICTURE'] = $currentData['PICTURE'];
             $res->setSuccess((bool)$iblock->Update($id, $iblockData));
         } else {
+            unset($iblock['PICTURE']);
             $res->setSuccess((bool)($id = $iblock->Add($iblockData)));
             $this->registerCurrentVersionId($id, $this->getReferenceValue($extId, $dbVersion));
         }
