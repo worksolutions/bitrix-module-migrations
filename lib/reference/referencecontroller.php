@@ -12,6 +12,7 @@ class ReferenceController {
     const GROUP_IBLOCK = 'iblock';
     const GROUP_IBLOCK_PROPERTY = 'iblockProperty';
     const GROUP_IBLOCK_SECTION = 'iblockSection';
+    const GROUP_IBLOCK_PROPERTY_LIST_VALUES = 'iblockPropertyListValues';
 
     /**
      * @var string
@@ -112,6 +113,8 @@ class ReferenceController {
 
     /**
      * @param $value
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      * @return null|ReferenceItem
      */
     public function getItemCurrentVersionByReference($value) {
@@ -126,7 +129,7 @@ class ReferenceController {
             )
         ));
         if (!$data = $res->fetch()) {
-            return null;
+            throw new \Exception("Reference `$value` not registered in current version");
         }
         return $this->_createItemByDBData($data);
     }
