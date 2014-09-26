@@ -79,9 +79,13 @@ class IblockSectionHandler extends BaseSubjectHandler {
                 throw new \Exception('Не удалось возобновить секцию(раздел) текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
             }
         }
-        if ($id && SectionTable::getById($id)->fetch()) {
+        unset($data['CREATED_BY'], $data['MODIFIED_BY']);
+        if ($id && ($currentData = SectionTable::getById($id)->fetch())) {
+            $data['PICTURE'] = $currentData['PICTURE'];
+            $data['DETAIL_PICTURE'] = $currentData['DETAIL_PICTURE'];
             $res->setSuccess((bool)$sec->Update($id, $data));
         } else {
+            unset($data['PICTURE'], $data['DETAIL_PICTURE']);
             $res->setSuccess((bool) ($id = $sec->Add($data)));
             $this->registerCurrentVersionId($id, $this->getReferenceValue($extId, $dbVersion));
         }
