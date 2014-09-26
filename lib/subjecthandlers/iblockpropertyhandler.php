@@ -5,13 +5,16 @@
 
 namespace WS\Migrations\SubjectHandlers;
 
+use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
-use WS\Migrations\Tests\Cases\ErrorException;
+use WS\Migrations\Reference\ReferenceItem;
 
 class IblockPropertyHandler extends BaseSubjectHandler {
+
+    const LIST_TYPE_SIGN = 'L';
 
     /**
      * Name of Handler in Web interface
@@ -42,7 +45,75 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
         $data = PropertyTable::GetByID($id)->Fetch();
         $data['~reference'] = $this->getReferenceValue($id);
+        $data['PROPERTY_TYPE'] == self::LIST_TYPE_SIGN && $data['~property_list_values'] = $this->_getListTypeValues($id);
         return $data;
+    }
+
+    private function _applyPropertyListTypeValues($id, $values) {
+        $addValues = array();
+        $updateValues = array();
+        $useValuesIds = array();
+
+        foreach ($values as $value) {
+            $value['PROPERTY_ID'] = $id;
+            try {
+                $value['ID'] = $this->getReferenceController()->getItemCurrentVersionByReference($value['~reference'])->id;
+                $useValuesIds[] = $value['ID'];
+                $updateValues[] = $value;
+            } catch (\Exception $e) {
+                $addValues[] = $value;
+            }
+        }
+        $currentValues = PropertyEnumerationTable::getList(array('filter' => array('=PROPERTY_ID' => $id)))->fetchAll();
+        foreach ($currentValues as $value) {
+            !in_array($value['ID'], $useValuesIds) && PropertyEnumerationTable::delete(array('ID' => $value['ID'], 'PROPERTY_ID' => $value['PROPERTY_ID']));
+        }
+        foreach ($addValues as $value) {
+            unset($value['ID']);
+            unset($value['~reference']);
+            $result = PropertyEnumerationTable::add($value);
+            if (!$result->getId()) {
+                throw new \Exception('Add property list value. Property not save. '.var_export($result->getErrorMessages(), true));
+            }
+            $referenceItem = new ReferenceItem();
+            $referenceItem->id = $result->getId();
+            $referenceItem->group =  ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES;
+            $referenceItem->reference = $value['~reference'];
+            $this->getReferenceController()->registerItem($referenceItem);
+        }
+
+        foreach ($updateValues as $value) {
+            $vId = $value['ID'];
+            unset($value['ID']);
+            unset($value['~reference']);
+            $result = PropertyEnumerationTable::update(array('ID' => $vId, 'PROPERTY_ID' => $value['PROPERTY_ID']), $value);
+            if (!$result->isSuccess()) {
+                throw new \Exception('Update property list value. Property not save. '.var_export($result->getErrorMessages(), true));
+            }
+        }
+    }
+
+    private function _getListTypeValues($id) {
+        $dbRes = PropertyEnumerationTable::getList(array(
+            'filter' => array(
+                '=PROPERTY_ID' => $id
+            )
+        ));
+        $items = $dbRes->fetchAll();
+        foreach ($items as & $item) {
+            try {
+                $item['~reference'] = $this
+                    ->getReferenceController()
+                    ->getReferenceValue($item['ID'], ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES);
+            } catch (\Exception $e) {
+                $referenceItem = new ReferenceItem();
+                $referenceItem->id = $item['ID'];
+                $referenceItem->group =  ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES;
+                $this->getReferenceController()->registerItem($referenceItem);
+                $item['~reference'] = $referenceItem->reference;
+            }
+        }
+        return $items;
     }
 
     /**
@@ -58,7 +129,6 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         $extId = $data['ID'];
         if ($dbVersion) {
             $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
-            !$data['IBLOCK_ID'] && $data['IBLOCK_ID'] = $this->getCurrentIdByReference($data['~reference']);
             $id = $this->getCurrentVersionId($extId, $dbVersion);
         } else {
             $id = $extId;
@@ -81,6 +151,9 @@ class IblockPropertyHandler extends BaseSubjectHandler {
             $this->registerCurrentVersionId($id, $this->getReferenceValue($extId, $dbVersion));
         }
         $res->setId($id);
+        if ($data['PROPERTY_TYPE'] == self::LIST_TYPE_SIGN && !empty($data['~property_list_values'])) {
+            $this->_applyPropertyListTypeValues($id, $data['~property_list_values']);
+        }
         return $res->setMessage($prop->LAST_ERROR);
     }
 

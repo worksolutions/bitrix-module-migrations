@@ -70,7 +70,11 @@ abstract class BaseSubjectHandler {
     }
 
     protected function getCurrentIdByReference($reference) {
-        $item = $this->getReferenceController()->getItemCurrentVersionByReference($reference);
+        try {
+            $item = $this->getReferenceController()->getItemCurrentVersionByReference($reference);
+        } catch (\Exception $e) {
+            return null;
+        }
         return $item->id;
     }
 

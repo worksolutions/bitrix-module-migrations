@@ -221,7 +221,11 @@ class ReferenceController {
         if (!$reference) {
             throw new \Exception('References not exists by '.var_export(array('id' => $id, 'group' => $group, 'dbVersion' => $dbVersion), true));
         }
-        $item = $this->getItemCurrentVersionByReference($reference);
+        try {
+            $item = $this->getItemCurrentVersionByReference($reference);
+        } catch (\Exception $e) {
+            return null;
+        }
         return $item->id;
     }
 

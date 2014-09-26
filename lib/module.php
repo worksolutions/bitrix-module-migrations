@@ -517,11 +517,8 @@ class Module {
 
         if ($subject == self::REFERENCE_SUBJECT_ADD) {
             try {
-                $this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion)
-                    &&
-                !$this->_getReferenceController()->getItemCurrentVersionByReference($item->reference)
-                    &&
-                $this->_getReferenceController()->registerItem($item);
+                $this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion);
+                $this->_getReferenceController()->getItemCurrentVersionByReference($item->reference);
             } catch (\Exception $e) {
                 $this->_getReferenceController()->registerItem($item);
             }
@@ -558,7 +555,7 @@ class Module {
             }
             catch (\Exception $e) {
                 $applyFixLog->success = false;
-                $applyFixLog->description = 'Exception error: '.$e->getMessage();
+                $applyFixLog->description = 'Exception error: '.$e->getMessage().' trace:'.$e->getTraceAsString();
             }
             $applyFixLog->save();
         }
