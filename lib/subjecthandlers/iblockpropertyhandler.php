@@ -71,12 +71,17 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         foreach ($addValues as $value) {
             unset($value['ID']);
             unset($value['~reference']);
-            $result = PropertyEnumerationTable::add($value);
-            if (!$result->getId()) {
-                throw new \Exception('Add property list value. Property not save. '.var_export($result->getErrorMessages(), true));
+            $enum = new \CIBlockPropertyEnum();
+            $enumElementId = $enum->Add($value);
+            if (!$enumElementId) {
+                throw new \Exception('Add property list value. Property not save. '.var_export($value, true));
+            }
+            $result = PropertyEnumerationTable::update(array('ID' => $enumElementId, 'PROPERTY_ID' => $value['PROPERTY_ID']), $value);
+            if (!$result->isSuccess()) {
+                throw new \Exception('Add property list value in table. Property not save. '.var_export($result->getErrorMessages(), true));
             }
             $referenceItem = new ReferenceItem();
-            $referenceItem->id = $result->getId();
+            $referenceItem->id = $enumElementId;
             $referenceItem->group =  ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES;
             $referenceItem->reference = $value['~reference'];
             $this->getReferenceController()->registerItem($referenceItem);
