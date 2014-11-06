@@ -20,13 +20,10 @@ return array(
                 'url' => $inputUri.'main',
             ),
             array(
-                'text' => $loc->getDataByPath('import'),
-                'url' => $inputUri.'import',
+                'text' => $loc->getDataByPath('changeversion'),
+                'url' => $inputUri.'changeversion',
             ),
-            array(
-                'text' => $loc->getDataByPath('export'),
-                'url' => $inputUri.'export',
-            ),
+
         )
     )
 );
