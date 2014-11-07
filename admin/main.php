@@ -52,7 +52,10 @@ $form->BeginNextFormTab();
 $form->BeginCustomField('version', 'vv');
 ?><tr>
     <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
-    <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b></td>
+    <td width="60%">
+        <b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b>
+        <a href="/bitrix/admin/ws_migrations.php?q=changeversion"><?=$localization->getDataByPath('change_link')?></a>
+    </td>
 </tr><?
 $form->EndCustomField('version');
 $form->BeginCustomField('list', 'vv');
