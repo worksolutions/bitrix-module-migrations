@@ -8,6 +8,7 @@ namespace WS\Migrations\Entities;
 
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
+use WS\Migrations\factories\DateTimeFactory;
 
 class SetupLogModel extends BaseEntity {
     public
@@ -18,7 +19,7 @@ class SetupLogModel extends BaseEntity {
     public $date;
 
     public function __construct() {
-        $this->date = new \DateTime();
+        $this->date = DateTimeFactory::createBase();
     }
 
     static protected function map() {
@@ -36,16 +37,16 @@ class SetupLogModel extends BaseEntity {
     static protected function modifyFromDb($data) {
         if ($data['date'] instanceof DateTime) {
             $timestamp = $data['date']->getTimestamp();
-            $data['date'] = new \DateTime();
+            $data['date'] = DateTimeFactory::createBase();
             $data['date']->setTimestamp($timestamp);
         } else {
-            $data['date']= new \DateTime($data['date']);
+            $data['date']= DateTimeFactory::createBase($data['date']);
         }
         return $data;
     }
 
     static protected function modifyToDb($data) {
-        $data['date'] && $data['date'] instanceof \DateTime && $data['date'] = DateTime::createFromPhp($data['date']);
+        $data['date'] && $data['date'] instanceof \DateTime && $data['date'] = DateTimeFactory::createBitrix($data['date']);
         return $data;
     }
 

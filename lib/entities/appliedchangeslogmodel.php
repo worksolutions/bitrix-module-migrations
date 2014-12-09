@@ -6,6 +6,7 @@
 namespace WS\Migrations\Entities;
 
 use Bitrix\Main\Type\DateTime;
+use WS\Migrations\factories\DateTimeFactory;
 
 class AppliedChangesLogModel extends BaseEntity {
     public
@@ -16,7 +17,7 @@ class AppliedChangesLogModel extends BaseEntity {
     private $_setupLog;
 
     public function __construct() {
-        $this->date = new \DateTime();
+        $this->date = DateTimeFactory::createBase();
     }
 
     static protected function modifyFromDb($data) {
@@ -24,10 +25,10 @@ class AppliedChangesLogModel extends BaseEntity {
         foreach ($data as $name => $value) {
             if ($name == 'date') {
                 if ($value instanceof DateTime) {
-                    $value = new \DateTime();
+                    $value = DateTimeFactory::createBase();
                     $value->setTimestamp($value->getTimestamp());
                 } else {
-                    $value = new \DateTime($value);
+                    $value = DateTimeFactory::createBase($value);
                 }
             }
             if (in_array($name, array('originalData', 'updateData'))) {
@@ -42,7 +43,7 @@ class AppliedChangesLogModel extends BaseEntity {
         $result = array();
         foreach ($data as $name => $value) {
             if ($name == 'date' && $value instanceof \DateTime) {
-                $value = DateTime::createFromPhp($value);
+                $value = DateTimeFactory::createBitrix($value);
             }
             if (in_array($name, array('originalData', 'updateData'))) {
                 $value = \WS\Migrations\arrayToJson($value);
