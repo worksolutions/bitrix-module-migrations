@@ -116,11 +116,11 @@ class FixTestCase extends AbstractCase {
         // В итоге должны получится
 
         // данные по добавлению ИБ
-        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockHandler::className()));
+        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockHandler::className()), 'Iblock is not added');
         // данные по добавлению свойства
-        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockPropertyHandler::className()));
+        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockPropertyHandler::className()), 'Iblock property is not added');
         // данные по добавлению секции
-        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockSectionHandler::className()));
+        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockSectionHandler::className()), 'Section is not added');
 
         $refFixes = $this->_getCollectorFixes('reference');
         // фиксация изменений
