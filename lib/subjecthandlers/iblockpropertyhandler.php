@@ -135,6 +135,9 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         if ($dbVersion) {
             $data['IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
             $id = $this->getCurrentVersionId($extId, $dbVersion);
+            if(isset($data['LINK_IBLOCK_ID']) && !empty($data['LINK_IBLOCK_ID'])){
+                $data['LINK_IBLOCK_ID'] = $this->getReferenceController()->getCurrentIdByOtherVersion($data['LINK_IBLOCK_ID'], ReferenceController::GROUP_IBLOCK, $dbVersion);
+            }
         } else {
             $id = $extId;
         }
@@ -143,7 +146,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
             $addRes = PropertyTable::add(array(
                 'ID' => $id,
                 'NAME' => $data['NAME'],
-                'IBLOCK_ID' => $data['IBLOCK_ID']
+                'IBLOCK_ID' => $data['IBLOCK_ID'],
             ));
             if (!$addRes->isSuccess()) {
                 throw new \Exception('Ќе удалось возобновить свойство текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
