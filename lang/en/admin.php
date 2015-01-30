@@ -1,0 +1,44 @@
+<?php
+return array(
+    'main' => array(
+        'title' => 'Migrations management',
+        'list' => 'List migrations for apply',
+        'version' => 'The current version of the database',
+        'change_link' => 'change version',
+        'errorList' => 'Unsuccessful applied migrations',
+        'appliedList' => 'Successful applied migrations',
+        'btnRollback' => 'Undo last change',
+        'lastSetup' => array(
+            'sectionName' => 'Last update :time: - :user:'
+        ),
+        'common' => array(
+            'listEmpty' => 'List is empty'
+        )
+    ),
+    'changeversion' => array(
+        'title' => 'Change version of the database',
+        'version' => 'The current version of the database',
+        'button_change' => 'Change',
+        'description' => "
+        In applying the \"Clean dump\", please change the version of the database, the current project will change the version that will function independently.
+        ",
+    ),
+    'export' => array(
+        'title' => 'Export migrations',
+        'version' => 'The current version of the database'
+    ),
+    'import' => array(
+        'title' => 'Import migrations',
+        'version' => 'The current version of the database',
+        'description' => "Transferring data schema
+
+        In applying the \"Clean dump\", please apply import (without using the scheme), the current project will change the version that will function independently.
+
+        The scheme used to create new data according to existing i.e. through the creation of new models of records in the event that relevant versions of imported records new data schema will not be created, they just modified according to imports.
+        ",
+        'fields' => array(
+            'file' => 'Import file (version.json)',
+            'isScheme' => 'Transfer scheme only'
+        )
+    )
+);

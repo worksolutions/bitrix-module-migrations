@@ -16,7 +16,6 @@ return array(
                 'not create property iblock id' => 'Не создано свойство инфоблока. :lastError',
                 'not create section iblock id' => 'Не создана секция инфоблока. :lastError',
                 'last log records need been update process' => 'Последними записями лога должен быть процесс добавления',
-                'last log records need been update process' => 'Последними записями лога должен быть процесс добавления',
                 'iblock not registered after update' => 'Инфоблок незарегистрирован в обновлении, тут :actual, нужен :need',
                 'property iblock not registered after update' => 'Свойство незарегистрировано в обновлении, оригинал - :original, получено - :actual',
                 'section iblock not registered after update' => 'Секция незарегистрирована в обновлении, оригинал - :original, получено - :actual',
