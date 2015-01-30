@@ -45,6 +45,7 @@ class Module {
     const REFERENCE_SUBJECT_REMOVE = 'remove';
 
     private $localizePath = null,
+            $fallbackLocale = 'en',
             $localizations = array();
 
     private static $name = 'ws.migrations';
@@ -92,6 +93,10 @@ class Module {
 
     private function __construct() {
         $this->localizePath = __DIR__.'/../lang/'.LANGUAGE_ID;
+
+        if (!file_exists($this->localizePath) && $this->fallbackLocale) {
+            $this->localizePath = __DIR__.'/../lang/'.$this->fallbackLocale;
+        }
     }
 
     static public function getName($stripDots = false) {
@@ -564,7 +569,7 @@ class Module {
     }
 
     /**
-     * Применение фиксации
+     * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
      * @return int
      */
     public function applyNewFixes() {
@@ -599,7 +604,7 @@ class Module {
     }
 
     /**
-     * Откат изменений последней фиксации.
+     * пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
      * @return null
      */
     public function rollbackLastChanges() {
@@ -612,7 +617,7 @@ class Module {
     }
 
     /**
-     * Откат списка логированных изменений
+     * пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
      * @param AppliedChangesLogModel[] $list
      * @return null
      */
@@ -628,7 +633,7 @@ class Module {
                 $subjectHandler = $this->getSubjectHandler($log->subjectName);
                 $process->rollback($subjectHandler, $log);
             } catch (\Exception $e) {
-                // возможны ссылочные данные
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                 continue;
             }
         }
@@ -697,7 +702,7 @@ class Module {
     }
 
     public function import($json) {
-        // Коллектор проинициализировать без участия файлов
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         $collector = $this->_createCollector(jsonToArray($json));
         $this->applyFixesList($collector->getFixes());
     }
