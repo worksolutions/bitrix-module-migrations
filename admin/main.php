@@ -31,9 +31,10 @@ if ($lastSetupLog) {
 //--------------------------------------------------------------------------
 
 /** @var $localization \WS\Migrations\Localization */
-$localization;
 /** @var $APPLICATION CMain */
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+$localization;
+$module = \WS\Migrations\Module::getInstance();
 ?><form method="POST" action="<?=
 $APPLICATION->GetCurUri()?>" ENCTYPE="multipart/form-data" name="apply"><?
 $form = new CAdminForm('ws_maigrations_main', array(
@@ -53,7 +54,7 @@ $form->BeginCustomField('version', 'vv');
 ?><tr>
     <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
     <td width="60%">
-        <b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b>
+        <b><?= $module->getDbVersion()." [".$module->getVersionOwner()."]"?></b><br />
         <a href="/bitrix/admin/ws_migrations.php?q=changeversion"><?=$localization->getDataByPath('change_link')?></a>
     </td>
 </tr><?

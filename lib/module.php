@@ -569,7 +569,6 @@ class Module {
     }
 
     /**
-     * ���������� ��������
      * @return int
      */
     public function applyNewFixes() {
@@ -604,7 +603,6 @@ class Module {
     }
 
     /**
-     * ����� ��������� ��������� ��������.
      * @return null
      */
     public function rollbackLastChanges() {
@@ -617,7 +615,6 @@ class Module {
     }
 
     /**
-     * ����� ������ ������������ ���������
      * @param AppliedChangesLogModel[] $list
      * @return null
      */
@@ -633,7 +630,6 @@ class Module {
                 $subjectHandler = $this->getSubjectHandler($log->subjectName);
                 $process->rollback($subjectHandler, $log);
             } catch (\Exception $e) {
-                // �������� ��������� ������
                 continue;
             }
         }
@@ -642,12 +638,22 @@ class Module {
 
 
     /**
+     * Value db version
      * @return string
      */
     public function getDbVersion() {
         $options = self::getOptions();
         !$options->version && $options->version = md5(time());
         return $options->version;
+    }
+
+    /**
+     * Return owner db version
+     * @return string
+     */
+    public function getVersionOwner() {
+        $options = self::getOptions();
+        return $options->owner;
     }
 
     /**
@@ -702,7 +708,6 @@ class Module {
     }
 
     public function import($json) {
-        // ��������� ������������������� ��� ������� ������
         $collector = $this->_createCollector(jsonToArray($json));
         $this->applyFixesList($collector->getFixes());
     }

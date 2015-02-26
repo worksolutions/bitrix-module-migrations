@@ -3,6 +3,7 @@ namespace WS\Migrations;
 /**
  * @property string $catalogPath
  * @property string $version;
+ * @property string $owner;
  * @property string $useAutotests;
  * @property string $enabledSubjectHandlers;
  * @author <sokolovsky@worksolutions.ru>

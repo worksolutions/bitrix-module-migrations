@@ -1,6 +1,20 @@
 <?php
-if ($_POST['changeversion']) {
-     \WS\Migrations\Module::getInstance()->runRefreshVersion();
+
+$context = Bitrix\Main\Context::getCurrent();
+/** @var \Bitrix\Main\HttpRequest $request */
+$request = $context->getRequest();
+
+if ($request->isPost()) {
+    $post = $request->getPostList()->toArray();
+    $post = \Bitrix\Main\Text\Encoding::convertEncodingArray($post, "UTF-8", $context->getCulture()->getCharset());
+    if ($post['changeversion']) {
+         \WS\Migrations\Module::getInstance()->runRefreshVersion();
+    }
+    if ($post['ownersetup']) {
+        $options = \WS\Migrations\Module::getInstance()->getOptions();
+        $options->owner = $post['ownersetup']['owner'];
+        exit();
+    }
 }
 
 /** @var $localization \WS\Migrations\Localization */
@@ -25,9 +39,14 @@ $form->Begin(array(
 ));
 $form->BeginNextFormTab();
 $form->BeginCustomField('version', 'vv');
-?><tr>
-    <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
-    <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b></td>
+?>
+    <tr>
+        <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
+        <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b></td>
+    </tr>
+    <tr>
+        <td width="30%"><?=$localization->getDataByPath('owner')?>:</td>
+        <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getVersionOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
     </tr>
     <tr>
         <td></td>
@@ -35,7 +54,44 @@ $form->BeginCustomField('version', 'vv');
     </tr><?
 $form->EndCustomField('version');
 $form->EndTab();
-//$form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
 $form->Show();
+$jsParams = array(
+    'owner' => array(
+        'label' => $localization->getDataByPath('owner'),
+        'value' => \WS\Migrations\Module::getInstance()->getVersionOwner() ?: ''
+    ),
+    'dialog' => array(
+        'title' => $localization->getDataByPath('dialog.title')
+    )
+);
 ?>
 </form>
+<script type="text/javascript">
+    (function (params) {
+
+        BX.ready(function () {
+            var $ownerLink = $(document.getElementById('ownerSetupLink'));
+            var save = {};
+            $.extend(save, BX.CDialog.btnSave);
+
+            save.action = function (event) {
+                BX.ajax.post('?q=changeversion', dialog.GetParameters(), function () {
+                    BX.reload();
+                });
+            };
+
+            var dialog = new BX.CDialog({
+                'title': params.dialog.title,
+                'content': '<form><table cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td width="40%" text-align="right">'+params.owner.label+':</td><td width="60%" align="left"><input type="text" id="owner" name="ownersetup[owner]" value="'+params.owner.value+'"></td></tr></table></form>',
+                'width': 500,
+                'height': 70,
+                'buttons': [save, BX.CAdminDialog.btnCancel],
+                'resizable': false
+            });
+            $ownerLink.click(function (e) {
+                e.preventDefault();
+                dialog.Show();
+            });
+        });
+    })(<?=CUtil::PhpToJsObject($jsParams)?>)
+</script>
