@@ -95,8 +95,8 @@ class Collector {
      * @param $dbVersion
      * @return bool
      */
-    public function commit($dbVersion) {
-        $fixesData = $this->getFixesData($dbVersion);
+    public function commit($dbVersion, $ownerName) {
+        $fixesData = $this->getFixesData($dbVersion, $ownerName);
         $fixesData && $this->_storable && $this->_saveData($fixesData);
         if (!$fixesData) {
             return false;
@@ -105,7 +105,7 @@ class Collector {
         return true;
     }
 
-    public function getFixesData($dbVersion) {
+    public function getFixesData($dbVersion, $ownerName) {
         $data = array();
         foreach ($this->getUsesFixed() as $fix) {
             $data[] = array(
@@ -114,7 +114,8 @@ class Collector {
                 'data' => $fix->getUpdateData(),
                 'originalData' => $fix->getOriginalData(),
                 'name' => $fix->getName(),
-                'version' => $dbVersion
+                'version' => $dbVersion,
+                'owner' => $ownerName
             );
         }
         if (!$data) {
@@ -132,7 +133,7 @@ class Collector {
 
     /**
      * List of uses fixes
-     * @return array
+     * @return CollectorFix[]
      */
     public function getUsesFixed() {
         return array_filter($this->_fixes, function (CollectorFix $fix) {

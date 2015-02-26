@@ -2,12 +2,9 @@
 
 namespace WS\Migrations;
 use Bitrix\Main\Application;
-use Bitrix\Main\DB\Exception;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
-use Bitrix\Main\UserTable;
-use Bitrix\Main\Web\Json;
 use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
@@ -224,7 +221,7 @@ class Module {
             return;
         }
         $self->_logOwnChanges($fixes);
-        $self->getDutyCollector()->commit($self->getDbVersion());
+        $self->getDutyCollector()->commit($self->getDbVersion(), $self->getVersionOwner());
     }
 
     /**
@@ -343,6 +340,7 @@ class Module {
     /**
      * @param $class
      * @return BaseProcess
+     * @throws \Exception
      */
     public function getProcess($class) {
         switch ($class) {
@@ -356,11 +354,19 @@ class Module {
                 return $this->_getProcessDelete();
                 break;
         }
+        throw new \Exception("Process class $class not recognized");
     }
 
+    /**
+     * @param $handlerClass
+     * @param $eventKey
+     * @param $params
+     * @return bool
+     * @throws \Exception
+     */
     public function handle($handlerClass, $eventKey, $params) {
         if (!$this->hasListen()) {
-            return ;
+            return false;
         }
         $handlers = $this->handlers();
         if ( !$handlers[$handlerClass][$eventKey]) {
@@ -369,7 +375,7 @@ class Module {
         $collector = $this->getDutyCollector();
         $handler = $this->getSubjectHandler($handlerClass);
         if (!$handler->required() && !$this->getOptions()->isEnableSubjectHandler($handlerClass)) {
-            return ;
+            return false;
         }
 
         $fix  = $collector->createFix();
@@ -408,6 +414,7 @@ class Module {
                 break;
         }
         $result && $collector->registerFix($fix);
+        return true;
     }
 
     /**
@@ -476,6 +483,7 @@ class Module {
             $files[$file->getName()] = $file;
         }
         ksort($files);
+        /** @var File $file */
         foreach ($files as $file) {
             $collectors[] = Collector::createByFile($file->getPath(), $this);
         }
@@ -541,9 +549,10 @@ class Module {
         }
         $this->_disableListen();
         $setupLog = $this->_createSetupLog();
+        /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
+            $applyFixLog = new AppliedChangesLogModel();
             try {
-                $applyFixLog = new AppliedChangesLogModel();
                 $applyFixLog->processName = $fix->getProcess();
                 $applyFixLog->subjectName = $fix->getSubject();
                 $applyFixLog->setSetupLog($setupLog);
@@ -690,7 +699,7 @@ class Module {
                 $collector->registerFix($fix);
             }
         }
-        return arrayToJson($collector->getFixesData($this->getDbVersion()));
+        return arrayToJson($collector->getFixesData($this->getDbVersion(), $this->getVersionOwner()));
     }
 
     /**

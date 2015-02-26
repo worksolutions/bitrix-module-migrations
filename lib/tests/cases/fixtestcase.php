@@ -28,6 +28,8 @@ class FixTestCase extends AbstractCase {
 
     const VERSION = 'test';
 
+    const OWNER_NAME = 'Owner Changes';
+
     private $_iblockId, $_propertyId, $_sectionId;
 
     public function name() {
@@ -57,7 +59,7 @@ class FixTestCase extends AbstractCase {
         if (!$this->_currentDutyCollector) {
             throw new \Exception('Duty collector not exists');
         }
-        $fixes = $this->_currentDutyCollector->getFixesData(self::VERSION);
+        $fixes = $this->_currentDutyCollector->getFixesData(self::VERSION, self::OWNER_NAME);
         $res = array();
         foreach ($fixes as $fixData) {
             $fixData['process'] == $process

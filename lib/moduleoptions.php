@@ -18,7 +18,7 @@ final class ModuleOptions {
      * @staticvar self $self
      * @return Options
      */
-    public function getInstance() {
+    static public function getInstance() {
         static $self = null;
         if (!$self) {
             $self = new self;
