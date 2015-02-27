@@ -1,7 +1,7 @@
 <?php
 return array(
     'title' => 'Миграции данных',
-    'changeversion' => 'Смена версии базы',
+    'changeversion' => 'Версии платформ',
     'import' => 'Импорт миграций',
     'export' => 'Экспорт миграций',
     'apply' => 'Применение'
