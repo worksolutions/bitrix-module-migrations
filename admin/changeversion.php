@@ -29,31 +29,50 @@ $form = new CAdminForm('ws_maigrations_import', array(
         "TAB" => $localization->getDataByPath('title'),
         "ICON" => "iblock",
         "TITLE" => $localization->getDataByPath('title'),
-    ) ,
+    ),
+    array(
+        "DIV" => "edit2",
+        "TAB" => $localization->getDataByPath('otherVersions.tab'),
+        "ICON" => "iblock",
+        "TITLE" => $localization->getDataByPath('otherVersions.tab')
+    )
 ));
+$module = \WS\Migrations\Module::getInstance();
 $form->BeginPrologContent();
 ShowNote($localization->getDataByPath('description'));
 $form->EndPrologContent();
 $form->Begin(array(
     'FORM_ACTION' => $APPLICATION->GetCurUri()
 ));
+
 $form->BeginNextFormTab();
 $form->BeginCustomField('version', 'vv');
 ?>
     <tr>
         <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
-        <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b></td>
+        <td width="60%"><b><?=$module->getDbVersion()?></b></td>
     </tr>
     <tr>
         <td width="30%"><?=$localization->getDataByPath('owner')?>:</td>
-        <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getVersionOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
+        <td width="60%"><b><?=$module->getVersionOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
     </tr>
     <tr>
         <td></td>
         <td ><input type="submit" name="changeversion" value="<?=$localization->getDataByPath('button_change')?>"></td>
     </tr><?
 $form->EndCustomField('version');
-$form->EndTab();
+$form->BeginNextFormTab();
+$form->BeginCustomField('owner', 'ww');
+foreach ($module->getOptions()->getOtherVersions() as $version => $owner) {
+    ?>
+        <tr>
+            <td width="30%"><?=$owner?>:</td>
+            <td width="60%"><b><?=$version?></b></td>
+        </tr>
+    <?
+}
+$form->EndCustomField('owner');
+$form->Buttons();
 $form->Show();
 $jsParams = array(
     'owner' => array(

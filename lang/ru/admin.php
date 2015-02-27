@@ -26,6 +26,9 @@ return array(
         ",
         'dialog' => array(
             'title' => 'Установка имени владельца версии проекта'
+        ),
+        'otherVersions' => array(
+            'tab' => 'Сторонние версии миграций'
         )
     ),
     'export' => array(
