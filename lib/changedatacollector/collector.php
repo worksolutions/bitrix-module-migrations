@@ -35,7 +35,8 @@ class Collector {
                 ->setSubject($arFix['subject'])
                 ->setProcess($arFix['process'])
                 ->setName($arFix['name'])
-                ->setDbVersion($arFix['version']);
+                ->setDbVersion($arFix['version'])
+                ->setOwner($arFix['owner']);
         }
     }
 

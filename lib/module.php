@@ -66,6 +66,12 @@ class Module {
     private $_listenMode = true;
 
     /**
+     * Versions options Cache
+     * @var array
+     */
+    private $_versions;
+
+    /**
      * @return $this
      */
     private function _enableListen() {
@@ -543,6 +549,10 @@ class Module {
     }
 
 
+    /**
+     * @param $fixes
+     * @return int
+     */
     public function applyFixesList($fixes) {
         if (!$fixes) {
             return 0;
@@ -566,6 +576,7 @@ class Module {
                 } else {
                     $this->_applyFix($fix, $applyFixLog);
                 }
+                $this->_useAnotherVersion($fix);
             }
             catch (\Exception $e) {
                 $applyFixLog->success = false;
@@ -728,6 +739,17 @@ class Module {
     public function install() {
         foreach ($this->getSubjectHandlers() as $handler) {
             $handler->registerExistsReferences();
+        }
+    }
+
+    /**
+     * @param CollectorFix $fix
+     */
+    private function _useAnotherVersion(CollectorFix $fix) {
+        $this->_versions = $this->_versions ?: $this->getOptions()->getOtherVersions();
+        if (!$this->_versions[$fix->getDbVersion()] || $this->_versions[$fix->getDbVersion()] != $fix->getOwner()) {
+            $this->_versions[$fix->getDbVersion()] = $fix->getOwner();
+            $this->getOptions()->otherVersions = $this->_versions;
         }
     }
 }

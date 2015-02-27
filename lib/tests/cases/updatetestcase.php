@@ -84,6 +84,8 @@ class UpdateTestCase extends AbstractCase {
             )
         ))->fetch();
         $this->assertTrue($registerRef, $this->errorMessage('In added apply not created iblock reference '. $this->_processIblockId));
+        $ownerVersions = Module::getInstance()->getOptions()->getOtherVersions();
+        $this->assertTrue(in_array('Василий Сазонов', $ownerVersions), $this->errorMessage("Not registered version as `Василий сазонов`"));
     }
 
     public function testUpdate() {

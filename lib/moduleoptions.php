@@ -4,6 +4,7 @@ namespace WS\Migrations;
  * @property string $catalogPath
  * @property string $version;
  * @property string $owner;
+ * @property array $otherVersions;
  * @property string $useAutotests;
  * @property string $enabledSubjectHandlers;
  * @author <sokolovsky@worksolutions.ru>
@@ -64,5 +65,12 @@ final class ModuleOptions {
      */
     public function isEnableSubjectHandler($class) {
         return in_array($class, $this->enabledSubjectHandlers);
+    }
+
+    /**
+     * @return array
+     */
+    public function getOtherVersions() {
+        return $this->otherVersions;
     }
 }

@@ -16,6 +16,7 @@ class CollectorFix {
     private $_label;
     private $_name;
     private $_originalData;
+    private $_owner;
 
     private $_isUses = false;
 
@@ -127,5 +128,21 @@ class CollectorFix {
      */
     public function getDbVersion() {
         return $this->_dbVersion;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOwner() {
+        return $this->_owner;
+    }
+
+    /**
+     * @param string $owner
+     * @return $this
+     */
+    public function setOwner($owner) {
+        $this->_owner = $owner;
+        return $this;
     }
 }
