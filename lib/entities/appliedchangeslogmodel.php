@@ -69,10 +69,13 @@ class AppliedChangesLogModel extends BaseEntity {
         );
     }
 
+    /**
+     * @return SetupLogModel
+     */
     public function getSetupLog() {
         if (!$this->_setupLog) {
             $this->_setupLog = SetupLogModel::findOne(array(
-                    'select' => array('=id' => $this->setupLogId)
+                    'filter' => array('=id' => $this->setupLogId)
                 )
             );
         }
