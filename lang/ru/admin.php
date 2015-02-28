@@ -48,5 +48,28 @@ return array(
             'file' => 'Файл импорта (версия.json)',
             'isScheme' => 'Перенос только схемы'
         )
+    ),
+    'log' => array(
+        'title' => 'Журнал изменений',
+        'fields' => array(
+            'updateDate' => 'Дата применения',
+            'description' => 'Описание',
+            'source' => 'Источник',
+            'dispatcher' => 'Применил'
+        ),
+        'messages' => array(
+            'InsertReference' => 'Вставка ссылки стороннего источника',
+            'view' => 'Анализ изменений',
+            'pages' => 'Страницы',
+            'actualization' => 'Актуализация источников'
+        )
+    ),
+    'detail' => array(
+        'title' => '#date. #source. Обновил - #deployer',
+        'tabs' => array(
+            'diff' => 'Изменения',
+            'final' => 'Данные изменения',
+            'merge' => 'Состояние до изменений'
+        )
     )
 );

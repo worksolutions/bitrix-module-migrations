@@ -204,6 +204,7 @@ class Module {
             $applyLog->description = $fix->getName();
             $applyLog->originalData = $fix->getOriginalData();
             $applyLog->updateData = $fix->getUpdateData();
+            $applyLog->source = $fix->getDbVersion();
             $applyLog->success = true;
             $applyLog->setSetupLog($setupLog);
 
@@ -568,6 +569,7 @@ class Module {
                 $applyFixLog->setSetupLog($setupLog);
                 $applyFixLog->groupLabel = $fix->getLabel();
                 $applyFixLog->description = 'References updates';
+                $applyFixLog->source = $fix->getDbVersion();
 
                 if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
                     $applyFixLog->subjectName = 'references';
