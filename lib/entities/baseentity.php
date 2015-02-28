@@ -12,6 +12,8 @@ abstract class BaseEntity {
     private $_isNew = true;
 
     private $_errors = array();
+
+    static private $_oneRequestsCache = array();
     /**
      * @param $props
      * @return $this
@@ -109,18 +111,22 @@ abstract class BaseEntity {
      * @return $this
      */
     static public function findOne($params = array()) {
-        $params['limit'] = 1;
-        $items = self::find($params);
-        return $items[0];
+        $cacheKey = md5(get_called_class().serialize($params));
+        if (!self::$_oneRequestsCache[$cacheKey]) {
+            $params['limit'] = 1;
+            $items = self::find($params);
+            self::$_oneRequestsCache[$cacheKey] = $items[0];
+        }
+        return self::$_oneRequestsCache[$cacheKey];
     }
 
     /**
      * @param $name
-     * @param $p1
-     * @param $p2
-     * @param $p3
-     *
      * @return mixed
+     * @internal param $p1
+     * @internal param $p2
+     * @internal param $p3
+     *
      */
     static public function callGatewayMethod($name) {
         $params = func_get_args();
