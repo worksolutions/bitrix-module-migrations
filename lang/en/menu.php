@@ -4,5 +4,6 @@ return array(
     'changeversion' => 'Changing the database version',
     'import' => 'Import migrations',
     'export' => 'Export migrations',
-    'apply' => 'Applying'
+    'apply' => 'Applying',
+    'log' => 'Changes log'
 );
