@@ -18,10 +18,18 @@ return array(
     'changeversion' => array(
         'title' => 'Change version of the database',
         'version' => 'The current version of the database',
+        'setup' => 'setup',
+        'owner' => 'Owner',
         'button_change' => 'Change',
         'description' => "
         In applying the \"Clean dump\", please change the version of the database, the current project will change the version that will function independently.
         ",
+        'dialog' => array(
+            'title' => 'Owner is set name'
+        ),
+        'otherVersions' => array(
+            'tab' => 'Other versions'
+        )
     ),
     'export' => array(
         'title' => 'Export migrations',

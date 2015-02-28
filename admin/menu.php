@@ -23,7 +23,10 @@ return array(
                 'text' => $loc->getDataByPath('changeversion'),
                 'url' => $inputUri.'changeversion',
             ),
-
+            array(
+                'text' => $loc->getDataByPath('log'),
+                'url' => $inputUri.'log',
+            )
         )
     )
 );
