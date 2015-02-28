@@ -11,7 +11,7 @@ use WS\Migrations\factories\DateTimeFactory;
 class AppliedChangesLogModel extends BaseEntity {
     public
         $id, $groupLabel, $date, $success,
-        $processName, $subjectName, $updateData,
+        $processName, $subjectName, $source, $updateData,
         $originalData, $description, $setupLogId;
 
     private $_setupLog;
@@ -62,6 +62,7 @@ class AppliedChangesLogModel extends BaseEntity {
             'date' => 'DATE',
             'processName' => 'PROCESS',
             'subjectName' => 'SUBJECT',
+            'source' => 'SOURCE',
             'updateData' => 'UPDATE_DATA',
             'originalData' => 'ORIGINAL_DATA',
             'success' => 'SUCCESS',
