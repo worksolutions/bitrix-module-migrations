@@ -127,7 +127,7 @@ class CollectorFix {
      * @return string
      */
     public function getDbVersion() {
-        return $this->_dbVersion;
+        return $this->_dbVersion ?: $this->_data['dbVersion'];
     }
 
     /**
