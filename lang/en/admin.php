@@ -13,7 +13,8 @@ return array(
         ),
         'common' => array(
             'listEmpty' => 'List is empty'
-        )
+        ),
+        'newChangesDetail' => 'Changes list'
     ),
     'changeversion' => array(
         'title' => 'Change version of the database',
@@ -47,6 +48,28 @@ return array(
         'fields' => array(
             'file' => 'Import file (version.json)',
             'isScheme' => 'Transfer scheme only'
+        )
+    ),
+    'log' => array(
+        'title' => 'Changes log',
+        'fields' => array(
+            'updateDate' => 'Update`s date',
+            'description' => 'Description',
+            'source' => 'Source',
+            'dispatcher' => 'Dispatcher'
+        ),
+        'messages' => array(
+            'InsertReference' => 'Insert another platform reference',
+            'view' => 'Changes analysis',
+            'pages' => 'Pages',
+        )
+    ),
+    'detail' => array(
+        'title' => '#date. #source. Deployer - #deployer',
+        'tabs' => array(
+            'diff' => 'Diff',
+            'final' => 'Final data',
+            'merge' => 'Before changes data'
         )
     )
 );
