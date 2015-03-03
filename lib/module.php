@@ -72,6 +72,11 @@ class Module {
     private $_versions;
 
     /**
+     * @var bool
+     */
+    private $_validVersion = true;
+
+    /**
      * @return $this
      */
     private function _enableListen() {
@@ -100,6 +105,14 @@ class Module {
         if (!file_exists($this->localizePath) && $this->fallbackLocale) {
             $this->localizePath = __DIR__.'/../lang/'.$this->fallbackLocale;
         }
+
+        // version`s is checked
+        $options = self::getOptions();
+        $checkToken = ($options->version.__FILE__);
+        if (!$options->versionCheck) {
+            $options->versionCheck = $checkToken;
+        }
+        $this->_validVersion = $options->versionCheck == $checkToken;
     }
 
     static public function getName($stripDots = false) {
@@ -372,6 +385,9 @@ class Module {
      * @throws \Exception
      */
     public function handle($handlerClass, $eventKey, $params) {
+        if (!$this->isValidVersion()) {
+            throw new \Exception('Module platform version is not valid');
+        }
         if (!$this->hasListen()) {
             return false;
         }
@@ -553,8 +569,12 @@ class Module {
     /**
      * @param $fixes
      * @return int
+     * @throws \Exception
      */
     public function applyFixesList($fixes) {
+        if (!$this->isValidVersion()) {
+            throw new \Exception('Module platform version is not valid');
+        }
         if (!$fixes) {
             return 0;
         }
@@ -598,6 +618,9 @@ class Module {
      * Apply references by records another versions
      */
     public function applyAnotherReferences() {
+        if (!$this->isValidVersion()) {
+            throw new \Exception('Module platform version is not valid');
+        }
         $fixes = $this->getNotAppliedFixes();
         foreach ($fixes as $fix) {
             if (!$this->isReferenceFix($fix)) {
@@ -707,8 +730,20 @@ class Module {
      */
     public function getDbVersion() {
         $options = self::getOptions();
-        !$options->version && $options->version = md5(time());
+        if (!$options->version) {
+            $options->version = md5(time());
+            $options->versionCheck = md5($options->version.__FILE__);
+            $this->_validVersion = true;
+        }
         return $options->version;
+    }
+
+    /**
+     * Returns valid sign by version
+     * @return bool
+     */
+    public function isValidVersion() {
+        return $this->_validVersion;
     }
 
     /**
