@@ -801,7 +801,9 @@ class Module {
         if (!$registerResult) {
             return false;
         }
-        self::getOptions()->version = $cloneVersion;
+        $moduleOptions = self::getOptions();
+        $moduleOptions->version = $cloneVersion;
+        $moduleOptions->versionCheck = md5($moduleOptions->version.__FILE__);
         $this->_referenceController = null;
         return true;
     }
