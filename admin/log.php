@@ -23,12 +23,18 @@ $arHeaders = array(
 $lAdmin->AddHeaders($arHeaders);
 
 $models = AppliedChangesLogModel::find(array(
-    'limit' => 500
+    'limit' => 500,
+    'order' => array(
+        'groupLabel' => 'desc'
+    )
 ));
 
 $rowsData = array();
 $versions = $module->getAnotherVersions();
-array_walk($models, function (AppliedChangesLogModel $model) use (& $rowsData, & $versions) {
+array_walk($models, function (AppliedChangesLogModel $model) use (& $rowsData, $versions) {
+    if (in_array($model->description, array('Insert reference', 'References updates'))) {
+        return;
+    }
     $row = & $rowsData[$model->groupLabel];
     if(!$row) {
         $row = array(
@@ -37,9 +43,6 @@ array_walk($models, function (AppliedChangesLogModel $model) use (& $rowsData, &
             'source' => $versions[$model->source] ?: $model->source,
             'dispatcher' => $model->getSetupLog() ? $model->getSetupLog()->shortUserInfo() : ''
         );
-    }
-    if (in_array($model->description, array('Insert reference', 'References updates'))) {
-        return;
     }
     $row['description'] = $row['description'] ? implode("<br />", array($row['description'], $model->description)) : $model->description;
 });

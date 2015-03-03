@@ -217,7 +217,7 @@ class Module {
             $applyLog->description = $fix->getName();
             $applyLog->originalData = $fix->getOriginalData();
             $applyLog->updateData = $fix->getUpdateData();
-            $applyLog->source = $fix->getDbVersion() ?: $this->getDbVersion();
+            $applyLog->source = $this->getDbVersion();
             $applyLog->success = true;
             $applyLog->setSetupLog($setupLog);
 
