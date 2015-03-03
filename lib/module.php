@@ -108,7 +108,7 @@ class Module {
 
         // version`s is checked
         $options = self::getOptions();
-        $checkToken = ($options->version.__FILE__);
+        $checkToken = md5($options->version.__FILE__);
         if (!$options->versionCheck) {
             $options->versionCheck = $checkToken;
         }
@@ -803,7 +803,8 @@ class Module {
         }
         $moduleOptions = self::getOptions();
         $moduleOptions->version = $cloneVersion;
-        $moduleOptions->versionCheck = md5($moduleOptions->version.__FILE__);
+        $moduleOptions->versionCheck = md5($cloneVersion.__FILE__);
+        $this->_validVersion = true;
         $this->_referenceController = null;
         return true;
     }
