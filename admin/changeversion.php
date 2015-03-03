@@ -47,12 +47,14 @@ $form->Begin(array(
 
 $form->BeginNextFormTab();
 $form->BeginCustomField('version', 'vv');
+$color = "green";
+!$module->isValidVersion() && $color = "red";
 ?>
-    <tr>
+    <tr style="color: <?=$color?>;">
         <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
         <td width="60%"><b><?=$module->getDbVersion()?></b></td>
     </tr>
-    <tr>
+    <tr style="color: <?=$color?>;">
         <td width="30%"><?=$localization->getDataByPath('owner')?>:</td>
         <td width="60%"><b><?=$module->getVersionOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
     </tr>

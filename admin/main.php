@@ -51,10 +51,12 @@ $form->Begin(array(
 ));
 $form->BeginNextFormTab();
 $form->BeginCustomField('version', 'vv');
+$versionColor = "green";
+!$module->isValidVersion() && $versionColor = "red";
 ?><tr>
     <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
     <td width="60%">
-        <b><?= $module->getDbVersion()." [".$module->getVersionOwner()."]"?></b><br />
+        <b style="color: <?=$versionColor?>;"><?= $module->getDbVersion()." [".$module->getVersionOwner()."]"?></b><br />
         <a href="/bitrix/admin/ws_migrations.php?q=changeversion"><?=$localization->getDataByPath('change_link')?></a>
     </td>
 </tr><?
