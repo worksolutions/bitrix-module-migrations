@@ -61,7 +61,7 @@ $form->BeginCustomField('version', 'vv');
 $form->EndCustomField('version');
 $form->BeginCustomField('list', 'vv');
 ?>
-<tr style="color: #1e90ff;">
+<tr style="color: #ff8000;">
     <td width="30%"><?=$localization->getDataByPath('list')?>:</td>
     <td width="60%">
 <?if($fixes):?>
@@ -70,6 +70,7 @@ $form->BeginCustomField('list', 'vv');
             <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
 <?endforeach;?>
         </ul>
+        <a href="#" id="newChangesViewLink"><?=$localization->getDataByPath('newChangesDetail')?></a>
 <?else:?>
 <b><?=$localization->message('common.listEmpty')?></b>
 <?endif;?>
@@ -128,4 +129,20 @@ $lastSetupLog
     && $form->sButtonsContent = '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
 
 $form->Show();
-?></form><?
+?></form>
+<script type="text/javascript">
+    $(function () {
+        var $chLink = $(document.getElementById('newChangesViewLink'));
+        $chLink.click(function (e) {e.preventDefault();});
+
+        $chLink.on("click", function () {
+            (new BX.CDialog({
+                'title': "<?=$localization->message("newChangesTitle")?>",
+                'content_url': '/bitrix/admin/ws_migrations.php?q=newChangesList',
+                'width': 900,
+                'buttons': [BX.CAdminDialog.btnClose],
+                'resizable': false
+            })).Show();
+        });
+    });
+</script>
