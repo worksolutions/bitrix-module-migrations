@@ -64,6 +64,9 @@ class AppliedChangesLogTable extends DataManager {
             'DESCRIPTION' => array(
                 'data_type' => 'string',
                 'required' => true,
+            ),
+            'SOURCE' => array(
+                'data_type' => 'string'
             )
         );
     }
