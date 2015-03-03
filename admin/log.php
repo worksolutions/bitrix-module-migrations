@@ -52,7 +52,7 @@ while ($rowData = $rsData->NavNext()) {
         array(
             "ICON" => "view",
             "TEXT" => $localization->message('messages.view'),
-            "ACTION" => $lAdmin->ActionRedirect("ws_migrations.php?q=detail&label=".$rowData['label']),
+            "ACTION" => $lAdmin->ActionRedirect("ws_migrations.php?q=detail&label=".$rowData['label'].'&type=applied'),
             "DEFAULT" => true
         )
     ));
