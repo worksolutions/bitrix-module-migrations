@@ -834,6 +834,15 @@ class Module {
             $this->getOptions()->otherVersions = $this->_versions;
         }
     }
+
+    /**
+     * @return array
+     */
+    public function getAnotherVersions() {
+        return array_merge($this->getOptions()->getOtherVersions(), array(
+            $this->getDbVersion() => $this->getVersionOwner()
+        ));
+    }
 }
 
 function jsonToArray($json) {

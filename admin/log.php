@@ -5,6 +5,9 @@ use WS\Migrations\Entities\AppliedChangesLogModel;
 /** @var $localization \WS\Migrations\Localization */
 $localization;
 
+/** @var \WS\Migrations\Module $module */
+$module = \WS\Migrations\Module::getInstance();
+
 /** @var CMain $APPLICATION */
 $APPLICATION->SetTitle($localization->getDataByPath('title'));
 $sTableID = "ws_migrations_log_table";
@@ -24,14 +27,15 @@ $models = AppliedChangesLogModel::find(array(
 ));
 
 $rowsData = array();
-array_walk($models, function (AppliedChangesLogModel $model) use (& $rowsData) {
+$versions = $module->getAnotherVersions();
+array_walk($models, function (AppliedChangesLogModel $model) use (& $rowsData, & $versions) {
     $row = & $rowsData[$model->groupLabel];
     if(!$row) {
         $row = array(
             'label' => $model->groupLabel,
             'updateDate' => $model->date->format('d.m.Y H:i:s'),
-            'source' => $model->source,
-            'dispatcher' => $model->getSetupLog()->shortUserInfo()
+            'source' => $versions[$model->source] ?: $model->source,
+            'dispatcher' => $model->getSetupLog() ? $model->getSetupLog()->shortUserInfo() : ''
         );
     }
     if (in_array($model->description, array('Insert reference', 'References updates'))) {
