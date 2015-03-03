@@ -1,5 +1,6 @@
 <?php
 
+use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 
 $fDiff = function ($array1, $array2) use (& $fDiff) {
@@ -25,18 +26,60 @@ $fDiff = function ($array1, $array2) use (& $fDiff) {
 /** @var $localization \WS\Migrations\Localization */
 $localization;
 $module = \WS\Migrations\Module::getInstance();
+
 $label = $_GET['label'];
-/** @var AppliedChangesLogModel[] $models */
-$models = AppliedChangesLogModel::find(array('filter' => array('=groupLabel' => $label)));
+$type  = $_GET['type'];
+$data = array();
+switch ($type) {
+    case 'applied':
+        /** @var AppliedChangesLogModel[] $models */
+        $models = AppliedChangesLogModel::find(array('filter' => array('=groupLabel' => $label)));
+        $models[0] && $arTitle = array(
+            '#date' => $models[0]->date->format('d.m.Y'),
+            '#source' => $models[0]->source,
+            '#deployer' => $models[0]->getSetupLog()->shortUserInfo()
+        );
+        $data = array_map(function (AppliedChangesLogModel $model) {
+            return array(
+                'description' => $model->description,
+                'updateData' => $model->updateData,
+                'originalData' => $model->originalData
+            );
+        }, $models);
+        break;
+    case 'new':
+        $module->applyAnotherReferences();
+        $allFixes = $module->getNotAppliedFixes();
+        $fixes = array();
+        /** @var CollectorFix $fix */
+        foreach ($allFixes as $fix) {
+            if ($fix->getLabel() != $label) {
+                continue;
+            }
+            $fixes[] = $fix;
+        }
+        if ($fix) {
+            $time = str_replace(".json", "", $label);
+            $fDate = FormatDate("d.m.Y", $time);
+            $arTitle = array(
+                '#date' => $fDate,
+                '#source' => $fix->getOwner(),
+                '#deployer' => $localization->message("message.nobody")
+            );
+        }
+        foreach ($fixes as $fix) {
+            $data[] = array(
+                'description' => $fix->getName(),
+                'updateData' => $fix->getUpdateData(),
+                'originalData' => $module->getSnapshotDataByFix($fix)
+            );
+        }
+        break;
+    default:
+        throw new HttpRequestException;
+}
 /** @var CMain $APPLICATION */
-$models[0]
-&& $APPLICATION->SetTitle(
-    $localization->message('title', array(
-        '#date' => $models[0]->date->format('d.m.Y'),
-        '#source' => $models[0]->source,
-        '#deployer' => $models[0]->getSetupLog()->shortUserInfo()
-    ))
-);
+$APPLICATION->SetTitle($localization->message('title',$arTitle));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 $tabControl = new CAdminTabControl('ws_maigrations_label_detail', array(
@@ -80,20 +123,20 @@ $fRender = function ($data) use ($fRow, $fSection) {
 ShowNote($localization->getDataByPath('description'));
 $tabControl->Begin();
 $tabControl->BeginNextTab();
-foreach ($models as $model) {
-    if (!$model->originalData) {
-        $diff = $model->updateData;
+foreach ($data as $iData) {
+    if (!$iData['originalData']) {
+        $diff = $iData['updateData'];
     }
-    if (!$model->updateData) {
-        $diff = $model->originalData;
+    if (!$iData['updateData']) {
+        $diff = $iData['originalData'];
     }
-    if ($model->updateData && $model->originalData) {
-        $diff = $fDiff($model->updateData, $model->originalData);
+    if ($iData['updateData'] && $iData['originalData']) {
+        $diff = $fDiff($iData['updateData'], $iData['originalData']);
     }
     if (!array_filter($diff)) {
         continue;
     }
-    $fSection($model->description);
+    $fSection($iData['description']);
     foreach ($diff as $field => $value) {
         if (!$value) {
             continue;
@@ -116,12 +159,12 @@ foreach ($models as $model) {
 }
 
 $tabControl->BeginNextTab();
-foreach ($models as $model) {
-    if (!$model->updateData) {
+foreach ($data as $iData) {
+    if (!$iData['updateData']) {
         continue;
     }
-    $fSection($model->description);
-    foreach ($model->updateData as $field => $value) {
+    $fSection($iData['description']);
+    foreach ($iData['updateData'] as $field => $value) {
         if (!$value) {
             continue;
         }
@@ -139,12 +182,12 @@ foreach ($models as $model) {
     }
 }
 $tabControl->BeginNextTab();
-foreach ($models as $model) {
-    if (!$model->originalData) {
+foreach ($data as $iData) {
+    if (!$iData['originalData']) {
         continue;
     }
-    $fSection($model->description);
-    foreach ($model->originalData as $field => $value) {
+    $fSection($iData['description']);
+    foreach ($iData['originalData'] as $field => $value) {
         if (!$value) {
             continue;
         }
