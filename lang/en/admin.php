@@ -14,7 +14,8 @@ return array(
         'common' => array(
             'listEmpty' => 'List is empty'
         ),
-        'newChangesDetail' => 'Changes list'
+        'newChangesDetail' => 'Changes list',
+        'newChangesTitle' => 'New changes'
     ),
     'changeversion' => array(
         'title' => 'Change version of the database',
@@ -70,6 +71,20 @@ return array(
             'diff' => 'Diff',
             'final' => 'Final data',
             'merge' => 'Before changes data'
+        ),
+        'message' => array(
+            'nobody' => 'Nobody'
+        )
+    ),
+    'newChangesList' => array(
+        'fields' => array(
+            'date' => 'Created',
+            'description' => 'Description',
+            'source' => 'Source',
+        ),
+        'message' => array(
+            "ago" => '\a\g\o',
+            'view' => 'View'
         )
     )
 );

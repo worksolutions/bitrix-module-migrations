@@ -13,7 +13,9 @@ return array(
         ),
         'common' => array(
             'listEmpty' => 'Список пуст'
-        )
+        ),
+        'newChangesDetail' => 'подробно',
+        'newChangesTitle' => 'Список изменений'
     ),
     'changeversion' => array(
         'title' => 'Текущая версия',
@@ -70,6 +72,20 @@ return array(
             'diff' => 'Изменения',
             'final' => 'Данные изменения',
             'merge' => 'Состояние до изменений'
+        ),
+        'message' => array(
+            'nobody' => 'Небыло применения'
+        )
+    ),
+    'newChangesList' => array(
+        'fields' => array(
+            'date' => 'Создание',
+            'description' => 'Описание',
+            'source' => 'Источник',
+        ),
+        'message' => array(
+            "ago" => 'назад',
+            'view' => 'Подробно'
         )
     )
 );
