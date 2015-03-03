@@ -712,8 +712,8 @@ class Module {
             if (!$log->success) {
                 continue;
             }
-            $process = $this->getProcess($log->processName);
             try {
+                $process = $this->getProcess($log->processName);
                 $subjectHandler = $this->getSubjectHandler($log->subjectName);
                 $process->rollback($subjectHandler, $log);
             } catch (\Exception $e) {
