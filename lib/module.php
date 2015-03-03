@@ -204,7 +204,7 @@ class Module {
             $applyLog->description = $fix->getName();
             $applyLog->originalData = $fix->getOriginalData();
             $applyLog->updateData = $fix->getUpdateData();
-            $applyLog->source = $fix->getDbVersion();
+            $applyLog->source = $fix->getDbVersion() ?: $this->getDbVersion();
             $applyLog->success = true;
             $applyLog->setSetupLog($setupLog);
 
@@ -571,7 +571,7 @@ class Module {
                 $applyFixLog->description = 'References updates';
                 $applyFixLog->source = $fix->getDbVersion();
 
-                if ($fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE) {
+                if ($this->isReferenceFix($fix)) {
                     $applyFixLog->subjectName = 'references';
                     $applyFixLog->success = true;
                     $this->_applyReferenceFix($fix);
@@ -588,6 +588,48 @@ class Module {
         }
         $this->_enableListen();
         return count($fixes);
+    }
+
+    public function isReferenceFix(CollectorFix $fix) {
+        return $fix->getProcess() == self::SPECIAL_PROCESS_FIX_REFERENCE;
+    }
+
+    /**
+     * Apply references by records another versions
+     */
+    public function applyAnotherReferences() {
+        $fixes = $this->getNotAppliedFixes();
+        foreach ($fixes as $fix) {
+            if (!$this->isReferenceFix($fix)) {
+                continue;
+            }
+            $this->_applyReferenceFix($fix);
+        }
+    }
+
+    /**
+     * Try is getting a snapshot. This version data can be version for added.
+     * @param CollectorFix $fix
+     * @return array|mixed
+     */
+    public function getSnapshotDataByFix(CollectorFix $fix) {
+        try {
+            $process = $this->getProcess($fix->getProcess());
+            if ($process instanceof AddProcess) {
+                return array();
+            }
+            $subjectHandler = $this->getSubjectHandler($fix->getSubject());
+            $id = null;
+            if ($process instanceof UpdateProcess) {
+                $id = $subjectHandler->getIdBySnapshot($fix->getUpdateData());
+            }
+            if ($process instanceof DeleteProcess) {
+                $id = $fix->getUpdateData();
+            }
+            return $id ? $subjectHandler->getSnapshot($id, $fix->getDbVersion()) : array();
+        } catch (\Exception $e) {
+            return array();
+        }
     }
 
     /**
