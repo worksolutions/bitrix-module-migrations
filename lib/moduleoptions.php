@@ -12,6 +12,8 @@ namespace WS\Migrations;
 final class ModuleOptions {
     private $_moduleName = 'ws.migrations';
 
+    private $_cache = array();
+
     private function __construct() {
     }
 
@@ -27,22 +29,28 @@ final class ModuleOptions {
         return $self;
     }
 
-    private function _setValue($name, $value) {
+    private function _setToDb($name, $value) {
         \COption::SetOptionString($this->_moduleName, $name, serialize($value));
     }
 
-    private function _getValue($name) {
+    private function _getFromDb($name) {
         $value = \COption::GetOptionString($this->_moduleName, $name);
         return unserialize($value);
     }
 
     public function __set($name, $value) {
-        $this->_setValue($name, $value);
+        $this->_setToCache($name, $value);
+        $this->_setToDb($name, $value);
         return $value;
     }
 
     public function __get($name) {
-        return $this->_getValue($name);
+        $value = $this->_getFormCache($name);
+        if (is_null($value)) {
+            $value = $this->_getFromDb($name);
+            $this->_setToCache($name, $value);
+        }
+        return $value;
     }
 
     /**
@@ -72,5 +80,21 @@ final class ModuleOptions {
      */
     public function getOtherVersions() {
         return $this->otherVersions;
+    }
+
+    /**
+     * @param $name
+     * @return mixed
+     */
+    private function _getFormCache($name) {
+        return $this->_cache[$name];
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     */
+    private function _setToCache($name, $value) {
+        $this->_cache[$name] = $value;
     }
 }
