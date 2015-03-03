@@ -117,9 +117,6 @@ $fRow = function ($label, $value) {
     </tr>
     <?php
 };
-$fRender = function ($data) use ($fRow, $fSection) {
-
-};
 ShowNote($localization->getDataByPath('description'));
 $tabControl->Begin();
 $tabControl->BeginNextTab();
@@ -132,6 +129,9 @@ foreach ($data as $iData) {
     }
     if ($iData['updateData'] && $iData['originalData']) {
         $diff = $fDiff($iData['updateData'], $iData['originalData']);
+    }
+    if (is_scalar($iData['updateData'])) {
+        $diff = array('ID' => $iData['updateData']);
     }
     if (!array_filter($diff)) {
         continue;
@@ -163,6 +163,9 @@ foreach ($data as $iData) {
     if (!$iData['updateData']) {
         continue;
     }
+    if (is_scalar($iData['updateData'])) {
+        $iData['updateData'] = array('ID' => $iData['updateData']);
+    }
     $fSection($iData['description']);
     foreach ($iData['updateData'] as $field => $value) {
         if (!$value) {
@@ -185,6 +188,9 @@ $tabControl->BeginNextTab();
 foreach ($data as $iData) {
     if (!$iData['originalData']) {
         continue;
+    }
+    if (is_scalar($iData['originalData'])) {
+        $iData['originalData'] = array('ID' => $iData['originalData']);
     }
     $fSection($iData['description']);
     foreach ($iData['originalData'] as $field => $value) {
