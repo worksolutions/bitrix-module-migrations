@@ -15,7 +15,8 @@ return array(
             'listEmpty' => 'List is empty'
         ),
         'newChangesDetail' => 'Changes list',
-        'newChangesTitle' => 'New changes'
+        'newChangesTitle' => 'New changes',
+        'errorWindow' => 'Error info'
     ),
     'changeversion' => array(
         'title' => 'Change version of the database',
@@ -63,6 +64,9 @@ return array(
             'InsertReference' => 'Insert another platform reference',
             'view' => 'Changes analysis',
             'pages' => 'Pages',
+            'actualization' => 'Actualize',
+            'descriptionMoreLink' => 'more',
+            'errorWindow' => 'Error information'
         )
     ),
     'detail' => array(
@@ -85,6 +89,14 @@ return array(
         'message' => array(
             "ago" => '\a\g\o',
             'view' => 'View'
+        )
+    ),
+    'applyError' => array(
+        'message' => 'Message',
+        'data' => 'Data',
+        'trace' => 'Trace',
+        'error' => array(
+            'modelNotExists' => 'Model by id=:id: not exists'
         )
     )
 );
