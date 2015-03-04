@@ -87,5 +87,7 @@ return array(
             "ago" => 'назад',
             'view' => 'Подробно'
         )
+    ),
+    'applyError' => array(
     )
 );

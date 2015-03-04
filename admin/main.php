@@ -23,7 +23,7 @@ if ($lastSetupLog) {
     $errorFixes = array();
 
     foreach ($lastSetupLog->getAppliedLogs() as $appliedLog) {
-        !$appliedLog->success && $errorFixes[$appliedLog->description]++;
+        !$appliedLog->success && $errorFixes[] = $appliedLog;
         $appliedLog->success && $appliedFixes[$appliedLog->description]++;
     }
 }
@@ -112,8 +112,17 @@ if ($lastSetupLog) {
         <td width="60%">
     <?if($errorFixes):?>
             <ul>
-    <?foreach ($errorFixes as $fixName => $fixCount):?>
-                <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
+    <?php
+    /** @var \WS\Migrations\Entities\AppliedChangesLogModel $errorApply */
+    foreach ($errorFixes as $errorApply):
+        $errorData = \WS\Migrations\jsonToArray($errorApply->description) ?: $errorApply->description;
+        if (is_scalar($errorData)) {
+            ?><li><b><?=$errorData?></b></li><?
+        }
+        if (is_array($errorData)) {
+            ?><li><b><a href="#" class="apply-error-link" data-id="<?=$errorApply->id?>"><?=$errorData['message']?></a></b></li><?
+        }
+    ?>
     <?endforeach;?>
             </ul>
     <?else:?>
@@ -135,12 +144,24 @@ $form->Show();
 <script type="text/javascript">
     $(function () {
         var $chLink = $(document.getElementById('newChangesViewLink'));
-        $chLink.click(function (e) {e.preventDefault();});
+        var $applyErrorLinks = $('a.apply-error-link');
+        $($chLink, $applyErrorLinks).click(function (e) {e.preventDefault();});
 
         $chLink.on("click", function () {
             (new BX.CDialog({
                 'title': "<?=$localization->message("newChangesTitle")?>",
                 'content_url': '/bitrix/admin/ws_migrations.php?q=newChangesList',
+                'width': 900,
+                'buttons': [BX.CAdminDialog.btnClose],
+                'resizable': false
+            })).Show();
+        });
+
+        $applyErrorLinks.on("click", function () {
+            var id = $(this).data('id');
+            (new BX.CDialog({
+                'title': "<?=$localization->message("errorWindow")?>",
+                'content_url': '/bitrix/admin/ws_migrations.php?q=applyError&id='+id,
                 'width': 900,
                 'buttons': [BX.CAdminDialog.btnClose],
                 'resizable': false

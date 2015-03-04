@@ -591,6 +591,7 @@ class Module {
                 $applyFixLog->description = 'References updates';
                 $applyFixLog->source = $fix->getDbVersion();
 
+                $this->_useAnotherVersion($fix);
                 if ($this->isReferenceFix($fix)) {
                     $applyFixLog->subjectName = 'references';
                     $applyFixLog->success = true;
@@ -598,11 +599,10 @@ class Module {
                 } else {
                     $this->_applyFix($fix, $applyFixLog);
                 }
-                $this->_useAnotherVersion($fix);
             }
             catch (\Exception $e) {
                 $applyFixLog->success = false;
-                $applyFixLog->description = json_encode(array(
+                $applyFixLog->description = arrayToJson(array(
                     'message' => $fix->getName().': '.$e->getMessage(),
                     'data' => $fix->getUpdateData(),
                     'trace' => $e->getTrace()
