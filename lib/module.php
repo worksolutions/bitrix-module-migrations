@@ -602,7 +602,11 @@ class Module {
             }
             catch (\Exception $e) {
                 $applyFixLog->success = false;
-                $applyFixLog->description = 'Exception error: '.$e->getMessage().' trace:'.$e->getTraceAsString();
+                $applyFixLog->description = json_encode(array(
+                    'message' => $fix->getName().': '.$e->getMessage(),
+                    'data' => $fix->getUpdateData(),
+                    'trace' => $e->getTrace()
+                ));
             }
             $applyFixLog->save();
         }
