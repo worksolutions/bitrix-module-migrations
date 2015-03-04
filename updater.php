@@ -36,6 +36,4 @@ if (is_dir($migrateCatalog)) {
             $fAddErrorMessage("Not update version `{$version}` into DB by file `$fileName`");
         }
     }
-} else {
-    $fAddErrorMessage("Migration catalog was not founded");
 }
