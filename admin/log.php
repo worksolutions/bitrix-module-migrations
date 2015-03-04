@@ -45,6 +45,12 @@ array_walk($models, function (AppliedChangesLogModel $model) use (& $rowsData, $
         );
     }
     $row['description'] = $row['description'] ? implode("<br />", array($row['description'], $model->description)) : $model->description;
+    if (!$model->success) {
+        $row['error'][] = array(
+            'data' => \WS\Migrations\jsonToArray($model->description) ?: array('message' => $model->description),
+            'id' => $model->id
+        );
+    }
 });
 
 $rsData = new CAdminResult(null, $sTableID);
@@ -54,7 +60,16 @@ $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint($localization->getDataByPath('messages.pages')));
 while ($rowData = $rsData->NavNext()) {
     $row = $lAdmin->AddRow($rowData['label'], $rowData);
-    $row->AddViewField('description', $rowData['description']);
+    $description = $rowData['description'];
+    if ($rowData['error']) {
+        $description = array();
+        foreach ($rowData['error'] as $rowErrorData) {
+            $description[] = '<a href="#" data-id="'.$rowErrorData['id'].'" class="error-link">'.$rowErrorData['data']['message'].'</a>';
+        }
+        $description = implode('<br />', $description);
+    }
+
+    $row->AddViewField('description', $description);
     $row->AddActions(array(
         array(
             "ICON" => "view",
@@ -72,9 +87,28 @@ if ($_REQUEST["mode"] == "list") {
 
 $lAdmin->CheckListMode();
 $lAdmin->DisplayList();
+?>
+<script type="text/javascript">
+    $(function () {
+        var $errorLink = $('.error-link');
+        $errorLink.click(function (e) {e.preventDefault();});
+        $errorLink.on("click", function () {
+            var id = $(this).data('id');
+            (new BX.CDialog({
+                'title': "<?=$localization->message("messages.errorWindow")?>",
+                'content_url': '/bitrix/admin/ws_migrations.php?q=applyError&id='+id,
+                'width': 900,
+                'buttons': [BX.CAdminDialog.btnClose],
+                'resizable': false
+            })).Show();
+        });
+    });
+</script>
+<?php
 
 if ($_REQUEST["mode"] == "list")  {
     require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
 } else {
     require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 }
+

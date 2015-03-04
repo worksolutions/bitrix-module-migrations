@@ -6,7 +6,9 @@ $id = (int) $_GET['id'];
 $model = \WS\Migrations\Entities\AppliedChangesLogModel::findOne(array('filter' => array('=id' => $id)));
 if (!$model) {
     require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
-    ShowError($localization->message('Model by id=:id: not exists'));
+    ShowError($localization->message('error.modelNotExists', array(
+        ':id:' => $id
+    )));
     require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
 }
 /** @var CMain $APPLICATION */
@@ -19,7 +21,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.
             <b><?=$localization->message('message')?></b>
         </td>
         <td>
-            <?=$errorData['message']?>
+            <?ShowError($errorData['message'])?>
         </td>
     </tr>
 <?php

@@ -15,7 +15,8 @@ return array(
             'listEmpty' => 'Список пуст'
         ),
         'newChangesDetail' => 'подробно',
-        'newChangesTitle' => 'Список изменений'
+        'newChangesTitle' => 'Список изменений',
+        'errorWindow' => 'Информация об ошибке'
     ),
     'changeversion' => array(
         'title' => 'Текущая версия',
@@ -63,7 +64,9 @@ return array(
             'InsertReference' => 'Вставка ссылки стороннего источника',
             'view' => 'Анализ изменений',
             'pages' => 'Страницы',
-            'actualization' => 'Актуализация источников'
+            'actualization' => 'Актуализация источников',
+            'descriptionMoreLink' => 'подробно',
+            'errorWindow' => 'Информация об ошибке'
         )
     ),
     'detail' => array(
@@ -89,5 +92,11 @@ return array(
         )
     ),
     'applyError' => array(
+        'message' => 'Сообщение',
+        'data' => 'Данные',
+        'trace' => 'Стек вызова',
+        'error' => array(
+            'modelNotExists' => 'Данных по записи id=:id: не существует'
+        )
     )
 );
