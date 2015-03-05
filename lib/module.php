@@ -2,6 +2,7 @@
 
 namespace WS\Migrations;
 use Bitrix\Main\Application;
+use Bitrix\Main\DB\Exception;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
@@ -37,6 +38,7 @@ class Module {
 
     const SPECIAL_PROCESS_FIX_REFERENCE = 'reference';
     const SPECIAL_PROCESS_FULL_MIGRATE  = 'fullMigrate';
+    const SPECIAL_PROCESS_SCENARIO = 'Scenario';
 
     const REFERENCE_SUBJECT_ADD    = 'add';
     const REFERENCE_SUBJECT_REMOVE = 'remove';
@@ -75,6 +77,11 @@ class Module {
      * @var bool
      */
     private $_validVersion = true;
+
+    /**
+     * @var SetupLogModel
+     */
+    private $_setupLog;
 
     /**
      * @return $this
@@ -206,7 +213,7 @@ class Module {
         });
         $setupLog = null;
         if ($hasRealChanges) {
-            $setupLog = $this->_createSetupLog();
+            $setupLog = $this->_useSetupLog();
         }
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
@@ -482,12 +489,21 @@ class Module {
     }
 
     /**
+     * Directory location scenarios
+     * @return string
+     */
+    private function _getScenariosDir() {
+        return $this->_getFixFilesDir().DIRECTORY_SEPARATOR.'scenarios';
+
+    }
+
+    /**
      * @param $fileName
      * @param $content
      * @return string
      */
     public function putScriptClass($fileName, $content) {
-        $file = new File($this->_getFixFilesDir().DIRECTORY_SEPARATOR.'scenarios'.DIRECTORY_SEPARATOR.$fileName);
+        $file = new File($this->_getScenariosDir().DIRECTORY_SEPARATOR.$fileName);
         $file->putContents($content);
         return $file->getPath();
     }
@@ -594,7 +610,7 @@ class Module {
             return 0;
         }
         $this->_disableListen();
-        $setupLog = $this->_createSetupLog();
+        $setupLog = $this->_useSetupLog();
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
             $applyFixLog = new AppliedChangesLogModel();
@@ -674,20 +690,26 @@ class Module {
     }
 
     /**
+     * Applies all fixes
      * @return int
      */
     public function applyNewFixes() {
-        return $this->applyFixesList($this->getNotAppliedFixes());
+        $count = $this->applyFixesList($this->getNotAppliedFixes()) ?: 0;
+        $count += $this->applyNewScenarios() ?: 0;
+        return $count;
     }
 
     /**
      * @return SetupLogModel
      */
-    private function _createSetupLog() {
-        $setupLog = new SetupLogModel();
-        $setupLog->userId = $this->getCurrentUser()->GetID();
-        $setupLog->save();
-        return $setupLog;
+    private function _useSetupLog() {
+        if (!$this->_setupLog) {
+            $setupLog = new SetupLogModel();
+            $setupLog->userId = $this->getCurrentUser()->GetID();
+            $setupLog->save();
+            $this->_setupLog = $setupLog;
+        }
+        return $this->_setupLog;
     }
 
     /**
@@ -732,6 +754,19 @@ class Module {
             }
             try {
                 $process = $this->getProcess($log->processName);
+                if ($process == self::SPECIAL_PROCESS_SCENARIO) {
+                    $class = $log->subjectName;
+                    if (!class_exists($class)) {
+                        include $this->_getScenariosDir().DIRECTORY_SEPARATOR.$class.'.php';
+                    }
+                    if (!is_subclass_of($class, '\WS\Migrations\ScriptScenario')) {
+                        continue;
+                    }
+                    $data = $log->updateData;
+                    /** @var ScriptScenario $object */
+                    $object = new $class($data);
+                    $object->rollback();
+                }
                 $subjectHandler = $this->getSubjectHandler($log->subjectName);
                 $process->rollback($subjectHandler, $log);
             } catch (\Exception $e) {
@@ -740,7 +775,6 @@ class Module {
         }
         $this->_enableListen();
     }
-
 
     /**
      * Value db version
@@ -889,6 +923,37 @@ class Module {
         }
         ksort($files);
         return $files;
+    }
+
+    public function applyNewScenarios() {
+        $classes = $this->getNotAppliedScenarios();
+        if (!$classes) {
+            return 0;
+        }
+        $setupLog = $this->_useSetupLog();
+        $this->_disableListen();
+        foreach ($classes as $class) {
+            /** @var ScriptScenario $object */
+            $object = new $classes();
+            $applyFixLog = new AppliedChangesLogModel();
+            $applyFixLog->processName = self::SPECIAL_PROCESS_SCENARIO;
+            $applyFixLog->subjectName = $class;
+            $applyFixLog->setSetupLog($setupLog);
+            $applyFixLog->groupLabel = $class.'.php';
+            $applyFixLog->description = $object->name();
+            $applyFixLog->source = 'none'; // todo realize source
+            try {
+                $object->commit();
+                $applyFixLog->updateData = $object->getData();
+                $applyFixLog->success = true;
+            } catch (Exception $e) {
+                $applyFixLog->success = false;
+                $applyFixLog->description .= " Exception:".$e->getMessage();
+            }
+            $applyFixLog->save();
+        }
+        $this->_enableListen();
+        return count($classes);
     }
 }
 
