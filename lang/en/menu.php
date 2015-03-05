@@ -5,5 +5,6 @@ return array(
     'import' => 'Import migrations',
     'export' => 'Export migrations',
     'apply' => 'Applying',
-    'log' => 'Changes log'
+    'log' => 'Changes log',
+    'entitiesVersions' => 'Data of versions'
 );
