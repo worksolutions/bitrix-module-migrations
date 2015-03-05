@@ -94,6 +94,8 @@ $form->BeginCustomField('list', 'vv');
             <li><b><?=$scenario?></b></li>
 <?endforeach;?>
         </ul>
+<?else:?>
+    <b><?=$localization->message('common.listEmpty')?></b>
 <?endif;?>
         </td>
     </tr>

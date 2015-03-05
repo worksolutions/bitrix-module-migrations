@@ -753,8 +753,8 @@ class Module {
                 continue;
             }
             try {
-                $process = $this->getProcess($log->processName);
-                if ($process == self::SPECIAL_PROCESS_SCENARIO) {
+                $processName = $log->processName;
+                if ($processName == self::SPECIAL_PROCESS_SCENARIO) {
                     $class = $log->subjectName;
                     if (!class_exists($class)) {
                         include $this->_getScenariosDir().DIRECTORY_SEPARATOR.$class.'.php';
@@ -766,7 +766,9 @@ class Module {
                     /** @var ScriptScenario $object */
                     $object = new $class($data);
                     $object->rollback();
+                    continue;
                 }
+                $process = $this->getProcess($processName);
                 $subjectHandler = $this->getSubjectHandler($log->subjectName);
                 $process->rollback($subjectHandler, $log);
             } catch (\Exception $e) {
@@ -934,7 +936,7 @@ class Module {
         $this->_disableListen();
         foreach ($classes as $class) {
             /** @var ScriptScenario $object */
-            $object = new $classes();
+            $object = new $class();
             $applyFixLog = new AppliedChangesLogModel();
             $applyFixLog->processName = self::SPECIAL_PROCESS_SCENARIO;
             $applyFixLog->subjectName = $class;
