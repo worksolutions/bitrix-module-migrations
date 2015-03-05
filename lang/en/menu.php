@@ -6,5 +6,6 @@ return array(
     'export' => 'Export migrations',
     'apply' => 'Applying',
     'log' => 'Changes log',
-    'entitiesVersions' => 'Data of versions'
+    'entitiesVersions' => 'Data of versions',
+    'createScenario' => 'Create update scenario'
 );

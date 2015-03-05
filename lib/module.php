@@ -482,6 +482,17 @@ class Module {
     }
 
     /**
+     * @param $fileName
+     * @param $content
+     * @return string
+     */
+    public function putScriptClass($fileName, $content) {
+        $file = new File($this->_getFixFilesDir().DIRECTORY_SEPARATOR.'scenarios'.DIRECTORY_SEPARATOR.$fileName);
+        $file->putContents($content);
+        return $file->getPath();
+    }
+
+    /**
      * @return Collector[]
      */
     public function getNotAppliedCollectors() {
@@ -599,8 +610,7 @@ class Module {
                 } else {
                     $this->_applyFix($fix, $applyFixLog);
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $applyFixLog->success = false;
                 $applyFixLog->description = arrayToJson(array(
                     'message' => $fix->getName().': '.$e->getMessage(),

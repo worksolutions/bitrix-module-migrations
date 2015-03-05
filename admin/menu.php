@@ -31,6 +31,10 @@ return array(
             array(
                 'text' => $loc->getDataByPath('entitiesVersions'),
                 'url' => $inputUri.'entitiesVersions'
+            ),
+            array(
+                'text' => $loc->getDataByPath('createScenario'),
+                'url' => $inputUri.'createScenario'
             )
         )
     )

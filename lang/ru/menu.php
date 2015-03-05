@@ -6,5 +6,6 @@ return array(
     'export' => 'Экспорт миграций',
     'apply' => 'Применение',
     'log' => 'Журнал изменений',
-    'entitiesVersions' => 'Версии данных'
+    'entitiesVersions' => 'Версии данных',
+    'createScenario' => 'Создать сценарий обновления'
 );

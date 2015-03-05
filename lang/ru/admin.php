@@ -114,5 +114,13 @@ return array(
             'iblockProperty' => 'Свойство инфоблока',
             'iblockSection' => 'Раздел инфоблока',
         )
+    ),
+    'createScenario' => array(
+        'title' => 'Создания сценария',
+        'field' => array(
+            'name' => 'Название',
+            'description' => 'Описание'
+        ),
+        'path-to-file' => 'Класс миграции находится в файле #path#'
     )
 );
