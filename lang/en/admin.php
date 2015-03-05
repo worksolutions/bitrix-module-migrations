@@ -2,7 +2,10 @@
 return array(
     'main' => array(
         'title' => 'Migrations management',
-        'list' => 'List migrations for apply',
+        'list' => array(
+            'auto' => 'New auto migrations',
+            'scenarios' => 'New scenarios'
+        ),
         'version' => 'The current version of the database',
         'change_link' => 'change version',
         'errorList' => 'Unsuccessful applied migrations',

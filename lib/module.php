@@ -495,28 +495,9 @@ class Module {
     /**
      * @return Collector[]
      */
-    public function getNotAppliedCollectors() {
-
-        $result = AppliedChangesLogTable::getList(array(
-            'select' => array('GROUP_LABEL'),
-            'group' => array('GROUP_LABEL')
-        ));
-        $usesGroups = array_map(function ($row) {
-            return $row['GROUP_LABEL'];
-        }, $result->fetchAll());
-        $dir = new Directory($this->_getFixFilesDir());
+    private function _getNotAppliedCollectors() {
+        $files = $this->_getNotAppliedFiles($this->_getFixFilesDir());
         $collectors = array();
-        $files = array();
-        foreach ($dir->getChildren() as $file) {
-            if ($file->isDirectory()) {
-                continue;
-            }
-            if (in_array($file->getName(), $usesGroups)) {
-                continue;
-            }
-            $files[$file->getName()] = $file;
-        }
-        ksort($files);
         /** @var File $file */
         foreach ($files as $file) {
             $collectors[] = Collector::createByFile($file->getPath(), $this);
@@ -528,7 +509,7 @@ class Module {
      * @return CollectorFix[]
      */
     public function getNotAppliedFixes() {
-        $collectors = $this->getNotAppliedCollectors();
+        $collectors = $this->_getNotAppliedCollectors();
         $result = array();
         foreach ($collectors as $collector) {
             $result = array_merge($result, $collector->getFixes() ?: array());
@@ -536,6 +517,29 @@ class Module {
         return $result;
     }
 
+    /**
+     * Gets class not applied scenarios
+     * @return array
+     */
+    public function getNotAppliedScenarios() {
+        /** @var File[] $files */
+        $files = $this->_getNotAppliedFiles($this->_getFixFilesDir().DIRECTORY_SEPARATOR.'scenarios');
+        $res = array();
+        foreach ($files as $file) {
+            $fileClass = str_replace(".php", "", $file->getName());
+            if (!class_exists($fileClass)) {
+                include $file->getPath();
+            }
+            if (!is_subclass_of($fileClass, '\WS\Migrations\ScriptScenario')) {
+                continue;
+            }
+            if (!$fileClass::isValid()) {
+                continue;
+            }
+            $res[] = $fileClass;
+        }
+        return $res;
+    }
 
     private function _applyFix(CollectorFix $fix, AppliedChangesLogModel $applyFixLog = null) {
         $process = $this->getProcess($fix->getProcess());
@@ -856,6 +860,35 @@ class Module {
         return array_merge($this->getOptions()->getOtherVersions(), array(
             $this->getDbVersion() => $this->getVersionOwner()
         ));
+    }
+
+    /**
+     * @param $dir
+     * @return array
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Bitrix\Main\IO\FileNotFoundException
+     */
+    private function _getNotAppliedFiles($dir) {
+        $result = AppliedChangesLogTable::getList(array(
+            'select' => array('GROUP_LABEL'),
+            'group' => array('GROUP_LABEL')
+        ));
+        $usesGroups = array_map(function ($row) {
+            return $row['GROUP_LABEL'];
+        }, $result->fetchAll());
+        $dir = new Directory($dir);
+        $files = array();
+        foreach ($dir->getChildren() as $file) {
+            if ($file->isDirectory()) {
+                continue;
+            }
+            if (in_array($file->getName(), $usesGroups)) {
+                continue;
+            }
+            $files[$file->getName()] = $file;
+        }
+        ksort($files);
+        return $files;
     }
 }
 

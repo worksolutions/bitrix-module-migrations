@@ -60,6 +60,6 @@ abstract class ScriptScenario {
      * @return bool
      */
     static public function isValid() {
-        return static::name() && static::description();
+        return static::name();
     }
 }

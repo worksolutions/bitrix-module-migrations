@@ -1,23 +1,33 @@
 <?php
+/** @var $APPLICATION CMain */
+
+/** @var $localization \WS\Migrations\Localization */
+$localization;
+$module = \WS\Migrations\Module::getInstance();
+
 $apply = false;
 if ($_POST['rollback']) {
-    \WS\Migrations\Module::getInstance()->rollbackLastChanges();
+    $module->rollbackLastChanges();
     $apply = true;
 }
 
 if ($_POST['apply']) {
-    \WS\Migrations\Module::getInstance()->applyNewFixes();
+    $module->applyNewFixes();
     $apply = true;
 }
 $apply && LocalRedirect($APPLICATION->GetCurUri());
 
 $fixes = array();
-$notAppliedFixes = \WS\Migrations\Module::getInstance()->getNotAppliedFixes();
+$notAppliedFixes = $module->getNotAppliedFixes();
 foreach ($notAppliedFixes as $fix) {
     $fixes[$fix->getName()]++;
 }
-$lastSetupLog = \WS\Migrations\Module::getInstance()->getLastSetupLog();
+$scenarios = array();
+foreach ($module->getNotAppliedScenarios() as $notAppliedScenarioClassName) {
+    $scenarios[] = $notAppliedScenarioClassName::name();
+}
 
+$lastSetupLog = \WS\Migrations\Module::getInstance()->getLastSetupLog();
 if ($lastSetupLog) {
     $appliedFixes = array();
     $errorFixes = array();
@@ -29,14 +39,11 @@ if ($lastSetupLog) {
 }
 
 //--------------------------------------------------------------------------
-
-/** @var $localization \WS\Migrations\Localization */
-/** @var $APPLICATION CMain */
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-$localization;
+// 1C-Bitrix override variable!!
 $module = \WS\Migrations\Module::getInstance();
-?><form method="POST" action="<?=
-$APPLICATION->GetCurUri()?>" ENCTYPE="multipart/form-data" name="apply"><?
+
+?><form method="POST" action="<?=$APPLICATION->GetCurUri()?>" ENCTYPE="multipart/form-data" name="apply"><?
 $form = new CAdminForm('ws_maigrations_main', array(
     array(
         "DIV" => "edit1",
@@ -64,20 +71,32 @@ $form->EndCustomField('version');
 $form->BeginCustomField('list', 'vv');
 ?>
 <tr style="color: #ff8000;">
-    <td width="30%"><?=$localization->getDataByPath('list')?>:</td>
+    <td width="30%"><?=$localization->getDataByPath('list.auto')?>:</td>
     <td width="60%">
 <?if($fixes):?>
         <ul>
 <?foreach ($fixes as $fixName => $fixCount):?>
             <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
 <?endforeach;?>
+            <li><a href="#" id="newChangesViewLink"><?=$localization->getDataByPath('newChangesDetail')?></a></li>
         </ul>
-        <a href="#" id="newChangesViewLink"><?=$localization->getDataByPath('newChangesDetail')?></a>
 <?else:?>
 <b><?=$localization->message('common.listEmpty')?></b>
 <?endif;?>
     </td>
 </tr>
+    <tr style="color: #ff8000;">
+        <td width="30%"><?=$localization->getDataByPath('list.scenarios')?>:</td>
+        <td width="60%">
+<?if($scenarios):?>
+        <ul>
+<?foreach ($scenarios as $scenario):?>
+            <li><b><?=$scenario?></b></li>
+<?endforeach;?>
+        </ul>
+<?endif;?>
+        </td>
+    </tr>
 <?
 $form->EndCustomField('list');
 //--------------------
