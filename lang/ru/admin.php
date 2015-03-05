@@ -98,5 +98,21 @@ return array(
         'error' => array(
             'modelNotExists' => 'Данных по записи id=:id: не существует'
         )
+    ),
+    'entitiesVersions' => array(
+        'title' => 'Версии данных',
+        'fields' => array(
+            'reference' => 'Уникальная ссылка',
+            'versions' => 'Идентификатор по версиям',
+            'destination' => 'Сущность'
+        ),
+        'messages' => array(
+            'pages' => 'Страницы'
+        ),
+        'subjects' => array(
+            'iblock' => 'Инфоблок',
+            'iblockProperty' => 'Свойство инфоблока',
+            'iblockSection' => 'Раздел инфоблока',
+        )
     )
 );

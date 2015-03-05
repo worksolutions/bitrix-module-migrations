@@ -98,5 +98,21 @@ return array(
         'error' => array(
             'modelNotExists' => 'Model by id=:id: not exists'
         )
+    ),
+    'entitiesVersions' => array(
+        'title' => 'Versions of data',
+        'fields' => array(
+            'reference' => 'Reference',
+            'versions' => 'Id by versions',
+            'destination' => 'Entity'
+        ),
+        'messages' => array(
+            'pages' => 'Pages'
+        ),
+        'subjects' => array(
+            'iblock' => 'Iblock',
+            'iblockProperty' => 'Iblock Property',
+            'iblockSection' => 'Iblock Section',
+        )
     )
 );
