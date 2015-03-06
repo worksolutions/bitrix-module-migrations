@@ -13,8 +13,10 @@ if ($_POST['apply'] != "" && $_POST['name']) {
     $templateContent = file_get_contents(__DIR__.'/../data/scenarioTemplate.tpl');
     $arReplace = array(
         '#class_name#' => $className = 'ws_m_'.time().'_'.CUtil::translit($name, LANGUAGE_ID),
-        '#name#' => '"'.$name.'"',
-        '#description#' => '"'.$description.'"'
+        '#name#' => $name,
+        '#description#' => $description,
+        '#db_version#' => $module->getDbVersion(),
+        '#owner#' => $module->getVersionOwner()
     );
     $classContent = str_replace(array_keys($arReplace), array_values($arReplace), $templateContent);
     $fileName = $className.'.php';

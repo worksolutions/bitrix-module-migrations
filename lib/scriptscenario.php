@@ -50,6 +50,11 @@ abstract class ScriptScenario {
     abstract static public function name();
 
     /**
+     * @return array First element is hash, second is owner name
+     */
+    abstract public function version();
+
+    /**
      * Returns description of migration
      * @return string
      */

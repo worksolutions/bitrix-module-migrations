@@ -9,14 +9,21 @@ class #class_name# extends \WS\Migrations\ScriptScenario {
      * Name of scenario
      **/
     static public function name() {
-        return #name#;
+        return "#name#";
     }
 
     /**
      * Description of scenario
      **/
     static public function description() {
-        return #description#;
+        return "#description#";
+    }
+
+    /**
+     * @return array First element is hash, second is owner name
+     */
+    public function version() {
+        return array("#db_version#", "#owner#");
     }
 
     /**
