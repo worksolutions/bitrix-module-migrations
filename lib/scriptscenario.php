@@ -1,6 +1,8 @@
 <?php
 
 namespace WS\Migrations;
+use WS\Migrations\Reference\ReferenceController;
+use ws\migrations\SubjectHandlers\IblockHandler;
 
 /**
  * Class ScriptScenario
@@ -14,8 +16,21 @@ abstract class ScriptScenario {
      */
     private $_data;
 
-    public function __construct(array $data = array()) {
+    /**
+     * @var ReferenceController
+     */
+    private $_referenceController;
+
+    public function __construct(array $data = array(), ReferenceController $controller) {
         $this->setData($data);
+        $this->_referenceController = $controller;
+    }
+
+    /**
+     * @return Reference\ReferenceController
+     */
+    public function getReferenceController(){
+        return $this->_referenceController;
     }
 
     /**

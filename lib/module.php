@@ -764,7 +764,7 @@ class Module {
                     }
                     $data = $log->updateData;
                     /** @var ScriptScenario $object */
-                    $object = new $class($data);
+                    $object = new $class($data, $this->_getReferenceController());
                     $object->rollback();
                     continue;
                 }
@@ -948,7 +948,7 @@ class Module {
         $this->_disableListen();
         foreach ($classes as $class) {
             /** @var ScriptScenario $object */
-            $object = new $class();
+            $object = new $class(array(), $this->_getReferenceController());
             $applyFixLog = new AppliedChangesLogModel();
             $applyFixLog->processName = self::SPECIAL_PROCESS_SCENARIO;
             $applyFixLog->subjectName = $class;
