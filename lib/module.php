@@ -882,9 +882,21 @@ class Module {
      * @param CollectorFix $fix
      */
     private function _useAnotherVersion(CollectorFix $fix) {
+        $this->_useVersion($fix->getDbVersion(), $fix->getOwner());
+    }
+
+
+    /**
+     * @param string $dbVersion
+     * @param string $owner
+     */
+    private function _useVersion($dbVersion, $owner) {
+        if (!$owner) {
+            return ;
+        }
         $this->_versions = $this->_versions ?: $this->getOptions()->getOtherVersions();
-        if (!$this->_versions[$fix->getDbVersion()] || $this->_versions[$fix->getDbVersion()] != $fix->getOwner()) {
-            $this->_versions[$fix->getDbVersion()] = $fix->getOwner();
+        if (!$this->_versions[$dbVersion] || $this->_versions[$dbVersion] != $owner) {
+            $this->_versions[$dbVersion] = $owner;
             $this->getOptions()->otherVersions = $this->_versions;
         }
     }
@@ -943,7 +955,9 @@ class Module {
             $applyFixLog->setSetupLog($setupLog);
             $applyFixLog->groupLabel = $class.'.php';
             $applyFixLog->description = $object->name();
-            $applyFixLog->source = 'none'; // todo realize source
+            list($dbVersion, $versionOwner) = $object->version();
+            $applyFixLog->source = $dbVersion;
+            $this->_useVersion($dbVersion, $versionOwner);
             try {
                 $object->commit();
                 $applyFixLog->updateData = $object->getData();
