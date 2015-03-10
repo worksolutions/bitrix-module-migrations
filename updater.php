@@ -1,4 +1,7 @@
 <?php
+/** @var CMain $APPLICATION */
+/** @var CUser $USER */
+/** @var CDatabase $DB */
 /** @var CUpdater $updater */
 $updater;
 /**
@@ -10,3 +13,13 @@ $fAddErrorMessage = function ($mess) use ($updater){
 };
 
 //=====================================================
+
+if (!CModule::includeModule('ws.migrations')) {
+    return;
+}
+try {
+    $options = \WS\Migrations\Module::getOptions();
+    $options->enableSubjectHandler(\WS\Migrations\SubjectHandlers\IblockHandler::className());
+} catch (Exception $e) {
+    $fAddErrorMessage($e->getMessage());
+}
