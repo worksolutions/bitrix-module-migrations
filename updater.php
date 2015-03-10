@@ -13,7 +13,3 @@ $fAddErrorMessage = function ($mess) use ($updater){
 };
 
 //=====================================================
-$handlers = unserialize(COption::GetOptionString('ws.migrations', 'enabledSubjectHandlers'));
-$handlers = array_diff($handlers, array('ws\migrations\SubjectHandlers\IblockHandler'));
-$handlers[] = 'WS\Migrations\SubjectHandlers\IblockHandler';
-COption::SetOptionString('ws.migrations', 'enabledSubjectHandlers', serialize($handlers));
