@@ -3,7 +3,7 @@
  * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
  */
 
-namespace ws\migrations\SubjectHandlers;
+namespace WS\Migrations\SubjectHandlers;
 
 
 use Bitrix\Iblock\IblockTable;
