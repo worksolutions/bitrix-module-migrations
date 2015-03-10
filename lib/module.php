@@ -423,12 +423,12 @@ class Module {
         if ( !$handlers[$handlerClass][$eventKey]) {
             return false;
         }
-        $collector = $this->getDutyCollector();
-        $handler = $this->getSubjectHandler($handlerClass);
-        if (!$handler->required() && !$this->getOptions()->isEnableSubjectHandler($handlerClass)) {
+        if (!$this->isEnableSubjectHandler($handlerClass)) {
             return false;
         }
 
+        $collector = $this->getDutyCollector();
+        $handler = $this->getSubjectHandler($handlerClass);
         $fix  = $collector->createFix();
         $fix->setSubject(get_class($handler));
 
@@ -580,13 +580,14 @@ class Module {
 
     private function _applyFix(CollectorFix $fix, AppliedChangesLogModel $applyFixLog = null) {
         $process = $this->getProcess($fix->getProcess());
-        $subjectHandler = $this->getSubjectHandler($fix->getSubject());
-        if (!$subjectHandler->required() && !$this->getOptions()->isEnableSubjectHandler($fix->getSubject())) {
+        $subjectHandlerClass = $fix->getSubject();
+        if (!$this->isEnableSubjectHandler($subjectHandlerClass)) {
             $applyFixLog->success = false;
             $applyFixLog->description = 'Subject handler not active';
             $applyFixLog->save();
             return ;
         }
+        $subjectHandler = $this->getSubjectHandler($subjectHandlerClass);
         $result = $process->update($subjectHandler, $fix, $applyFixLog);
         $applyFixLog->success = (bool) $result->isSuccess();
         !$result->isSuccess() && $applyFixLog->description .= '. '.$result->getMessage();
