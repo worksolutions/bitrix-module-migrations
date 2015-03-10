@@ -331,6 +331,38 @@ class Module {
     }
 
     /**
+     * Enable subject handler
+     * @throws \Exception
+     * @param $class
+     */
+    public function enableSubjectHandler($class) {
+        if (!is_subclass_of($class, BaseSubjectHandler::className())) {
+            throw new \Exception("class not instance of BaseSubjectHandler");
+        }
+        $this->getOptions()->enableSubjectHandler($class);
+        foreach ($class::depends() as $dependFromClass) {
+            $this->enableSubjectHandler($dependFromClass);
+        }
+    }
+
+    /**
+     * Disable subject handler
+     * @throws \Exception
+     * @param $class
+     */
+    public function disableSubjectHandler($class) {
+        if (!is_subclass_of($class, BaseSubjectHandler::className())) {
+            throw new \Exception("class not instance of BaseSubjectHandler");
+        }
+        $this->getOptions()->disableSubjectHandler($class);
+        foreach (array_keys($this->handlers()) as $handlerClass) {
+            if (in_array($class, $handlerClass::depends())) {
+                $this->disableSubjectHandler($handlerClass);
+            }
+        }
+    }
+
+    /**
      * @param $class
      * @throws \Exception
      * @return BaseSubjectHandler

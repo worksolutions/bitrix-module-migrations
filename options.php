@@ -1,22 +1,19 @@
 <?
 include __DIR__.'/prolog.php';
-$localization = \WS\Migrations\Module::getInstance()->getLocalization('setup');
-$options = \WS\Migrations\Module::getInstance()->getOptions();
+$module = \WS\Migrations\Module::getInstance();
+$localization = $module->getLocalization('setup');
+$options = $module->getOptions();
 
 if ($data = $_POST['data']) {
     $data['catalog'] && $options->catalogPath = $data['catalog'];
     $options->useAutotests = (bool)$data['tests'];
 
-    foreach (\WS\Migrations\Module::getInstance()->getSubjectHandlers() as $handler) {
+    foreach ($module->getSubjectHandlers() as $handler) {
         $handlerClass = get_class($handler);
-        if ($handler->required()) {
-            $options->enableSubjectHandler($handlerClass);
-            continue;
-        }
 
         $handlerClassValue = (bool)$data['handlers'][$handlerClass];
-        $handlerClassValue && $options->enableSubjectHandler($handlerClass);
-        !$handlerClassValue && $options->disableSubjectHandler($handlerClass);
+        $handlerClassValue && $module->enableSubjectHandler($handlerClass);
+        !$handlerClassValue && $module->disableSubjectHandler($handlerClass);
     }
 }
 
@@ -38,10 +35,7 @@ $form->AddEditField('data[catalog]', $localization->getDataByPath('fields.catalo
 $form->AddCheckBoxField('data[tests]', $localization->getDataByPath('fields.useAutotests'), true, '1', (bool)$options->useAutotests);
 $form->AddSection('disableHandlers', $localization->getDataByPath('section.disableHandlers'));
 
-foreach (\WS\Migrations\Module::getInstance()->getSubjectHandlers() as $handler) {
-    if ($handler->required()) {
-        continue;
-    }
+foreach ($module->getSubjectHandlers() as $handler) {
     $form->AddCheckBoxField('data[handlers]['.get_class($handler).']', $handler->getName(), true, '1', $options->isEnableSubjectHandler(get_class($handler)));
 }
 
