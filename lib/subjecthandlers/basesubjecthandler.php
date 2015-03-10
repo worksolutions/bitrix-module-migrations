@@ -187,14 +187,6 @@ abstract class BaseSubjectHandler {
     }
 
     /**
-     * ѕризнак об€зательного наличи€ в миграци€х проекта
-     * @return bool
-     */
-    public function required() {
-        return true;
-    }
-
-    /**
      * Need to returns siblings handlers when dependency has
      * @return array
      */

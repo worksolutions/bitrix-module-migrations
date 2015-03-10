@@ -129,10 +129,6 @@ class IblockSectionHandler extends BaseSubjectHandler {
         return $res;
     }
 
-    public function required() {
-        return false;
-    }
-
     static public function depends() {
         return array(
             IblockHandler::className()
