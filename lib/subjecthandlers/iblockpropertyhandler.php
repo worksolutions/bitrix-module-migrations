@@ -199,7 +199,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         return $res;
     }
 
-    public function depends() {
+    static public function depends() {
         return array(
             IblockHandler::className()
         );

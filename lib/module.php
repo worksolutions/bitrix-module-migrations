@@ -310,6 +310,27 @@ class Module {
     }
 
     /**
+     * Returns sign of handlers enable
+     * @param string $class Handlers class name instance of \WS\Migrations\SubjectHandlers\BaseSubjectHandler
+     * @return bool
+     */
+    public function isEnableSubjectHandler($class) {
+        if (!is_subclass_of($class, BaseSubjectHandler::className())) {
+            return false;
+        }
+        $oneselfEnable = $this->getOptions()->isEnableSubjectHandler($class);
+        if (!$oneselfEnable) {
+            return false;
+        }
+        foreach ($class::depends() as $dependClass) {
+            if (!$this->isEnableSubjectHandler($dependClass)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * @param $class
      * @throws \Exception
      * @return BaseSubjectHandler

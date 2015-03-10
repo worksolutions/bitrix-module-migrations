@@ -198,7 +198,7 @@ abstract class BaseSubjectHandler {
      * Need to returns siblings handlers when dependency has
      * @return array
      */
-    public function depends() {
+    static public function depends() {
         return array();
     }
 
