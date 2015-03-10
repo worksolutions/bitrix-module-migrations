@@ -194,5 +194,13 @@ abstract class BaseSubjectHandler {
         return true;
     }
 
+    /**
+     * Need to returns siblings handlers when dependency has
+     * @return array
+     */
+    public function depends() {
+        return array();
+    }
+
     abstract protected  function getSubjectGroup();
 }
