@@ -13,13 +13,7 @@ $fAddErrorMessage = function ($mess) use ($updater){
 };
 
 //=====================================================
-
-if (!CModule::includeModule('ws.migrations')) {
-    return;
-}
-try {
-    $options = \WS\Migrations\Module::getOptions();
-    $options->enableSubjectHandler(\WS\Migrations\SubjectHandlers\IblockHandler::className());
-} catch (Exception $e) {
-    $fAddErrorMessage($e->getMessage());
-}
+$handlers = unserialize(COption::GetOptionString('ws.migrations', 'enabledSubjectHandlers'));
+$handlers = array_diff($handlers, array('ws\migrations\SubjectHandlers\IblockHandler'));
+$handlers[] = 'WS\Migrations\SubjectHandlers\IblockHandler';
+COption::SetOptionString('ws.migrations', 'enabledSubjectHandlers', serialize($handlers));
