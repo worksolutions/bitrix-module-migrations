@@ -979,6 +979,9 @@ class Module {
             return $row['GROUP_LABEL'];
         }, $result->fetchAll());
         $dir = new Directory($dir);
+        if (!$dir->isExists()) {
+            return array();
+        }
         $files = array();
         foreach ($dir->getChildren() as $file) {
             if ($file->isDirectory()) {
