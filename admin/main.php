@@ -155,7 +155,7 @@ if ($lastSetupLog) {
     $form->EndCustomField('errorList');
 }
 $form->EndTab();
-!$fixes && !$lastSetupLog && $form->bPublicMode = true;
+!$fixes && !$scenarios && !$lastSetupLog && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
 $lastSetupLog
     && $form->sButtonsContent = '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
