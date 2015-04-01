@@ -143,6 +143,7 @@ abstract class BaseEntity {
         $res = static::callGatewayMethod('add', $this->_getRawFields());
         $this->id = $res->getId();
         $this->_errors = $res->getErrors() ?: array();
+        $this->_isNew = false;
         return !(bool)$res->getErrors();
     }
 
