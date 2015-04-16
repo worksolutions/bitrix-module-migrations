@@ -93,9 +93,31 @@ Class ws_migrations extends CModule {
     }
 
     function DoUninstall() {
-        UnRegisterModule(self::MODULE_ID);
-        $this->UnInstallDB();
+        global $APPLICATION, $data;
+        global $errors;
+        $errors = array();
+        $loc = \WS\Migrations\Module::getInstance()->getLocalization('uninstall');
+
+        if (!$data || $errors) {
+            $APPLICATION->IncludeAdminFile($loc->getDataByPath('title'), __DIR__.'/uninstall.php');
+            return;
+        }
+        if ($data['removeAll'] == "Y") {
+            $this->removeFiles();
+            $this->UnInstallDB();
+            $this->removeOptions();
+        }
         $this->UnInstallFiles();
+        UnRegisterModule(self::MODULE_ID);
+    }
+
+    private function removeFiles() {
+        $options = \WS\Migrations\Module::getInstance()->getOptions();
+        $dir = $_SERVER['DOCUMENT_ROOT'].$options->catalogPath;
+        \Bitrix\Main\IO\Directory::deleteDirectory($dir);
+    }
+
+    private function removeOptions() {
+        COption::RemoveOption("ws.migrations");
     }
 }
-
