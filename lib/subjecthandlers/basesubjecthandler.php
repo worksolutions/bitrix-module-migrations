@@ -164,7 +164,45 @@ abstract class BaseSubjectHandler {
      * @return mixed
      */
     public function analysisOfChanges($updatedData, $baseData = null) {
+        if (!$baseData) {
+            return $updatedData;
+        }
+        $ignoreFields = array('TIMESTAMP_X');
+
+        $diff = self::arrayDiff($baseData, $updatedData);
+
+        $hasFields = (bool) array_diff(array_keys($diff ?: array()), $ignoreFields);
+
+        if (!$hasFields) {
+            return false;
+        }
         return $updatedData;
+    }
+
+    /**
+     * Diff between two arrays with depth passing
+     * @param $array1
+     * @param $array2
+     * @return int
+     */
+    static protected function arrayDiff($array1, $array2) {
+        foreach($array1 as $key => $value) {
+            if(is_array($value)) {
+                if(!array_key_exists($key, $array2)) {
+                    $difference[$key] = $value;
+                } elseif(!is_array($array2[$key])) {
+                    $difference[$key] = $value;
+                } else {
+                    $newDiff = self::arrayDiff($value, $array2[$key]);
+                    if($newDiff != false) {
+                        $difference[$key] = $newDiff;
+                    }
+                }
+            } elseif(!array_key_exists($key, $array2) || $array2[$key] != $value) {
+                $difference[$key] = $value;
+            }
+        }
+        return !isset($difference) ? 0 : $difference;
     }
 
     /**
@@ -177,6 +215,10 @@ abstract class BaseSubjectHandler {
         return $this->applySnapshot($data, $dbVersion);
     }
 
+    /**
+     * @param array $data
+     * @return array
+     */
     protected function handleNullValues($data) {
         foreach ($data as & $value) {
             if (is_null($value)) {

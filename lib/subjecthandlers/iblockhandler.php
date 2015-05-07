@@ -22,6 +22,11 @@ class IblockHandler extends BaseSubjectHandler  {
         return $this->getLocalization()->getDataByPath('iblock.name');
     }
 
+    /**
+     * @param $method
+     * @param array $data
+     * @return null
+     */
     public function getIdByChangeMethod($method, $data = array()) {
         switch ($method) {
             case Module::FIX_CHANGES_ADD_KEY:
@@ -35,10 +40,19 @@ class IblockHandler extends BaseSubjectHandler  {
         return null;
     }
 
+    /**
+     * @param array $data
+     * @return mixed
+     */
     public function getIdBySnapshot($data = array()) {
         return $data['iblock']['ID'];
     }
 
+    /**
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
     public function injectIdInSnapshotData($id, $data) {
         $data['iblock']['ID'] = $id;
         return $data;
@@ -77,6 +91,12 @@ class IblockHandler extends BaseSubjectHandler  {
         );
     }
 
+    /**
+     * @param $data
+     * @param null $dbVersion
+     * @return $this
+     * @throws \Exception
+     */
     public function applySnapshot($data, $dbVersion = null) {
         $iblockData = $this->handleNullValues($data['iblock']);
         $typeData = $this->handleNullValues($data['type']);
@@ -153,6 +173,10 @@ class IblockHandler extends BaseSubjectHandler  {
         return $res;
     }
 
+    /**
+     * @return array
+     * @throws \Bitrix\Main\ArgumentException
+     */
     protected function getExistsSubjectIds() {
         $rs = IblockTable::getList(array(
             'select' => array('ID')
@@ -162,5 +186,27 @@ class IblockHandler extends BaseSubjectHandler  {
             $res[] = $arIblock['ID'];
         }
         return $res;
+    }
+
+    /**
+     * @param $updatedData
+     * @param null $baseData
+     * @return array|false
+     */
+    public function analysisOfChanges($updatedData, $baseData = null) {
+        if (!$baseData) {
+            return $updatedData;
+        }
+        $ignoreFields = array('TIMESTAMP_X');
+        $updateIblockData = $updatedData['iblock'];
+        $baseIblockData = $baseData['iblock'];
+
+        $diff = self::arrayDiff($baseIblockData, $updateIblockData);
+
+        $hasFields = (bool) array_diff(array_keys($diff ?: array()), $ignoreFields);
+        if (!$hasFields) {
+            return false;
+        }
+        return $updatedData;
     }
 }

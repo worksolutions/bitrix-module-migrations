@@ -41,7 +41,7 @@ class UpdateProcess extends BaseProcess {
         $originalData = $this->_beforeChangesSnapshots[$id];
         $actualData = $subjectHandler->getSnapshot($id);
         $data = $subjectHandler->analysisOfChanges($actualData, $this->_beforeChangesSnapshots[$id]);
-        $fix
+        $data && $fix
             ->setOriginalData($originalData)
             ->setUpdateData($data);
         return true;
