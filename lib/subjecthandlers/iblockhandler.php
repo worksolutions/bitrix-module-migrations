@@ -74,6 +74,10 @@ class IblockHandler extends BaseSubjectHandler  {
         if (!$iblock) {
             return false;
         }
+
+        $ipropTemlates = new \Bitrix\Iblock\InheritedProperty\IblockTemplates($id);
+        $iblock['IPROPERTY_TEMPLATES'] = $ipropTemlates->findTemplates();
+
         $iblock['~reference'] = $this->getReferenceValue($id);
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
         $rsTypeLangs = TypeLanguageTable::getList(array(
@@ -201,7 +205,9 @@ class IblockHandler extends BaseSubjectHandler  {
         $updateIblockData = $updatedData['iblock'];
         $baseIblockData = $baseData['iblock'];
 
-        $diff = self::arrayDiff($baseIblockData, $updateIblockData);
+        $diffBase = self::arrayDiff($baseIblockData, $updateIblockData);
+        $diffUpdate = self::arrayDiff($updateIblockData, $baseIblockData);
+        $diff = array_merge_recursive($diffBase, $diffUpdate);
 
         $hasFields = (bool) array_diff(array_keys($diff ?: array()), $ignoreFields);
         if (!$hasFields) {

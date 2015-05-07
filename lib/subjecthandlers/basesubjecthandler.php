@@ -169,7 +169,9 @@ abstract class BaseSubjectHandler {
         }
         $ignoreFields = array('TIMESTAMP_X');
 
-        $diff = self::arrayDiff($baseData, $updatedData);
+        $diffBase = self::arrayDiff($baseData, $updatedData);
+        $diffUpdate = self::arrayDiff($updatedData, $baseData);
+        $diff = array_merge_recursive($diffBase, $diffUpdate);
 
         $hasFields = (bool) array_diff(array_keys($diff ?: array()), $ignoreFields);
 
@@ -183,7 +185,7 @@ abstract class BaseSubjectHandler {
      * Diff between two arrays with depth passing
      * @param $array1
      * @param $array2
-     * @return int
+     * @return array
      */
     static protected function arrayDiff($array1, $array2) {
         foreach($array1 as $key => $value) {
@@ -202,7 +204,7 @@ abstract class BaseSubjectHandler {
                 $difference[$key] = $value;
             }
         }
-        return !isset($difference) ? 0 : $difference;
+        return !isset($difference) ? array() : $difference;
     }
 
     /**
