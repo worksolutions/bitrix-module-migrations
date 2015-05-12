@@ -12,5 +12,3 @@ $fAddErrorMessage = function ($mess) use ($updater){
     $updater->errorMessage[] = $mess;
 };
 //=====================================================
-
-RegisterModuleDependences("main", "OnCheckListGet", "ws.tools", '\WS\Tools\Tests\Starter', 'items');
