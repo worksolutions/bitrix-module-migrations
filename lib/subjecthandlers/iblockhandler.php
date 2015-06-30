@@ -78,6 +78,14 @@ class IblockHandler extends BaseSubjectHandler  {
         $ipropTemlates = new \Bitrix\Iblock\InheritedProperty\IblockTemplates($id);
         $iblock['IPROPERTY_TEMPLATES'] = $ipropTemlates->findTemplates();
 
+        $arLIDList = array();
+        $rsIBlockSites = \CIBlock::GetSite($iblock['ID']);
+        while ($arIBlockSite = $rsIBlockSites->Fetch()) {
+            $arLIDList[] = $arIBlockSite['LID'];
+        }
+
+        $iblock['SITE_ID'] = $arLIDList;
+
         $iblock['~reference'] = $this->getReferenceValue($id);
         $type = \CIBlockType::GetByID($iblock['IBLOCK_TYPE_ID'])->Fetch();
         $rsTypeLangs = TypeLanguageTable::getList(array(
