@@ -50,7 +50,6 @@ $fCreateUrlFromEntity = function ($type, $id) {
         case 'iblock':
             $arIblock = CIBlock::GetArrayByID($id);
             $type = $arIblock['IBLOCK_TYPE_ID'];
-            $type = $arIblock['IBLOCK_TYPE_ID'];
             $urlTemplate = '/bitrix/admin/iblock_edit.php?type='.$type.'&ID='.$id;
             break;
         case 'iblockProperty':

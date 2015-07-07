@@ -8,6 +8,7 @@ namespace WS\Migrations\SubjectHandlers;
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
 use WS\Migrations\ApplyResult;
+use WS\Migrations\Diagnostic\DiagnosticResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
 use WS\Migrations\Reference\ReferenceItem;
@@ -197,6 +198,27 @@ class IblockPropertyHandler extends BaseSubjectHandler {
             $res[] = $item['ID'];
         }
         return $res;
+    }
+
+    /**
+     * @return DiagnosticResult
+     */
+    public function diagnostic() {
+        $propertyResultReference = $this->diagnosticByReference();
+        $propertyResultItems = $this->diagnosticByItems(\CIBlockProperty::GetList());
+
+        $propertyListResultReference = $this->diagnosticByReference(ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES);
+        $propertyListResultItems = $this->diagnosticByItems(PropertyEnumerationTable::getList(), ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES);
+
+        $success = $propertyResultReference->isSuccess() && $propertyResultItems->isSuccess()
+            && $propertyListResultReference->isSuccess() && $propertyListResultItems->isSuccess();
+        $messages = array_merge(
+            $propertyResultReference->getMessages(),
+            $propertyResultItems->getMessages(),
+            $propertyResultItems->getMessages(),
+            $propertyListResultItems->getMessages()
+        );
+        return new DiagnosticResult($success, $messages);
     }
 
     static public function depends() {

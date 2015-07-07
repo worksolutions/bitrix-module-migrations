@@ -9,6 +9,7 @@ namespace WS\Migrations\SubjectHandlers;
 use Bitrix\Iblock\IblockTable;
 use Bitrix\Iblock\TypeLanguageTable;
 use WS\Migrations\ApplyResult;
+use WS\Migrations\Diagnostic\DiagnosticResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
 
@@ -222,5 +223,18 @@ class IblockHandler extends BaseSubjectHandler  {
             return false;
         }
         return $updatedData;
+    }
+
+    /**
+     * @return DiagnosticResult
+     */
+    public function diagnostic() {
+        $referenceResult = $this->diagnosticByReference();
+        $itemsResult = $this->diagnosticByItems(\CIblock::GetList());
+        $success = $referenceResult->isSuccess() && $itemsResult->isSuccess();
+        return new DiagnosticResult(
+            $success,
+            array_merge($referenceResult->getMessages(), $itemsResult->getMessages())
+        );
     }
 }

@@ -265,4 +265,23 @@ class ReferenceController {
             DbVersionReferencesTable::delete($itemData['ID']);
         }
     }
+
+    /**
+     * @param null $group
+     * @return array
+     * @throws \Bitrix\Main\ArgumentException
+     */
+    public function getReferences($group = null) {
+        $filter = array();
+        $group && $filter['=GROUP'] = $group;
+        $dbRes = DbVersionReferencesTable::getList(array(
+            'filter' => $filter,
+            'group' => 'REFERENCE'
+        ));
+        $res = array();
+        while ($item = $dbRes->fetch()) {
+            $res[] = $item['REFERENCE'];
+        }
+        return $res;
+    }
 }

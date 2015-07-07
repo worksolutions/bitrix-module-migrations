@@ -117,5 +117,16 @@ return array(
             'iblockProperty' => 'Iblock Property',
             'iblockSection' => 'Iblock Section',
         )
+    ),
+    'diagnostic' => array(
+        'title' => 'Diagnostic',
+        'description' => 'Diagnostic',
+        'last' => array(
+            'description' => 'Error`s description',
+            'result' => 'Result of diagnostic',
+            'success' => 'Success',
+            'fail' => 'Error'
+        ),
+        'run' => 'Run',
     )
 );

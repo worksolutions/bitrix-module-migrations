@@ -7,6 +7,8 @@ namespace WS\Migrations\SubjectHandlers;
 
 
 use WS\Migrations\ApplyResult;
+use WS\Migrations\Diagnostic\DiagnosticResult;
+use WS\Migrations\Diagnostic\ErrorMessage;
 use WS\Migrations\Localization;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
@@ -17,7 +19,6 @@ abstract class BaseSubjectHandler {
      * @var ReferenceController
      */
     private $_referenceController;
-
 
     static public function className() {
         return get_called_class();
@@ -217,6 +218,58 @@ abstract class BaseSubjectHandler {
         return $this->applySnapshot($data, $dbVersion);
     }
 
+    /**
+     * @param $dbRes
+     * @param string|null $group
+     * @return DiagnosticResult
+     */
+    protected function diagnosticByItems($dbRes, $group = null) {
+        $group = $group ?: $this->getSubjectGroup();
+        $messages = array();
+        /** @var \CAllDBResult $dbRes */
+        while ($arItem = $dbRes->Fetch()) {
+            if ($this->getReferenceController()->hasItemId($arItem['ID'], $group)) {
+                continue;
+            }
+            $messages[] = new ErrorMessage(
+                $group,
+                $arItem['ID'],
+                ErrorMessage::TYPE_ITEM_HAS_NOT_REFERENCE,
+                $group.' Reference by item "'.$arItem['ID'].'" not exists'
+            );
+        }
+        return new DiagnosticResult(empty($messages), $messages);
+    }
+
+    /**
+     * @param string|null $group
+     * @return DiagnosticResult
+     */
+    protected function diagnosticByReference($group = null) {
+        $group = $group ?: $this->getSubjectGroup();
+        $references = $this->getReferenceController()->getReferences($group);
+        $messages = array();
+        foreach ($references as $reference) {
+            try {
+                $this->getReferenceController()->getItemCurrentVersionByReference($reference);
+            } catch (\Exception $e) {
+                $messages[] = new ErrorMessage(
+                    $group,
+                    '',
+                    ErrorMessage::TYPE_REFERENCE_WITHOUT_ITEM,
+                    $group.' Item by reference "'.$reference.'" not exists'
+                );
+            }
+        }
+        return new DiagnosticResult(empty($messages), $messages);
+    }
+
+    /**
+     * @return DiagnosticResult
+     */
+    public function diagnostic() {
+        return $this->diagnosticByReference($this->getSubjectGroup());
+    }
     /**
      * @param array $data
      * @return array

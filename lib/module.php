@@ -8,6 +8,7 @@ use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
 use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
+use WS\Migrations\Diagnostic\DiagnosticTester;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Entities\AppliedChangesLogTable;
 use WS\Migrations\Entities\SetupLogModel;
@@ -265,6 +266,17 @@ class Module {
             $this->localizations[$path] = new Localization(include $realPath);
         }
         return $this->localizations[$path];
+    }
+
+    /**
+     * @return DiagnosticTester
+     */
+    public function getDiagnosticTester() {
+        $handlers = array();
+        foreach ($this->getSubjectHandlers() as $handler) {
+            $this->isEnableSubjectHandler(get_class($handler)) && $handlers[] = $handler;
+        }
+        return new DiagnosticTester($handlers);
     }
 
     /**

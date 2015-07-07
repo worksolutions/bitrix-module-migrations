@@ -35,6 +35,10 @@ return array(
             array(
                 'text' => $loc->getDataByPath('createScenario'),
                 'url' => $inputUri.'createScenario'
+            ),
+            array(
+                'text' => $loc->getDataByPath('diagnostic'),
+                'url' => $inputUri.'diagnostic'
             )
         )
     )

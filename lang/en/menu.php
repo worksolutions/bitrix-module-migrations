@@ -7,5 +7,6 @@ return array(
     'apply' => 'Applying',
     'log' => 'Changes log',
     'entitiesVersions' => 'Data of versions',
-    'createScenario' => 'Create update scenario'
+    'createScenario' => 'Create update scenario',
+    'diagnostic' => 'Diagnostic'
 );

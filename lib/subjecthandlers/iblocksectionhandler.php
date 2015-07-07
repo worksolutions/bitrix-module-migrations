@@ -11,6 +11,7 @@ use Bitrix\Main\DB\Exception;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use WS\Migrations\ApplyResult;
+use WS\Migrations\Diagnostic\DiagnosticResult;
 use WS\Migrations\Module;
 use WS\Migrations\Reference\ReferenceController;
 
@@ -144,5 +145,18 @@ class IblockSectionHandler extends BaseSubjectHandler {
             $res[] = $arSection['ID'];
         }
         return $res;
+    }
+
+    /**
+     * @return DiagnosticResult
+     */
+    public function diagnostic() {
+        $referenceResult = $this->diagnosticByReference();
+        $itemsResult = $this->diagnosticByItems(\CIBlockSection::GetList());
+        $success = $referenceResult->isSuccess() && $itemsResult->isSuccess();
+        return new DiagnosticResult(
+            $success,
+            array_merge($referenceResult->getMessages(), $itemsResult->getMessages())
+        );
     }
 }

@@ -7,5 +7,6 @@ return array(
     'apply' => 'Применение',
     'log' => 'Журнал изменений',
     'entitiesVersions' => 'Версии данных',
-    'createScenario' => 'Создать сценарий обновления'
+    'createScenario' => 'Создать сценарий обновления',
+    'diagnostic' => 'Диагностика'
 );
