@@ -55,7 +55,7 @@ class DiagnosticTester {
             }, $messages)
         ));
         \CEventLog::Log('INFO', self::LOG_TYPE, 'ws.migrations', null, $jsonData);
-        return true;
+        return $success;
     }
 
     /**

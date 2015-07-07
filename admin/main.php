@@ -5,10 +5,6 @@
 $localization;
 $module = \WS\Migrations\Module::getInstance();
 
-$isDiagnosticValid = $module
-    ->getDiagnosticTester()
-    ->getLastResult()
-    ->isSuccess();
 
 $apply = false;
 if ($_POST['rollback']) {
@@ -16,10 +12,17 @@ if ($_POST['rollback']) {
     $apply = true;
 }
 
-if ($_POST['apply']) {
+$diagnosticTester = $module->getDiagnosticTester();
+
+if ($_POST['apply'] && $diagnosticTester->run()) {
     $module->applyNewFixes();
     $apply = true;
 }
+
+$isDiagnosticValid = $diagnosticTester
+    ->getLastResult()
+    ->isSuccess();
+
 $apply && LocalRedirect($APPLICATION->GetCurUri());
 
 $fixes = array();

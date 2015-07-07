@@ -163,10 +163,15 @@ class Module {
                     $module = array_shift($params);
                     $handlerClass = array_shift($params);
                     $eventKey = array_shift($params);
-
-                    /** @var $module Module */
-                    $module->handle($handlerClass, $eventKey, $params);
-
+                    try {
+                        /** @var $module Module */
+                        $module->handle($handlerClass, $eventKey, $params);
+                    } catch (\Exception $e) {
+                        /** @var \CMain $APPLICATION */
+                        global $APPLICATION;
+                        $APPLICATION->ThrowException($e->getMessage());
+                        return false;
+                    }
                 }, $self, $class, $eventKey));
             }
         }
@@ -457,7 +462,14 @@ class Module {
      * @throws \Exception
      */
     public function handle($handlerClass, $eventKey, $params) {
-        if (!$this->isValidVersion()) {
+
+        $isValid = $this->isValidVersion();
+        if ($isValid) {
+            $isValid = $this->getDiagnosticTester()
+                ->getLastResult()
+                ->isSuccess();
+        }
+        if (!$isValid) {
             throw new \Exception('Module platform version is not valid');
         }
         if (!$this->hasListen()) {
