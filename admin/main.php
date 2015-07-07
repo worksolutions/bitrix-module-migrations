@@ -5,6 +5,11 @@
 $localization;
 $module = \WS\Migrations\Module::getInstance();
 
+$isDiagnosticValid = $module
+    ->getDiagnosticTester()
+    ->getLastResult()
+    ->isSuccess();
+
 $apply = false;
 if ($_POST['rollback']) {
     $module->rollbackLastChanges();
@@ -37,7 +42,6 @@ if ($lastSetupLog) {
         $appliedLog->success && $appliedFixes[$appliedLog->description]++;
     }
 }
-
 //--------------------------------------------------------------------------
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 // 1C-Bitrix override variable!!
@@ -53,6 +57,15 @@ $form = new CAdminForm('ws_maigrations_main', array(
     ) ,
 ));
 
+if (!$isDiagnosticValid) {
+    $form->BeginPrologContent();
+    $mess =  $localization->message('diagnostic', array(
+        ':url:' => '/bitrix/admin/ws_migrations.php?q=diagnostic'
+    ));
+    $adminMessage = new CAdminMessage(array('HTML' => "Y", 'MESSAGE' => $mess));
+    echo $adminMessage->Show();
+    $form->EndPrologContent();
+}
 $form->Begin(array(
     'FORM_ACTION' => $APPLICATION->GetCurUri()
 ));
@@ -156,8 +169,9 @@ if ($lastSetupLog) {
 }
 $form->EndTab();
 !$fixes && !$scenarios && !$lastSetupLog && $form->bPublicMode = true;
+!$isDiagnosticValid && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
-$lastSetupLog
+$isDiagnosticValid && $lastSetupLog
     && $form->sButtonsContent = '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
 
 $form->Show();

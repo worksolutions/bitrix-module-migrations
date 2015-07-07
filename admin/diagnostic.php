@@ -26,7 +26,7 @@ $form = new CAdminForm('ws_maigrations_diagnostic', array(
 ));
 $module = \WS\Migrations\Module::getInstance();
 $form->BeginPrologContent();
-ShowNote($localization->getDataByPath('description'));
+CAdminMessage::ShowNote($localization->getDataByPath('description'));
 $form->EndPrologContent();
 $form->Begin(array(
     'FORM_ACTION' => $APPLICATION->GetCurUri()
