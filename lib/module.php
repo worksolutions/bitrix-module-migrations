@@ -276,7 +276,7 @@ class Module {
         foreach ($this->getSubjectHandlers() as $handler) {
             $this->isEnableSubjectHandler(get_class($handler)) && $handlers[] = $handler;
         }
-        return new DiagnosticTester($handlers);
+        return new DiagnosticTester($handlers, $this);
     }
 
     /**
