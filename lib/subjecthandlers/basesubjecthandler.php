@@ -90,6 +90,7 @@ abstract class BaseSubjectHandler {
         $ids = $this->getExistsSubjectIds();
         foreach ($ids as $id) {
             $this->registerCurrentVersionId($id);
+            $this->registerSubsidiaryVersions($id);
         }
     }
 
@@ -292,4 +293,11 @@ abstract class BaseSubjectHandler {
     }
 
     abstract protected  function getSubjectGroup();
+
+    /**
+     * Hook is need for register all additional reference in handlers
+     * @param $id
+     */
+    protected function registerSubsidiaryVersions($id) {
+    }
 }

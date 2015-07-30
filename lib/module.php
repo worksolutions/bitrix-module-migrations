@@ -469,9 +469,6 @@ class Module {
                 ->getLastResult()
                 ->isSuccess();
         }
-        if (!$isValid) {
-            throw new \Exception('Module platform version is not valid');
-        }
         if (!$this->hasListen()) {
             return false;
         }
@@ -482,7 +479,9 @@ class Module {
         if (!$this->isEnableSubjectHandler($handlerClass)) {
             return false;
         }
-
+        if (!$isValid) {
+            throw new \Exception('Module platform version is not valid');
+        }
         $collector = $this->getDutyCollector();
         $handler = $this->getSubjectHandler($handlerClass);
         $fix  = $collector->createFix();
