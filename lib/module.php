@@ -44,8 +44,9 @@ class Module {
     const REFERENCE_SUBJECT_ADD    = 'add';
     const REFERENCE_SUBJECT_REMOVE = 'remove';
 
+    const FALLBACK_LOCALE = 'en';
+
     private $localizePath = null,
-            $fallbackLocale = 'en',
             $localizations = array();
 
     private static $name = 'ws.migrations';
@@ -110,8 +111,8 @@ class Module {
     private function __construct() {
         $this->localizePath = __DIR__.'/../lang/'.LANGUAGE_ID;
 
-        if (!file_exists($this->localizePath) && $this->fallbackLocale) {
-            $this->localizePath = __DIR__.'/../lang/'.$this->fallbackLocale;
+        if (!file_exists($this->localizePath)) {
+            $this->localizePath = __DIR__.'/../lang/'.self::FALLBACK_LOCALE;
         }
 
         // version`s is checked
