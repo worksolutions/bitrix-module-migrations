@@ -62,6 +62,12 @@ class IblockPropertyHandler extends BaseSubjectHandler {
             $value['PROPERTY_ID'] = $propertyId;
             try {
                 $value['ID'] = $this->getReferenceController()->getItemCurrentVersionByReference($value['~reference'])->id;
+                $hasValue = PropertyEnumerationTable::getByPrimary(
+                    array('ID' => $value['ID'], 'PROPERTY_ID' => $value['PROPERTY_ID'])
+                )->getSelectedRowsCount() > 0;
+                if (!$hasValue) {
+                    throw new \Exception("Record not exists");
+                }
                 $useValuesIds[] = $value['ID'];
                 $updateValues[] = $value;
             } catch (\Exception $e) {
