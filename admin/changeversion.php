@@ -76,6 +76,7 @@ foreach ($module->getOptions()->getOtherVersions() as $version => $owner) {
 $form->EndCustomField('owner');
 $form->Buttons();
 $form->Show();
+CJSCore::Init(array('jquery'));
 $jsParams = array(
     'owner' => array(
         'label' => $localization->getDataByPath('owner'),
@@ -103,15 +104,24 @@ $jsParams = array(
 
             var dialog = new BX.CDialog({
                 'title': params.dialog.title,
-                'content': '<form><table cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td width="40%" text-align="right">'+params.owner.label+':</td><td width="60%" align="left"><input type="text" id="owner" name="ownersetup[owner]" value="'+params.owner.value+'"></td></tr></table></form>',
+                'content': '<form id="ownerSetupLinkForm"><table cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td width="40%" text-align="right">'+params.owner.label+':</td><td width="60%" align="left"><input type="text" id="owner" name="ownersetup[owner]" value="'+params.owner.value+'"></td></tr></table></form>',
                 'width': 500,
                 'height': 70,
                 'buttons': [save, BX.CAdminDialog.btnCancel],
                 'resizable': false
             });
+
+            var useFormHandler = false;
             $ownerLink.click(function (e) {
                 e.preventDefault();
                 dialog.Show();
+                if (!useFormHandler) {
+                    $('#ownerSetupLinkForm').submit(function (e) {
+                        e.preventDefault();
+                        save.action();
+                    });
+                    useFormHandler = true;
+                }
             });
         });
     })(<?=CUtil::PhpToJsObject($jsParams)?>)
