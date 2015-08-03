@@ -113,7 +113,7 @@ $fRow = function ($label, $value) {
     ?>
     <tr>
         <td width="30%"><b><?=$label?>:</b></td>
-        <td width="60%"><?=$value?></td>
+        <td width="60%"><?=is_array($value) ? \Bitrix\Main\Diag\Debug::dump($value) : $value?></td>
     </tr>
     <?php
 };
