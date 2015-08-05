@@ -7,8 +7,8 @@ $request = $context->getRequest();
 $tester = \WS\Migrations\Module::getInstance()->getDiagnosticTester();
 if ($request->isPost()) {
     $post = $request->getPostList()->toArray();
-    $post = \Bitrix\Main\Text\Encoding::convertEncodingArray($post, "UTF-8", $context->getCulture()->getCharset());
-    $post['run'] && $tester->run();
+    $run = (bool)$post['run'];
+    $run && $tester->run();
 }
 $lastResult = $tester->getLastResult();
 /** @var $localization \WS\Migrations\Localization */
@@ -98,7 +98,10 @@ endif;
 ?>
     <tr>
         <td></td>
-        <td><input type="submit" name="run" value="<?=$localization->message('run')?>"></td>
+        <td>
+            <input type="hidden" value="Y" name="run" />
+            <input type="submit" name="submit" value="<?=$localization->message('run')?>">
+        </td>
     </tr><?
 $form->EndCustomField('version');
 $form->BeginNextFormTab();

@@ -31,6 +31,7 @@ class DiagnosticResult {
      * @param bool $success
      * @param ErrorMessage[] $messages
      * @param string $time
+     * @throws \Exception
      */
     public function __construct($success, array $messages, $time = '') {
         $this->success = $success;
@@ -47,12 +48,7 @@ class DiagnosticResult {
      * @return DiagnosticResult
      */
     public static function createNull() {
-        $class = new \ReflectionClass(get_called_class());
-        $object = $class->newInstanceWithoutConstructor();
-        $object->success = true;
-        $object->messages = array();
-        $object->time = '-';
-        return $object;
+        return new static(true, array(), '-');
     }
 
     /**
