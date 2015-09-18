@@ -167,7 +167,7 @@ class IblockHandler extends BaseSubjectHandler  {
         $res = new ApplyResult();
         $res->setSuccess((bool)\CIBlock::Delete($id))
             ->setMessage('Not execute ib delete');
-        $res->isSuccess() && $this->removeCurrentVersion($id);
+        $res->isSuccess() && $this->removeReference($id);
         return $res;
     }
 

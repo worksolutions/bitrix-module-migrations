@@ -186,7 +186,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
         $res = new ApplyResult();
         $res->setSuccess((bool)\CIBlockProperty::Delete($id));
-        $res->isSuccess() && $this->removeCurrentVersion($id);
+        $res->isSuccess() && $this->removeReference($id);
         return $res;
     }
 

@@ -284,4 +284,36 @@ class ReferenceController {
         }
         return $res;
     }
+
+    /**
+     * removes reference by item id
+     *
+     * @param int $itemId
+     * @param string $group
+     * @param string|null $dbVersion
+     * @return bool
+     *
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
+     */
+    public function removeReference($itemId, $group, $dbVersion = null) {
+        $item = $this->getItemById($itemId, $group, $dbVersion);
+        if (!$item) {
+            return false;
+        }
+        $dbRes = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                '=REFERENCE' => $item->reference
+            )
+        ));
+        $onRemove = $this->_onRemove;
+        while ($arItem = $dbRes->fetch()) {
+            $deleteResult = DbVersionReferencesTable::delete($arItem['ID']);
+            if (!$deleteResult->isSuccess()) {
+                return false;
+            }
+            $onRemove && $arItem['DB_VERSION'] == $this->_currentDbVersion && $onRemove($item);
+        }
+        return true;
+    }
 }

@@ -111,7 +111,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
         $res
             ->setSuccess((bool) $sec->Delete($id))
             ->setMessage($sec->LAST_ERROR);
-        $res->isSuccess() && $this->removeCurrentVersion($id);
+        $res->isSuccess() && $this->removeReference($id);
         return $res;
     }
 
