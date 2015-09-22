@@ -2,6 +2,7 @@
 global $APPLICATION, $errors;
 $localization = \WS\Migrations\Module::getInstance()->getLocalization('setup');
 $options = \WS\Migrations\Module::getInstance()->getOptions();
+$module = \WS\Migrations\Module::getInstance();
 $form = new CAdminForm('ew', array(
     array(
         'DIV' => 't1',
@@ -17,5 +18,11 @@ $form->Begin(array(
 ));
 $form->BeginNextFormTab();
 $form->AddEditField('data[catalog]', $localization->getDataByPath('fields.catalog'), true, array(), $options->catalogPath ?: '/migrations');
+$form->AddSection('disableHandlers', $localization->getDataByPath('section.disableHandlers'));
+
+foreach ($module->getSubjectHandlers() as $handler) {
+    $form->AddCheckBoxField('data[handlers]['.get_class($handler).']', $handler->getName(), true, '1', $options->isEnableSubjectHandler(get_class($handler)));
+}
+
 $form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
 $form->Show();

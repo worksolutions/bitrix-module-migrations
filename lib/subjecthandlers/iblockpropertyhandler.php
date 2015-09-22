@@ -268,11 +268,16 @@ class IblockPropertyHandler extends BaseSubjectHandler {
      * @throws \Exception
      */
     private function _registerListValueReference($valueId, $reference = null) {
+        $refController = $this->getReferenceController();
+        if ($refController->hasItemId($valueId, ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES)) {
+            $referenceItem = $refController->getItemById($valueId, ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES);
+            return $referenceItem->reference;
+        }
         $referenceItem = new ReferenceItem();
         $referenceItem->id = $valueId;
         $referenceItem->group = ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES;
         $reference && $referenceItem->reference = $reference;
-        $this->getReferenceController()->registerItem($referenceItem);
+        $refController->registerItem($referenceItem);
         return $referenceItem->reference;
     }
 }

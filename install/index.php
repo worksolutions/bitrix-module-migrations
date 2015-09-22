@@ -1,10 +1,7 @@
 <?
 use Bitrix\Main\Application;
 
-require_once __DIR__.'/../lib/module.php';
-require_once __DIR__.'/../lib/localization.php';
-require_once __DIR__.'/../lib/options.php';
-require_once __DIR__.'/../lib/moduleoptions.php';
+include __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'include.php';
 
 Class ws_migrations extends CModule {
     const MODULE_ID = 'ws.migrations';
@@ -84,7 +81,14 @@ Class ws_migrations extends CModule {
             RegisterModule(self::MODULE_ID);
             \Bitrix\Main\Loader::includeModule(self::MODULE_ID);
             \Bitrix\Main\Loader::includeModule('iblock');
-            \WS\Migrations\Module::getInstance()->install();
+            $this->module()->install();
+
+            foreach ($this->module()->getSubjectHandlers() as $handler) {
+                $handlerClass = get_class($handler);
+                $handlerClassValue = (bool)$data['handlers'][$handlerClass];
+                $handlerClassValue && $this->module()->enableSubjectHandler($handlerClass);
+                !$handlerClassValue && $this->module()->disableSubjectHandler($handlerClass);
+            }
         }
         if (!$data || $errors) {
             $APPLICATION->IncludeAdminFile($loc->getDataByPath('title'), __DIR__.'/form.php');
@@ -96,7 +100,7 @@ Class ws_migrations extends CModule {
         global $APPLICATION, $data;
         global $errors;
         $errors = array();
-        $loc = \WS\Migrations\Module::getInstance()->getLocalization('uninstall');
+        $loc = $this->module()->getLocalization('uninstall');
 
         if (!$data || $errors) {
             $APPLICATION->IncludeAdminFile($loc->getDataByPath('title'), __DIR__.'/uninstall.php');
@@ -111,8 +115,15 @@ Class ws_migrations extends CModule {
         UnRegisterModule(self::MODULE_ID);
     }
 
+    /**
+     * @return \WS\Migrations\Module
+     */
+    private function module() {
+        return WS\Migrations\Module::getInstance();
+    }
+
     private function removeFiles() {
-        $options = \WS\Migrations\Module::getInstance()->getOptions();
+        $options = $this->module()->getOptions();
         $dir = $_SERVER['DOCUMENT_ROOT'].$options->catalogPath;
         \Bitrix\Main\IO\Directory::deleteDirectory($dir);
     }

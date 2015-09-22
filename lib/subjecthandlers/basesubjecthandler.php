@@ -47,6 +47,9 @@ abstract class BaseSubjectHandler {
      * @param null $referenceValue
      */
     protected function registerCurrentVersionId($id, $referenceValue = null) {
+        if ($this->getReferenceController()->hasItemId($id, $this->getSubjectGroup())) {
+            return;
+        }
         $item = new ReferenceItem();
         $item->group = $this->getSubjectGroup();
         $item->id = $id;
