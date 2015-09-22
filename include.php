@@ -12,7 +12,7 @@ spl_autoload_register(function ($class) use ($lib) {
 
     $className = array_pop($pieces);
     $fileName = $className.'.php';
-    $path = $lib.DIRECTORY_SEPARATOR.strtoupper(implode(DIRECTORY_SEPARATOR, $pieces).DIRECTORY_SEPARATOR.$fileName);
+    $path = $lib.DIRECTORY_SEPARATOR.strtolower(implode(DIRECTORY_SEPARATOR, $pieces).DIRECTORY_SEPARATOR.$fileName);
     if (!file_exists($path)) {
         return false;
     }
