@@ -19,5 +19,13 @@ $form->Begin(array(
 ));
 $form->BeginNextFormTab();
 $form->AddCheckBoxField('data[removeAll]', $localization->getDataByPath('fields.removeAll'), true, "Y", false);
+$form->BeginCustomField('data[remove]', '');
+?>
+    <tr id="tr_DATA_REMOVE" style="display: none;">
+        <td></td>
+        <td><input type="hidden" name="data[remove]" value="Y"/></td>
+    </tr>
+<?php
+$form->EndCustomField('data[remove]');
 $form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
 $form->Show();
