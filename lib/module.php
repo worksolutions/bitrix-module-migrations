@@ -2,7 +2,6 @@
 
 namespace WS\Migrations;
 use Bitrix\Main\Application;
-use Bitrix\Main\DB\Exception;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
@@ -1043,7 +1042,7 @@ class Module {
                 $object->commit();
                 $applyFixLog->updateData = $object->getData();
                 $applyFixLog->success = true;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $applyFixLog->success = false;
                 $applyFixLog->description .= " Exception:".$e->getMessage();
             }
