@@ -17,7 +17,7 @@ class ReferenceController {
     /**
      * @var string
      */
-    private $_currentDbVersion;
+    private $platformVersionValue;
 
     /**
      * @var callable
@@ -30,7 +30,7 @@ class ReferenceController {
     private $_onRemove;
 
     public function __construct($currentDbVersion) {
-        $this->_currentDbVersion = $currentDbVersion;
+        $this->platformVersionValue = $currentDbVersion;
     }
 
     /**
@@ -39,7 +39,7 @@ class ReferenceController {
      * @throws \Exception
      */
     public function registerItem(ReferenceItem $item) {
-        !$item->dbVersion && $item->dbVersion = $this->_currentDbVersion;
+        !$item->dbVersion && $item->dbVersion = $this->platformVersionValue;
         !$item->reference && $item->reference = md5($item->dbVersion.$item->group.$item->id);
 
         $hasRefByVersion = DbVersionReferencesTable::getList(array(
@@ -68,7 +68,7 @@ class ReferenceController {
             'ITEM_ID' => $item->id
         ));
         $onRegister = $this->_onRegister;
-        $onRegister && $item->dbVersion == $this->_currentDbVersion && $onRegister($item);
+        $onRegister && $item->dbVersion == $this->platformVersionValue && $onRegister($item);
         return $this;
     }
 
@@ -88,7 +88,7 @@ class ReferenceController {
         }
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
-                '=DB_VERSION' => $dbVersion ?: $this->_currentDbVersion,
+                '=DB_VERSION' => $dbVersion ?: $this->platformVersionValue,
                 '=GROUP' => $group,
                 '=ITEM_ID' => $id
             )
@@ -98,7 +98,7 @@ class ReferenceController {
         }
         $deleteResult = DbVersionReferencesTable::delete($res['ID']);
         $onRemove = $this->_onRemove;
-        $onRemove && $item->dbVersion == $this->_currentDbVersion && $onRemove($item);
+        $onRemove && $item->dbVersion == $this->platformVersionValue && $onRemove($item);
         return $deleteResult->isSuccess();
     }
 
@@ -125,7 +125,7 @@ class ReferenceController {
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
                 '=REFERENCE' => $value,
-                '=DB_VERSION' => $this->_currentDbVersion
+                '=DB_VERSION' => $this->platformVersionValue
             )
         ));
         if (!$data = $res->fetch()) {
@@ -154,7 +154,7 @@ class ReferenceController {
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
                 '=ITEM_ID' => (int) $id,
-                '=DB_VERSION' => $dbVersion ?: $this->_currentDbVersion,
+                '=DB_VERSION' => $dbVersion ?: $this->platformVersionValue,
                 '=GROUP' => $group
             )
         ));
@@ -229,19 +229,19 @@ class ReferenceController {
         return $item->id;
     }
 
-    public function setupNewVersion($cloneVersion) {
-        if (!$cloneVersion) {
+    public function setupNewVersion($version) {
+        if (!$version) {
             throw new \Exception('Clone version empty');
         }
         $res = DbVersionReferencesTable::getList(array(
             'filter' => array(
-                'DB_VERSION' => $this->_currentDbVersion
+                'DB_VERSION' => $this->platformVersionValue
             )
         ));
-        $this->_currentDbVersion = $cloneVersion;
+        $this->platformVersionValue = $version;
         while ($itemData = $res->fetch()) {
             $item = $this->_createItemByDBData($itemData);
-            $item->dbVersion = $cloneVersion;
+            $item->dbVersion = $version;
             $this->registerItem($item);
         }
         return true;
@@ -312,7 +312,7 @@ class ReferenceController {
             if (!$deleteResult->isSuccess()) {
                 return false;
             }
-            $onRemove && $arItem['DB_VERSION'] == $this->_currentDbVersion && $onRemove($item);
+            $onRemove && $arItem['DB_VERSION'] == $this->platformVersionValue && $onRemove($item);
         }
         return true;
     }

@@ -1,11 +1,15 @@
 <?php
 /** @var $APPLICATION CMain */
+
+/** @var \WS\Migrations\PlatformVersion $platformVersion */
+$platformVersion = \WS\Migrations\Module::getInstance()->getPlatformVersion();
+
 if ($_POST['apply']) {
     $text = \WS\Migrations\Module::getInstance()->getExportText();
     $APPLICATION->RestartBuffer();
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
-    header("Content-Disposition: attachment; filename=\"".\WS\Migrations\Module::getInstance()->getDbVersion().".json\"");
+    header("Content-Disposition: attachment; filename=\"".$platformVersion->getValue().".json\"");
     header("Accept-Ranges: bytes");
     header("Cache-Control: must-revalidate");
     header("Expires: 0");
@@ -35,7 +39,7 @@ $APPLICATION->GetCurUri()?>" ENCTYPE="multipart/form-data" name="apply"><?
     $form->BeginCustomField('version', 'vv');
     ?><tr>
         <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
-        <td width="60%"><b><?=\WS\Migrations\Module::getInstance()->getDbVersion()?></b></td>
+        <td width="60%"><b><?=$platformVersion->getValue()?></b></td>
     </tr><?
     $form->EndCustomField('version');
     $form->EndTab();

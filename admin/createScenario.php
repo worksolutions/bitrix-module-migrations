@@ -15,8 +15,8 @@ if ($_POST['apply'] != "" && $_POST['name']) {
         '#class_name#' => $className = 'ws_m_'.time().'_'.CUtil::translit($name, LANGUAGE_ID),
         '#name#' => $name,
         '#description#' => $description,
-        '#db_version#' => $module->getDbVersion(),
-        '#owner#' => $module->getVersionOwner()
+        '#db_version#' => $module->getPlatformVersion()->getValue(),
+        '#owner#' => $module->getPlatformVersion()->getOwner()
     );
     $classContent = str_replace(array_keys($arReplace), array_values($arReplace), $templateContent);
     $fileName = $className.'.php';

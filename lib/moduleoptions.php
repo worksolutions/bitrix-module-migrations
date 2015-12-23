@@ -2,9 +2,6 @@
 namespace WS\Migrations;
 /**
  * @property string $catalogPath
- * @property string $version;
- * @property string $versionCheck;
- * @property string $owner;
  * @property array $otherVersions;
  * @property string $useAutotests;
  * @property string $enabledSubjectHandlers;

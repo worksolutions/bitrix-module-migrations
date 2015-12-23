@@ -16,7 +16,7 @@ $arHeaders = array(
     array("id" => "versions", "content" => $localization->getDataByPath('fields.versions'), "default" => true),
     array("id" => "destination", "content" => $localization->getDataByPath('fields.destination'), "default" => true),
 );
-$module->getDbVersion();
+$platformVersion = $module->getPlatformVersion();
 $lAdmin->AddHeaders($arHeaders);
 
 $rsData = \WS\Migrations\Entities\DbVersionReferencesTable::getList(array('limit' => 500));
@@ -32,7 +32,7 @@ while ($iData = $rsData->fetch()) {
         'version' => $iData['DB_VERSION']
     );
 
-    $iData['DB_VERSION'] == $module->getDbVersion() && $arData[$iData['REFERENCE']]['data'] = array(
+    $iData['DB_VERSION'] == $platformVersion->getValue() && $arData[$iData['REFERENCE']]['data'] = array(
         'id' => $iData['ITEM_ID'],
         'subject' => $iData['GROUP']
     );
@@ -42,7 +42,7 @@ $rsData->NavStart();
 
 $lAdmin->NavText($rsData->GetNavPrint($localization->getDataByPath('messages.pages')));
 
-$versionsList = $module->getAnotherVersions();
+$versionsList = $platformVersion->getMapVersions();
 
 $fCreateUrlFromEntity = function ($type, $id) {
     $urlTemplate = '';

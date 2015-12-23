@@ -4,19 +4,20 @@ $context = Bitrix\Main\Context::getCurrent();
 /** @var \Bitrix\Main\HttpRequest $request */
 $request = $context->getRequest();
 
+/** @var \WS\Migrations\PlatformVersion $platformVersion */
+$platformVersion = \WS\Migrations\Module::getInstance()->getPlatformVersion();
 if ($request->isPost()) {
     $post = $request->getPostList()->toArray();
     $post = \Bitrix\Main\Text\Encoding::convertEncodingArray($post, "UTF-8", $context->getCulture()->getCharset());
     if ($post['changeversion']) {
-         \WS\Migrations\Module::getInstance()->runRefreshVersion();
+        \WS\Migrations\Module::getInstance()->runRefreshVersion();
     }
     if ($post['ownersetup']) {
+        $platformVersion->setOwner($post['ownersetup']['owner']);
         $options = \WS\Migrations\Module::getInstance()->getOptions();
-        $options->owner = $post['ownersetup']['owner'];
         exit();
     }
 }
-
 /** @var $localization \WS\Migrations\Localization */
 $localization;
 
@@ -48,15 +49,15 @@ $form->Begin(array(
 $form->BeginNextFormTab();
 $form->BeginCustomField('version', 'vv');
 $color = "green";
-!$module->isValidVersion() && $color = "red";
+!$platformVersion->isValid() && $color = "red";
 ?>
     <tr style="color: <?=$color?>;">
         <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
-        <td width="60%"><b><?=$module->getDbVersion()?></b></td>
+        <td width="60%"><b><?=$platformVersion->getValue()?></b></td>
     </tr>
     <tr style="color: <?=$color?>;">
         <td width="30%"><?=$localization->getDataByPath('owner')?>:</td>
-        <td width="60%"><b><?=$module->getVersionOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
+        <td width="60%"><b><?=$platformVersion->getOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
     </tr>
     <tr>
         <td></td>
@@ -80,7 +81,7 @@ CJSCore::Init(array('jquery'));
 $jsParams = array(
     'owner' => array(
         'label' => $localization->getDataByPath('owner'),
-        'value' => \WS\Migrations\Module::getInstance()->getVersionOwner() ?: ''
+        'value' => $platformVersion->getOwner() ?: ''
     ),
     'dialog' => array(
         'title' => $localization->getDataByPath('dialog.title')

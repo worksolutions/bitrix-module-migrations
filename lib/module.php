@@ -75,14 +75,14 @@ class Module {
     private $_versions;
 
     /**
-     * @var bool
-     */
-    private $_validVersion = true;
-
-    /**
      * @var SetupLogModel
      */
     private $_setupLog;
+
+    /**
+     * @var PlatformVersion
+     */
+    private $version;
 
     /**
      * @return $this
@@ -113,14 +113,6 @@ class Module {
         if (!file_exists($this->localizePath)) {
             $this->localizePath = __DIR__.'/../lang/'.self::FALLBACK_LOCALE;
         }
-
-        // version`s is checked
-        $options = self::getOptions();
-        $checkToken = md5($options->version.__FILE__);
-        if (!$options->versionCheck) {
-            $options->versionCheck = $checkToken;
-        }
-        $this->_validVersion = $options->versionCheck == $checkToken;
     }
 
     static public function getName($stripDots = false) {
@@ -172,10 +164,11 @@ class Module {
                         $APPLICATION->ThrowException($e->getMessage());
                         return false;
                     }
+                    return true;
                 }, $self, $class, $eventKey));
             }
         }
-        $self->_referenceController = new ReferenceController($self->getDbVersion());
+        $self->_referenceController = new ReferenceController($self->getPlatformVersion()->getValue());
         $fixRefProcess = self::SPECIAL_PROCESS_FIX_REFERENCE;
 
         $fSetupReferenceFix = function (ReferenceItem $item, $subject) use ($self, $fixRefProcess) {
@@ -197,11 +190,11 @@ class Module {
         $referenceAddSubject = self::REFERENCE_SUBJECT_ADD;
         $referenceRemoveSubject = self::REFERENCE_SUBJECT_REMOVE;
 
-        $self->_getReferenceController()->onRegister(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceAddSubject) {
+        $self->getReferenceController()->onRegister(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceAddSubject) {
             $fSetupReferenceFix($item, $referenceAddSubject);
         });
 
-        $self->_getReferenceController()->onRemove(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceRemoveSubject) {
+        $self->getReferenceController()->onRemove(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceRemoveSubject) {
             $fSetupReferenceFix($item, $referenceRemoveSubject);
         });
     }
@@ -230,7 +223,7 @@ class Module {
             $applyLog->description = $fix->getName();
             $applyLog->originalData = $fix->getOriginalData();
             $applyLog->updateData = $fix->getUpdateData();
-            $applyLog->source = $this->getDbVersion();
+            $applyLog->source = $this->getPlatformVersion()->getValue();
             $applyLog->success = true;
             $applyLog->setSetupLog($setupLog);
 
@@ -254,7 +247,8 @@ class Module {
             return;
         }
         $self->_logOwnChanges($fixes);
-        $self->getDutyCollector()->commit($self->getDbVersion(), $self->getVersionOwner());
+        $platformVersion = $self->getPlatformVersion();
+        $self->getDutyCollector()->commit($platformVersion->getValue(), $platformVersion->getOwner());
     }
 
     /**
@@ -399,7 +393,7 @@ class Module {
         }
         if (!$this->_handlers[$class]) {
 
-            $this->_handlers[$class] = new $class($this->_getReferenceController());
+            $this->_handlers[$class] = new $class($this->getReferenceController());
         }
         return $this->_handlers[$class];
     }
@@ -463,7 +457,7 @@ class Module {
      */
     public function handle($handlerClass, $eventKey, $params) {
 
-        $isValid = $this->isValidVersion();
+        $isValid = $this->getPlatformVersion()->isValid();
         if ($isValid) {
             $isValid = $this->getDiagnosticTester()
                 ->getLastResult()
@@ -540,9 +534,9 @@ class Module {
         return $this->_dutyCollector;
     }
 
-    private function _getReferenceController() {
+    private function getReferenceController() {
         if (!$this->_referenceController) {
-            $this->_referenceController = new ReferenceController($this->getDbVersion());
+            $this->_referenceController = new ReferenceController($this->getPlatformVersion()->getValue());
         }
         return $this->_referenceController;
     }
@@ -661,14 +655,14 @@ class Module {
 
         if ($subject == self::REFERENCE_SUBJECT_ADD) {
             try {
-                $this->_getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion);
-                $this->_getReferenceController()->getItemCurrentVersionByReference($item->reference);
+                $this->getReferenceController()->getReferenceValue($item->id, $item->group, $item->dbVersion);
+                $this->getReferenceController()->getItemCurrentVersionByReference($item->reference);
             } catch (\Exception $e) {
-                $this->_getReferenceController()->registerItem($item);
+                $this->getReferenceController()->registerItem($item);
             }
         }
         if ($subject == self::REFERENCE_SUBJECT_REMOVE) {
-            $this->_getReferenceController()
+            $this->getReferenceController()
                 ->removeItemById($item->id, $item->group, $item->dbVersion);
         }
     }
@@ -680,7 +674,7 @@ class Module {
      * @throws \Exception
      */
     public function applyFixesList($fixes) {
-        if (!$this->isValidVersion()) {
+        if (!$this->getPlatformVersion()->isValid()) {
             throw new \Exception('Module platform version is not valid');
         }
         if (!$fixes) {
@@ -729,7 +723,7 @@ class Module {
      * Apply references by records another versions
      */
     public function applyAnotherReferences() {
-        if (!$this->isValidVersion()) {
+        if (!$this->getPlatformVersion()->isValid()) {
             throw new \Exception('Module platform version is not valid');
         }
         $fixes = $this->getNotAppliedFixes();
@@ -841,7 +835,7 @@ class Module {
                     }
                     $data = $log->updateData;
                     /** @var ScriptScenario $object */
-                    $object = new $class($data, $this->_getReferenceController());
+                    $object = new $class($data, $this->getReferenceController());
                     $object->rollback();
                     continue;
                 }
@@ -857,24 +851,13 @@ class Module {
 
     /**
      * Value db version
-     * @return string
+     * @return PlatformVersion
      */
-    public function getDbVersion() {
-        $options = self::getOptions();
-        if (!$options->version) {
-            $options->version = md5(time());
-            $options->versionCheck = md5($options->version.__FILE__);
-            $this->_validVersion = true;
+    public function getPlatformVersion() {
+        if (!$this->version) {
+            $this->version = new PlatformVersion($this->getOptions()->getOtherVersions());
         }
-        return $options->version;
-    }
-
-    /**
-     * Returns valid sign by version
-     * @return bool
-     */
-    public function isValidVersion() {
-        return $this->_validVersion;
+        return $this->version;
     }
 
     /**
@@ -893,7 +876,7 @@ class Module {
     public function getExportText() {
         $collector = $this->_createCollector();
         // version export
-        foreach ($this->_getReferenceController()->getItems() as $item) {
+        foreach ($this->getReferenceController()->getItems() as $item) {
             $fix = $collector->createFix();
             $fix
                 ->setName('Reference fix')
@@ -915,38 +898,30 @@ class Module {
                 $fix = $collector->createFix();
                 $fix->setSubject(get_class($handler))
                     ->setProcess(self::SPECIAL_PROCESS_FULL_MIGRATE)
-                    ->setDbVersion($this->getDbVersion())
+                    ->setDbVersion($this->getPlatformVersion()->getValue())
                     ->setUpdateData($snapshot);
                 $collector->registerFix($fix);
             }
         }
-        return arrayToJson($collector->getFixesData($this->getDbVersion(), $this->getVersionOwner()));
+        return arrayToJson($collector->getFixesData($this->getPlatformVersion()->getValue(), $this->getVersionOwner()));
     }
 
     /**
      * Refresh current DB version, copy references links
      */
     public function runRefreshVersion() {
-        $cloneVersion = md5(time());
-        $registerResult = $this->_getReferenceController()->setupNewVersion($cloneVersion);
+        $platformVersion = $this->getPlatformVersion();
+        $platformVersion->refresh();
+        $registerResult = $this->getReferenceController()->setupNewVersion($platformVersion->getValue());
         if (!$registerResult) {
             return false;
         }
-        $moduleOptions = self::getOptions();
-        $moduleOptions->version = $cloneVersion;
-        $moduleOptions->versionCheck = md5($cloneVersion.__FILE__);
-        $this->_validVersion = true;
         $this->_referenceController = null;
         return true;
     }
 
-    public function import($json) {
-        $collector = $this->_createCollector(jsonToArray($json));
-        $this->applyFixesList($collector->getFixes());
-    }
-
     public function clearReferences() {
-        $this->_getReferenceController()->deleteAll();
+        $this->getReferenceController()->deleteAll();
     }
 
     public function install() {
@@ -962,7 +937,6 @@ class Module {
         $this->_useVersion($fix->getDbVersion(), $fix->getOwner());
     }
 
-
     /**
      * @param string $dbVersion
      * @param string $owner
@@ -976,15 +950,6 @@ class Module {
             $this->_versions[$dbVersion] = $owner;
             $this->getOptions()->otherVersions = $this->_versions;
         }
-    }
-
-    /**
-     * @return array
-     */
-    public function getAnotherVersions() {
-        return array_merge($this->getOptions()->getOtherVersions(), array(
-            $this->getDbVersion() => $this->getVersionOwner()
-        ));
     }
 
     /**
@@ -1028,7 +993,7 @@ class Module {
         $this->_disableListen();
         foreach ($classes as $class) {
             /** @var ScriptScenario $object */
-            $object = new $class(array(), $this->_getReferenceController());
+            $object = new $class(array(), $this->getReferenceController());
             $applyFixLog = new AppliedChangesLogModel();
             $applyFixLog->processName = self::SPECIAL_PROCESS_SCENARIO;
             $applyFixLog->subjectName = $class;

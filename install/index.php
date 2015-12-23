@@ -63,6 +63,7 @@ Class ws_migrations extends CModule {
         global $APPLICATION, $data;
         $loc = \WS\Migrations\Module::getInstance()->getLocalization('setup');
         $options = \WS\Migrations\Module::getInstance()->getOptions();
+        $this->createPlatformDirIfNotExists();
         global $errors;
         $errors = array();
         if ($data['catalog']) {
@@ -110,6 +111,7 @@ Class ws_migrations extends CModule {
             $this->removeFiles();
             $this->UnInstallDB();
             $this->removeOptions();
+            $this->removePlatformDir();
         }
         $this->UnInstallFiles();
         UnRegisterModule(self::MODULE_ID);
@@ -124,11 +126,24 @@ Class ws_migrations extends CModule {
 
     private function removeFiles() {
         $options = $this->module()->getOptions();
-        $dir = $_SERVER['DOCUMENT_ROOT'].$options->catalogPath;
-        \Bitrix\Main\IO\Directory::deleteDirectory($dir);
+        $dir = $_SERVER['DOCUMENT_ROOT'].($options->catalogPath ?: 'migrations');
+        is_dir($dir) && \Bitrix\Main\IO\Directory::deleteDirectory($dir);
     }
 
     private function removeOptions() {
         COption::RemoveOption("ws.migrations");
+    }
+
+    private function createPlatformDirIfNotExists() {
+        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . \COption::GetOptionString("main", "upload_dir", "upload");
+        if (is_dir($uploadDir.'/ws.migrations')) {
+            return;
+        }
+        CopyDirFiles(__DIR__.'/upload', $uploadDir, false, true);
+    }
+
+    private function removePlatformDir() {
+        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . \COption::GetOptionString("main", "upload_dir", "upload");
+        \Bitrix\Main\IO\Directory::deleteDirectory($uploadDir.'/ws.migrations');
     }
 }

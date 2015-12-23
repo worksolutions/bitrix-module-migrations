@@ -30,7 +30,7 @@ $models = AppliedChangesLogModel::find(array(
 ));
 
 $rowsData = array();
-$versions = $module->getAnotherVersions();
+$versions = $module->getPlatformVersion()->getMapVersions();
 array_walk($models, function (AppliedChangesLogModel $model) use (& $rowsData, $versions) {
     if (in_array($model->description, array('Insert reference', 'References updates'))) {
         return;

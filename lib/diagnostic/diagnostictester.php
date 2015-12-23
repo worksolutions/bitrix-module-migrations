@@ -36,7 +36,7 @@ class DiagnosticTester {
     public function run() {
         $success = true;
         $messages = array();
-        if (!$this->module->isValidVersion()) {
+        if (!$this->module->getPlatformVersion()->isValid()) {
             $messages[] = new ErrorMessage('module', '', '', 'Module has not valid version');
         }
         foreach ($this->handlers as $handler) {

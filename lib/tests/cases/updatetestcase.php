@@ -78,7 +78,7 @@ class UpdateTestCase extends AbstractCase {
 
         $registerRef = (bool)DbVersionReferencesTable::getList(array(
             'filter' => array(
-                '=DB_VERSION' => Module::getInstance()->getDbVersion(),
+                '=DB_VERSION' => Module::getInstance()->getPlatformVersion()->getValue(),
                 '=GROUP' => ReferenceController::GROUP_IBLOCK,
                 '=ITEM_ID' => $this->_processIblockId
             )
