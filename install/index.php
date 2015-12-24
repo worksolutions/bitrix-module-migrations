@@ -90,6 +90,7 @@ Class ws_migrations extends CModule {
                 $handlerClassValue && $this->module()->enableSubjectHandler($handlerClass);
                 !$handlerClassValue && $this->module()->disableSubjectHandler($handlerClass);
             }
+            $this->createCli();
         }
         if (!$data || $errors) {
             $APPLICATION->IncludeAdminFile($loc->getDataByPath('title'), __DIR__.'/form.php');
@@ -128,10 +129,20 @@ Class ws_migrations extends CModule {
         $options = $this->module()->getOptions();
         $dir = $_SERVER['DOCUMENT_ROOT'].($options->catalogPath ?: 'migrations');
         is_dir($dir) && \Bitrix\Main\IO\Directory::deleteDirectory($dir);
+        $this->removeCli();
     }
 
     private function removeOptions() {
         COption::RemoveOption("ws.migrations");
+    }
+
+    private function createCli() {
+        $dest = Application::getDocumentRoot().'/'.Application::getPersonalRoot().'/tools';
+        CopyDirFiles(__DIR__.'/tools', $dest, false, true);
+    }
+
+    private function removeCli() {
+        unlink(Application::getDocumentRoot().Application::getPersonalRoot().'/tools/ws_migrations.php');
     }
 
     private function createPlatformDirIfNotExists() {
