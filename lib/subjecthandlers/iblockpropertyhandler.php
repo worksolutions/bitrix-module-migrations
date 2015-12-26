@@ -7,6 +7,7 @@ namespace WS\Migrations\SubjectHandlers;
 
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Type\DateTime;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Diagnostic\DiagnosticResult;
 use WS\Migrations\Module;
@@ -165,6 +166,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         if ($id && PropertyTable::getById($id)->fetch()) {
             $res->setSuccess((bool) $prop->Update($id, $data));
         } else {
+            unset($data['TIMESTAMP_X']);
             $res->setSuccess((bool) ($id = $prop->Add($data)));
             $this->registerCurrentVersionId($id, $this->getReferenceValue($extId, $dbVersion));
         }

@@ -8,6 +8,7 @@ namespace WS\Migrations\SubjectHandlers;
 
 use Bitrix\Iblock\IblockTable;
 use Bitrix\Iblock\TypeLanguageTable;
+use Bitrix\Main\Application;
 use WS\Migrations\ApplyResult;
 use WS\Migrations\Diagnostic\DiagnosticResult;
 use WS\Migrations\Module;
@@ -135,10 +136,9 @@ class IblockHandler extends BaseSubjectHandler  {
         }
 
         if (!$dbVersion && !IblockTable::getById($id)->fetch()) {
-            $addRes = IblockTable::add(array('ID' => $id, 'IBLOCK_TYPE_ID' => $typeData['ID'], 'NAME' => 'add'));
-            if (!$addRes->isSuccess()) {
-                throw new \Exception('add iblock error ' . implode(', ', $addRes->getErrorMessages()));
-            }
+            $conn = Application::getConnection();
+            $iblockTypeId = $typeData['ID'];
+            $conn->queryExecute("INSERT INTO `b_iblock` (`ID`, `IBLOCK_TYPE_ID`, `NAME`, `LID`) VALUES ($id, '$iblockTypeId', 'add', 'ru')");
         }
 
         $iblock = new \CIBlock();

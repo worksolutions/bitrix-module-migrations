@@ -69,10 +69,11 @@ class IblockSectionHandler extends BaseSubjectHandler {
             $id = $extId;
         }
         if (!$dbVersion && !SectionTable::getList(array('filter' => array('=ID' => $id)))->fetch()) {
+            $dateTime = new DateTime();
             $addRes = SectionTable::add(array(
                 'ID' => $id,
                 'IBLOCK_ID' => $data['IBLOCK_ID'],
-                'TIMESTAMP_X' => new DateTime(),
+                'TIMESTAMP_X' => $dateTime->format('Y-m-d H:i:s'),
                 'NAME' => $data['NAME'],
                 'DESCRIPTION_TYPE' => $data['DESCRIPTION_TYPE'],
             ));

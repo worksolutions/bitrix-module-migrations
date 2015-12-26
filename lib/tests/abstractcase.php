@@ -7,6 +7,7 @@ namespace WS\Migrations\Tests;
 
 
 use WS\Migrations\Localization;
+use WS\Migrations\Module;
 use WS\Migrations\Tests\Cases\ErrorException;
 
 abstract class AbstractCase {
@@ -82,7 +83,6 @@ abstract class AbstractCase {
         }
     }
 
-
     protected function assertEquals($actual, $expected, $message = null) {
         $this->_assertTake();
         if  ($actual != $expected) {
@@ -138,5 +138,12 @@ abstract class AbstractCase {
 
     public function getAssertsCount() {
         return $this->_assertCount;
+    }
+
+    /**
+     * @return Module
+     */
+    protected function module() {
+        return Module::getInstance();
     }
 }

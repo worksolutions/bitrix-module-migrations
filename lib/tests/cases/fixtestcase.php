@@ -24,7 +24,7 @@ class FixTestCase extends AbstractCase {
     /**
      * @var Collector
      */
-    private $_currentDutyCollector;
+    private $dutyCollector;
 
     const VERSION = 'test';
 
@@ -42,7 +42,7 @@ class FixTestCase extends AbstractCase {
 
     public function init() {
         \CModule::IncludeModule('iblock');
-        Module::getInstance()->clearReferences();
+        $this->module()->clearReferences();
         $applyLogs = AppliedChangesLogModel::find();
         foreach ($applyLogs as $log) {
             $log->delete();
@@ -52,35 +52,37 @@ class FixTestCase extends AbstractCase {
     /**
      * @param $process
      * @param null $subject
-     * @return array Список массивов данных
+     * @return array
      * @throws \Exception
      */
-    private function _getCollectorFixes($process, $subject = null) {
-        if (!$this->_currentDutyCollector) {
+    private function getFixes($process, $subject = null) {
+        if (!$this->dutyCollector) {
             throw new \Exception('Duty collector not exists');
         }
-        $fixes = $this->_currentDutyCollector->getFixesData(self::VERSION, self::OWNER_NAME);
+        $fixes = $this->dutyCollector->getFixesData(self::VERSION, self::OWNER_NAME);
         $res = array();
         foreach ($fixes as $fixData) {
-            $fixData['process'] == $process
-                &&
-            ($subject && $fixData['subject'] == $subject || !$subject)
-                &&
+            if ($fixData['process'] != $process) {
+                continue;
+            }
+            if ($subject && $fixData['subject'] != $subject) {
+                continue;
+            }
             $res[] = $fixData;
         }
         return $res;
     }
 
-    private function _injectDutyCollector() {
+    private function setupSubDutyCollector() {
         $collector = Collector::createInstance(__DIR__);
         $collector->notStored();
         Module::getInstance()->injectDutyCollector($collector);
-        $this->_currentDutyCollector = $collector;
+        $this->dutyCollector = $collector;
         return $collector;
     }
 
     public function testAdd() {
-        $this->_injectDutyCollector();
+        $this->setupSubDutyCollector();
         $ibType = \CIBlockType::GetList()->Fetch();
         $ib = new \CIBlock;
 
@@ -115,19 +117,15 @@ class FixTestCase extends AbstractCase {
             ':lastError' => $ib->LAST_ERROR
         )));
 
-        // В итоге должны получится
+        // ======== Result ==========
 
-        // данные по добавлению ИБ
-        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockHandler::className()), 'Iblock is not added');
-        // данные по добавлению свойства
-        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockPropertyHandler::className()), 'Iblock property is not added');
-        // данные по добавлению секции
-        $this->assertNotEmpty($this->_getCollectorFixes(AddProcess::className(), IblockSectionHandler::className()), 'Section is not added');
+        $this->assertNotEmpty($this->getFixes(AddProcess::className(), IblockHandler::className()), 'Iblock is not added');
+        $this->assertNotEmpty($this->getFixes(AddProcess::className(), IblockPropertyHandler::className()), 'Iblock property is not added');
+        $this->assertNotEmpty($this->getFixes(AddProcess::className(), IblockSectionHandler::className()), 'Section is not added');
 
-        $refFixes = $this->_getCollectorFixes('reference');
-        // фиксация изменений
-        Module::getInstance()->commitDutyChanges();
-        // добавлены записи журнала обновлений (в базу)
+        $refFixes = $this->getFixes('reference');
+        $this->module()->commitDutyChanges();
+
         /** @var $logRecords AppliedChangesLogModel[] */
         $logRecords = AppliedChangesLogModel::find(array(
             'order' => array(
@@ -177,7 +175,6 @@ class FixTestCase extends AbstractCase {
             }
         }
 
-        // добавлены три вида ссылок в фиксациях
         $this->assertEquals(3, count($refFixes), $this->errorMessage('links expected count', array(':count' => 3)));
 
         $this->_iblockId = $ibId;
@@ -186,11 +183,10 @@ class FixTestCase extends AbstractCase {
     }
 
     /**
-     * Зависимость от добавления
      * @after testAdd
      */
     public function testUpdate() {
-        $this->_injectDutyCollector();
+        $this->setupSubDutyCollector();
         $this->assertNotEmpty($this->_iblockId);
         $this->assertNotEmpty($this->_propertyId);
         $this->assertNotEmpty($this->_sectionId);
@@ -203,29 +199,26 @@ class FixTestCase extends AbstractCase {
         $updateResult = $iblock->Update($this->_iblockId, $arIblock);
 
         $this->assertTrue($updateResult, $this->errorMessage('error update result'));
-        // для начала определяется просто как снимок
-        $fixes = $this->_getCollectorFixes(UpdateProcess::className());
+        $fixes = $this->getFixes(UpdateProcess::className());
         $this->assertEquals(count($fixes), 1, $this->errorMessage('having one fixing updates'));
         $this->assertEquals($fixes[0]['data']['iblock']['NAME'], $name, $this->errorMessage('fixing name change'));
 
-        // фиксация изменений
         Module::getInstance()->commitDutyChanges();
     }
 
     /**
-     * Зависимость от добавления
      * @after testUpdate
      */
     public function testDelete() {
-        $this->_injectDutyCollector();
+        $this->setupSubDutyCollector();
         $deleteResult = \CIBlock::Delete($this->_iblockId);
 
         $this->assertTrue($deleteResult, $this->errorMessage('iblock must be removed from the database'));
 
-        $this->assertCount($this->_getCollectorFixes(DeleteProcess::className()), 3, $this->errorMessage('uninstall entries must be: section, property information, iblock'));
-        $this->assertCount($sectionFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, $this->errorMessage('should be uninstall entries: Section'));
-        $this->assertCount($propsFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockPropertyHandler::className()), 1, $this->errorMessage('should be uninstall entries: Property'));
-        $this->assertCount($iblockFixesList = $this->_getCollectorFixes(DeleteProcess::className(), IblockHandler::className()), 1, $this->errorMessage('should be uninstall entries: Iblock'));
+        $this->assertCount($this->getFixes(DeleteProcess::className()), 3, $this->errorMessage('uninstall entries must be: section, property information, iblock'));
+        $this->assertCount($sectionFixesList = $this->getFixes(DeleteProcess::className(), IblockSectionHandler::className()), 1, $this->errorMessage('should be uninstall entries: Section'));
+        $this->assertCount($propsFixesList = $this->getFixes(DeleteProcess::className(), IblockPropertyHandler::className()), 1, $this->errorMessage('should be uninstall entries: Property'));
+        $this->assertCount($iblockFixesList = $this->getFixes(DeleteProcess::className(), IblockHandler::className()), 1, $this->errorMessage('should be uninstall entries: Iblock'));
 
         $sectionFixData = array_shift($sectionFixesList);
         $this->assertTrue(is_scalar($sectionFixData['data']), $this->errorMessage('data pack when you remove the section must be an identifier', array(
@@ -243,7 +236,6 @@ class FixTestCase extends AbstractCase {
         )));
         $this->assertNotEmpty($iblockFixData['originalData'], $this->errorMessage('data should be stored remotely information block'));
 
-        // фиксация изменений
         Module::getInstance()->commitDutyChanges();
     }
 
@@ -256,6 +248,7 @@ class FixTestCase extends AbstractCase {
             'limit' => 3,
             'order' => array('id' => 'DESC')
         ));
+        $list = array_reverse($list);
         $this->assertCount($list, 3, $this->errorMessage('should be in an amount of writable', array(':count' => 3)));
 
         foreach ($list as $lItem) {
@@ -285,7 +278,7 @@ class FixTestCase extends AbstractCase {
                 '=IBLOCK_ID' => $rebuildIblockId
             )
         ));
-        $this->assertTrue($rsProp->getSelectedRowsCount() > 0, $this->errorMessage('must present properties of reduced information iblock'), array(':iblockId' => $rebuildIblockId));
+        $this->assertTrue($rsProp->getSelectedRowsCount() > 0, $this->errorMessage('must present properties of reduced information iblock', array(':iblockId' => $rebuildIblockId)));
 
         $rsSections = SectionTable::getList(array(
             'filter' => array(
