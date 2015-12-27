@@ -73,6 +73,11 @@ switch ($action) {
                 exit();
             }
         }
+        $diagnosticTester = $module->getDiagnosticTester();
+        if ($diagnosticTester->run()) {
+            $print("Diagnostic is not valid");
+            exit();
+        }
         $print("Applying new fixes is started....");
         $time = time();
         $count = (int)$module->applyNewFixes();
