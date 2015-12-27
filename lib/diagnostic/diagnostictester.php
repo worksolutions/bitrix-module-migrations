@@ -22,6 +22,11 @@ class DiagnosticTester {
     private $module;
 
     /**
+     * @var bool
+     */
+    private $lastRun;
+
+    /**
      * @param BaseSubjectHandler[] $handlers
      * @param Module $module
      */
@@ -47,6 +52,7 @@ class DiagnosticTester {
             }
         }
 
+        $this->lastRun = $success;
         $jsonData = json_encode(array(
             'success' => $success,
             'messages' => array_map(function (ErrorMessage $message) {
@@ -55,6 +61,24 @@ class DiagnosticTester {
         ));
         \CEventLog::Log('INFO', self::LOG_TYPE, 'ws.migrations', null, $jsonData);
         return $success;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRun() {
+        return $this->lastRun !== null;
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isSuccessRunResult() {
+        if (!$this->hasRun()) {
+            throw new \Exception("Run is not launched");
+        }
+        return $this->lastRun;
     }
 
     /**

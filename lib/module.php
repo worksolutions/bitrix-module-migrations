@@ -85,6 +85,11 @@ class Module {
     private $version;
 
     /**
+     * @var DiagnosticTester
+     */
+    private $diagnostic;
+
+    /**
      * @return $this
      */
     private function _enableListen() {
@@ -152,11 +157,18 @@ class Module {
             foreach ($events as $eventKey => $eventData) {
                 $bxEventManager->addEventHandler($eventData[0], $eventData[1], new Callback(function () {
                     $params = func_get_args();
+                    /** @var $module Module */
                     $module = array_shift($params);
                     $handlerClass = array_shift($params);
                     $eventKey = array_shift($params);
                     try {
-                        /** @var $module Module */
+                        $diagnostic = $module->getDiagnosticTester();
+                        if (!$diagnostic->hasRun()) {
+                            $diagnostic->run();
+                        }
+                        if (!$diagnostic->isSuccessRunResult()) {
+                            throw new \Exception("Migrations module: diagnostic not success. Project has problems. More in diagnostic page.");
+                        }
                         $module->handle($handlerClass, $eventKey, $params);
                     } catch (\Exception $e) {
                         /** @var \CMain $APPLICATION */
@@ -271,11 +283,14 @@ class Module {
      * @return DiagnosticTester
      */
     public function getDiagnosticTester() {
-        $handlers = array();
-        foreach ($this->getSubjectHandlers() as $handler) {
-            $this->isEnableSubjectHandler(get_class($handler)) && $handlers[] = $handler;
+        if (!$this->diagnostic) {
+            $handlers = array();
+            foreach ($this->getSubjectHandlers() as $handler) {
+                $this->isEnableSubjectHandler(get_class($handler)) && $handlers[] = $handler;
+            }
+            $this->diagnostic = new DiagnosticTester($handlers, $this);
         }
-        return new DiagnosticTester($handlers, $this);
+        return $this->diagnostic;
     }
 
     /**

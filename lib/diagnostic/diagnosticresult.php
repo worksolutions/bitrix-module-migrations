@@ -28,6 +28,11 @@ class DiagnosticResult {
     private $time;
 
     /**
+     * @var bool
+     */
+    private $isNull = false;
+
+    /**
      * @param bool $success
      * @param ErrorMessage[] $messages
      * @param string $time
@@ -48,7 +53,16 @@ class DiagnosticResult {
      * @return DiagnosticResult
      */
     public static function createNull() {
-        return new static(true, array(), '-');
+        $object = new static(true, array(), '-');
+        $object->isNull = true;
+        return $object;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNull() {
+        return $this->isNull;
     }
 
     /**
