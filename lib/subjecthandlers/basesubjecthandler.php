@@ -261,6 +261,10 @@ abstract class BaseSubjectHandler {
             try {
                 $this->getReferenceController()->getItemCurrentVersionByReference($reference);
             } catch (\Exception $e) {
+                $trySuccess = $this->getReferenceController()->tryCreateItemByReference($reference, $group);
+                if ($trySuccess) {
+                    continue;
+                }
                 $messages[] = new ErrorMessage(
                     $group,
                     '',

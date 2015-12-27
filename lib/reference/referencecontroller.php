@@ -112,6 +112,43 @@ class ReferenceController {
     }
 
     /**
+     * @param string $reference
+     * @param string $group
+     * @return bool
+     * @throws \Bitrix\Main\ArgumentException
+     */
+    public function tryCreateItemByReference($reference, $group) {
+        try {
+            $this->getItemCurrentVersionByReference($reference);
+            return true;
+        } catch (\Exception $e) {
+            $dbResItems = DbVersionReferencesTable::getList(array(
+                'filter' => array(
+                    '=REFERENCE' => $reference,
+                    '=GROUP' => $group
+                )
+            ));
+            $itemId = null;
+            while ($arItem = $dbResItems->fetch()) {
+                if ($itemId == null) {
+                    $itemId = $arItem['ITEM_ID'];
+                    continue;
+                }
+                if ($itemId != $arItem['ITEM_ID']) {
+                    return false;
+                }
+            }
+            $addRes = DbVersionReferencesTable::add(array(
+                'REFERENCE' => $reference,
+                'DB_VERSION' => $this->platformVersionValue,
+                'GROUP' => $group,
+                'ITEM_ID' => $arItem['ITEM_ID']
+            ));
+            return $addRes->isSuccess();
+        }
+    }
+
+    /**
      * @param $value
      * @throws \Bitrix\Main\ArgumentException
      * @throws \Exception
