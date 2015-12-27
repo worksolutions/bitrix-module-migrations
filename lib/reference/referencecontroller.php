@@ -102,7 +102,7 @@ class ReferenceController {
         return $deleteResult->isSuccess();
     }
 
-    private function _createItemByDBData(array $data) {
+    private function _initItemByDBData(array $data) {
         $item = new ReferenceItem();
         $item->reference = $data['REFERENCE'];
         $item->dbVersion = $data['DB_VERSION'];
@@ -138,13 +138,20 @@ class ReferenceController {
                     return false;
                 }
             }
-            $addRes = DbVersionReferencesTable::add(array(
-                'REFERENCE' => $reference,
-                'DB_VERSION' => $this->platformVersionValue,
-                'GROUP' => $group,
-                'ITEM_ID' => $arItem['ITEM_ID']
-            ));
-            return $addRes->isSuccess();
+            try {
+                $item = $this->_initItemByDBData(
+                    array(
+                        'REFERENCE' => $reference,
+                        'DB_VERSION' => $this->platformVersionValue,
+                        'GROUP' => $group,
+                        'ITEM_ID' => $itemId
+                    )
+                );
+                $this->registerItem($item);
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
         }
     }
 
@@ -168,7 +175,7 @@ class ReferenceController {
         if (!$data = $res->fetch()) {
             throw new \Exception("Reference `$value` not registered in current version");
         }
-        return $this->_createItemByDBData($data);
+        return $this->_initItemByDBData($data);
     }
 
     public function getReferenceValue($id, $group, $dbVersion = null) {
@@ -198,7 +205,7 @@ class ReferenceController {
         if (!$data = $res->fetch()) {
             throw new \Exception('References item not exists by '.var_export(array('id' => $id, 'group' => $group, 'dbVersion' => $dbVersion), true));
         }
-        return $this->_createItemByDBData($data);
+        return $this->_initItemByDBData($data);
     }
 
     /**
@@ -277,7 +284,7 @@ class ReferenceController {
         ));
         $this->platformVersionValue = $version;
         while ($itemData = $res->fetch()) {
-            $item = $this->_createItemByDBData($itemData);
+            $item = $this->_initItemByDBData($itemData);
             $item->dbVersion = $version;
             $this->registerItem($item);
         }
@@ -291,7 +298,7 @@ class ReferenceController {
         $dbRes = DbVersionReferencesTable::getList();
         $res = array();
         while ($itemData = $dbRes->fetch()) {
-            $res[] = $this->_createItemByDBData($itemData);
+            $res[] = $this->_initItemByDBData($itemData);
         }
         return $res;
     }
