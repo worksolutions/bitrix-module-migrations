@@ -25,6 +25,7 @@ abstract class BaseSubjectHandler {
     }
 
     final public function __construct(ReferenceController $referenceController) {
+        \CModule::IncludeModule('iblock');
         $this->_referenceController = $referenceController;
     }
 
