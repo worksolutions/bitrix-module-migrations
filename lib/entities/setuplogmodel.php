@@ -66,7 +66,7 @@ class SetupLogModel extends BaseEntity {
     /**
      * @return array
      */
-    public function getUserData() {
+    private function getUserData() {
         if ($this->_userData === false) {
             $this->_userData = UserTable::getById($this->userId)->fetch();
         }
@@ -74,7 +74,11 @@ class SetupLogModel extends BaseEntity {
     }
 
     public function shortUserInfo() {
-        $data = $this->getUserData();
-        return $data['NAME'].' '.$data['LAST_NAME'].' ['.$data['ID'].']';
+        $res  = 'cli';
+        if ($this->userId) {
+            $data = $this->getUserData();
+            $res = $data['NAME'].' '.$data['LAST_NAME'].' ['.$data['ID'].']';
+        }
+        return $res;
     }
 }
