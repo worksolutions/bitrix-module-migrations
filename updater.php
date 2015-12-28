@@ -32,7 +32,7 @@ if (!is_dir($uploadDir.'/ws.migrations')) {
 
     $createVersionFile = file_put_contents(
         $uploadDir.'/ws.migrations/version.dat',
-        $version.':#:'.md5($this->version.$modulePath.'/lib/platformversion.php').':#:'.$owner
+        $version.':#:'.md5($version.$modulePath.'/lib/platformversion.php').':#:'.$owner
     );
     if (!$createVersionFile) {
         $fAddErrorMessage("Version file was not created");
