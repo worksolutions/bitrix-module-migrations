@@ -42,7 +42,7 @@ class PlatformVersion {
 
     private function generate() {
         $this->version = md5(time());
-        $this->checkSum = $this->version.':#:'.md5($this->version.__FILE__);
+        $this->checkSum = md5($this->version.__FILE__);
         $this->save();
     }
 
