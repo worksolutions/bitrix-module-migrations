@@ -88,7 +88,8 @@ class PlatformVersion {
      * @return string
      */
     private function filePath() {
-        return $_SERVER['DOCUMENT_ROOT'] . \COption::GetOptionString("main", "upload_dir", "upload")."/ws.migrations/version.dat";
+        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/';
+        return $docRoot . \COption::GetOptionString("main", "upload_dir", "upload")."/ws.migrations/version.dat";
     }
 
     /**

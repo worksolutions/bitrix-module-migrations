@@ -13,12 +13,19 @@ $fAddErrorMessage = function ($mess) use ($updater){
 };
 //=====================================================
 
+$docRoot = rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/';
 // install file platform version
-$uploadDir = $_SERVER['DOCUMENT_ROOT'] . \COption::GetOptionString("main", "upload_dir", "upload");
-$modulePath = $_SERVER['DOCUMENT_ROOT'] .$updater->curModulePath;
+$uploadDir = $docRoot . \COption::GetOptionString("main", "upload_dir", "upload");
+$modulePath = rtrim($docRoot, '/').$updater->kernelPath.'/modules/'.$updater->moduleID;
+$updatePath = $docRoot.$updater->curModulePath;
+
+$isInstalled = \Bitrix\Main\ModuleManager::isModuleInstalled($updater->moduleID);
+if (!$isInstalled) {
+    return;
+}
 
 if (!is_dir($uploadDir.'/ws.migrations')) {
-    $copyRes = CopyDirFiles($modulePath.'/install/upload', $uploadDir, false, true);
+    $copyRes = CopyDirFiles($updatePath.'/install/upload', $uploadDir, false, true);
     if (!$copyRes) {
         $fAddErrorMessage("Use platform version catalog not setup");
         return;
@@ -41,8 +48,8 @@ if (!is_dir($uploadDir.'/ws.migrations')) {
 }
 
 // cli
-$dest = $_SERVER['DOCUMENT_ROOT'].'bitrix/tools';
-$copyRes = CopyDirFiles($_SERVER['DOCUMENT_ROOT'] .$updater->curModulePath.'/install/tools', $dest, false, true);
+$dest = $docRoot.'bitrix/tools';
+$copyRes = CopyDirFiles($docRoot .$updater->curModulePath.'/install/tools', $dest, false, true);
 if (!$copyRes) {
     $fAddErrorMessage("Cli interface file was not created");
     return;
