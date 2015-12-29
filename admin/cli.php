@@ -64,6 +64,7 @@ switch ($action) {
             $has = true;
         }
         !$has && $print("Nothing to apply");
+        $has && $printRegisteredFixes();
         break;
     case "apply":
         if (!$hasForce) {
@@ -74,7 +75,7 @@ switch ($action) {
             }
         }
         $diagnosticTester = $module->getDiagnosticTester();
-        if ($diagnosticTester->run()) {
+        if (!$diagnosticTester->run()) {
             $print("Diagnostic is not valid");
             exit();
         }
