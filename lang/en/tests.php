@@ -73,6 +73,12 @@ return array(
             'description' => '',
             'errors' => array(
             )
-        )
+        ),
+        \WS\Migrations\Tests\Cases\IblockBuilderCase::className() => array(
+            'name' => 'IblockBuilder test',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
     )
 );
