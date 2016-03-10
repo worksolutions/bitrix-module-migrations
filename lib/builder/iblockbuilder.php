@@ -94,7 +94,6 @@ class IblockBuilder {
         if (!$data = $this->findProperty($name)) {
             throw new BuilderException("Can't find property with name {$name}");
         }
-        echo "<pre>"; print_r($data);echo "</pre>";
         $prop = new Property($name, $data);
         $this->properties[] = $prop;
         return $prop;
