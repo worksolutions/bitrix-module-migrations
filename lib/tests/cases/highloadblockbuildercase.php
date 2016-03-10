@@ -23,6 +23,7 @@ class IblockBuilderCase extends AbstractCase {
     }
 
     public function close() {
+        return;
         $iblock = \CIBlock::GetList(null, array(
             '=CODE' => 'testAddBlock'
         ))->Fetch();
