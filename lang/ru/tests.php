@@ -86,5 +86,11 @@ return array(
             'errors' => array(
             )
         ),
+        \WS\Migrations\Tests\Cases\AgentBuilderCase::className() => array(
+            'name' => 'AgentBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
     )
 );

@@ -28,7 +28,7 @@ class HighLoadBlockBuilderCase extends AbstractCase {
                 'TABLE_NAME' => 'test_highloadblock'
             )
         ))->fetch();
-        
+
         HighloadBlockTable::delete($arIblock['ID']);
     }
 
