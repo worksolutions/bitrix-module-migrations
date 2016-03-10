@@ -80,5 +80,11 @@ return array(
             'errors' => array(
             )
         ),
+        \WS\Migrations\Tests\Cases\HighLoadBlockBuilderCase::className() => array(
+            'name' => 'HighLoadBlockBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
     )
 );

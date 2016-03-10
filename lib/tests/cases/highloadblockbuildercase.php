@@ -2,12 +2,12 @@
 
 namespace WS\Migrations\Tests\Cases;
 
-
-use WS\Migrations\Builder\Entity\Property;
-use WS\Migrations\Builder\IblockBuilder;
+use Bitrix\Highloadblock\HighloadBlockTable;
+use WS\Migrations\Builder\Entity\UserField;
+use WS\Migrations\Builder\HighLoadBlockBuilder;
 use WS\Migrations\Tests\AbstractCase;
 
-class IblockBuilderCase extends AbstractCase {
+class HighLoadBlockBuilderCase extends AbstractCase {
 
     public function name() {
         return $this->localization->message('name');
@@ -23,172 +23,130 @@ class IblockBuilderCase extends AbstractCase {
     }
 
     public function close() {
-        return;
-        $iblock = \CIBlock::GetList(null, array(
-            '=CODE' => 'testAddBlock'
-        ))->Fetch();
-        if ($iblock) {
-            \CIBlock::Delete($iblock['ID']);
-        }
-        \CIBlockType::Delete('testAddType');
+        $arIblock = HighloadBlockTable::getList(array(
+            'filter' => array(
+                'TABLE_NAME' => 'test_highloadblock'
+            )
+        ))->fetch();
+        
+        HighloadBlockTable::delete($arIblock['ID']);
     }
 
 
     public function testAdd() {
-        $iblockBuilder = new IblockBuilder();
-        $iblockBuilder
-            ->addIblockType('testAddType')
-            ->setLang(array(
-                'ru' => array(
-                    'NAME' => 'Тестовый тип иб'
-                ),
-            ))
+        $builder = new HighLoadBlockBuilder();
+        $builder
+            ->addHLBlock('TestBlock', 'test_highloadblock')
+        ;
+        $prop = $builder
+            ->addField('uf_test1')
             ->setSort(10)
-            ->setInRss(false)
+            ->setLabel(['ru' => 'Тест'])
+            ->setUserTypeId(UserField::TYPE_ENUMERATION)
         ;
-        $iblockBuilder
-            ->addIblock('testAddBlock')
-            ->setIblockTypeId('testAddType')
-            ->setSort(100)
-            ->setName('Теcтовый иб')
-            ->setVersion(2)
-            ->setSiteId('s1')
-            ->setGroupId(array(
-                '2' => 'R'
-            ))
-        ;
+        $prop->addEnum('Тест1');
+        $prop->addEnum('Тест2');
+        $prop->addEnum('Тест3');
 
-        $iblockBuilder
-            ->addProperty('Цвет')
-            ->setType(Property::TYPE_NUMBER)
-            ->setIsRequired(true)
-            ->setMultiple(true)
-            ->setCode('color')
-            ;
-        $iblockBuilder
-            ->addProperty('Картинка')
-            ->setType(Property::TYPE_FILE)
-            ;
-        $iblockBuilder->commit();
+        $builder
+            ->addField('uf_test2')
+            ->setLabel(['ru' => 'Тест2'])
+            ->setUserTypeId(UserField::TYPE_HLBLOCK);
 
-        $arType = \CIBlockType::GetList(null, array(
-            'IBLOCK_TYPE_ID' => 'testAddType')
-        )->Fetch();
+        $builder
+            ->addField('uf_test3')
+            ->setLabel(['ru' => 'Тест2'])
+            ->setUserTypeId(UserField::TYPE_BOOLEAN);
 
-        $this->assertNotEmpty($arType, "iblockType wasn't created");
+        $builder
+            ->addField('uf_test4')
+            ->setLabel(['ru' => 'Тест2'])
+            ->setUserTypeId(UserField::TYPE_DATETIME);
 
-        $arIblock = \CIBlock::GetList(null, array(
-            'ID' => $iblockBuilder->getIblock()->getId()
-        ))->Fetch();
+        $builder
+            ->addField('uf_test5')
+            ->setLabel(['ru' => 'Тест2'])
+            ->setUserTypeId(UserField::TYPE_IBLOCK_ELEMENT);
 
-        $this->assertNotEmpty($arIblock, "iblock wasn't created");
-        $this->assertEquals($arIblock['CODE'], $iblockBuilder->getIblock()->code);
-        $this->assertEquals($arIblock['NAME'], $iblockBuilder->getIblock()->name);
-        $this->assertEquals($arIblock['SORT'], $iblockBuilder->getIblock()->sort);
-        $this->assertEquals($arIblock['LID'], $iblockBuilder->getIblock()->siteId);
+        $builder
+            ->addField('uf_test6')
+            ->setLabel(['ru' => 'Тест2'])
+            ->setUserTypeId(UserField::TYPE_VOTE);
 
-        $properties = \CIBlockProperty::GetList(null, array(
-            'IBLOCK_ID' => $iblockBuilder->getIblock()->getId()
+        $builder
+            ->addField('uf_test7')
+            ->setLabel(['ru' => 'Тест2'])
+            ->setUserTypeId(UserField::TYPE_VIDEO);
+
+        $builder
+            ->addField('uf_test8')
+            ->setLabel(['ru' => 'Тест2'])
+            ->setUserTypeId(UserField::TYPE_IBLOCK_SECTION);
+        
+        $builder->commit();
+
+        $arIblock = HighloadBlockTable::getList(array(
+            'filter' => array(
+                'ID' => $builder->getHighLoadBlock()->getId()
+            )
+        ))->fetch();
+
+        $this->assertNotEmpty($arIblock, "hlblock wasn't created");
+        $this->assertEquals($arIblock['TABLE_NAME'], $builder->getHighLoadBlock()->tableName);
+        $this->assertEquals($arIblock['NAME'], $builder->getHighLoadBlock()->name);
+
+        $fields = \CUserTypeEntity::GetList(null, array(
+            'ENTITY_ID' => "HLBLOCK_" . $builder->getHighLoadBlock()->getId(),
         ));
-        $props = array(
-            'Картинка' => array(
-                'PROPERTY_TYPE' => 'F'
-            ),
-            'Цвет' => array(
-                'PROPERTY_TYPE' => 'N',
-                'IS_REQUIRED' => 'Y',
-                'MULTIPLE' => 'Y',
-            ),
-        );
-        while ($property = $properties->Fetch()) {
-            $this->assertNotEmpty($props[$property['NAME']]);
-            if ($property['NAME'] == 'Картинка') {
-                $this->assertEquals($props[$property['NAME']]['PROPERTY_TYPE'], $property['PROPERTY_TYPE']);
-            }
 
-            if ($property['NAME'] == 'Цвет') {
-                $this->assertEquals($props[$property['NAME']]['PROPERTY_TYPE'], $property['PROPERTY_TYPE']);
-                $this->assertEquals($props[$property['NAME']]['IS_REQUIRED'], $property['IS_REQUIRED']);
-                $this->assertEquals($props[$property['NAME']]['MULTIPLE'], $property['MULTIPLE']);
-            }
+        $this->assertEquals($fields->SelectedRowsCount(), 8);
+        while ($field = $fields->Fetch()) {
+            $field['NAME'] == 'uf_test5' && $this->assertEquals($field['USER_TYPE_ID'], UserField::TYPE_IBLOCK_ELEMENT);
         }
 
     }
 
-    public function testUpdateIblockType() {
-        $iblockBuilder = new IblockBuilder();
-        $type = $iblockBuilder
-            ->updateIblockType('testAddType')
-            ->setSort(20)
-        ;
-        $iblockBuilder->commit();
-
-        $arType = \CIBlockType::GetList(null, array(
-                'IBLOCK_TYPE_ID' => 'testAddType')
-        )->Fetch();
-
-        $this->assertEquals($arType['SORT'], $type->sort);
-    }
 
     public function testUpdate() {
-        $iblockBuilder = new IblockBuilder();
-        $iblockBuilder
-            ->updateIblock('testAddBlock')
-            ->setSort(200)
-            ->setName('Теcтовый иб2')
-            ->setVersion(2)
-            ->setSiteId('s1')
-            ->setGroupId(array(
-                '2' => 'W'
-            ))
+        $builder = new HighLoadBlockBuilder();
+        $builder
+            ->updateHLBlock('test_highloadblock')
+            ->setName('TestBlock2')
         ;
 
-        $iblockBuilder
-            ->updateProperty('Цвет')
-            ->setType(Property::TYPE_STRING, Property::USER_TYPE_USER)
+        $prop = $builder
+            ->updateField('uf_test1')
+            ->setMultiple(true)
+            ->setRequired(true)
         ;
-        $iblockBuilder
-            ->updateProperty('Картинка')
-            ->setType(Property::TYPE_STRING)
-            ->setCode('pic')
-        ;
-        $iblockBuilder->commit();
+        $prop->updateEnum('Тест1')->setXmlId('test1');
+        $prop->removeEnum('Тест2');
 
-        $arIblock = \CIBlock::GetList(null, array(
-            'ID' => $iblockBuilder->getIblock()->getId()
+        $builder->commit();
+
+        $arIblock = HighloadBlockTable::getList(array(
+            'filter' => array(
+                'ID' => $builder->getHighLoadBlock()->getId()
+            )
+        ))->fetch();
+
+        $this->assertEquals($arIblock['TABLE_NAME'], $builder->getHighLoadBlock()->tableName);
+        $this->assertEquals($arIblock['NAME'], $builder->getHighLoadBlock()->name);
+
+        $res = \CUserFieldEnum::GetList(null, array(
+            'USER_FIELD_ID' => $builder->getHighLoadBlock()->getId(),
+            'VALUE' => 'Тест2',
         ))->Fetch();
 
+        $this->assertEmpty($res);
 
-        $this->assertEquals($arIblock['CODE'], $iblockBuilder->getIblock()->code);
-        $this->assertEquals($arIblock['NAME'], $iblockBuilder->getIblock()->name);
-        $this->assertEquals($arIblock['SORT'], $iblockBuilder->getIblock()->sort);
+        $res = \CUserFieldEnum::GetList(null, array(
+            'USER_FIELD_ID' => $prop->getId(),
+            'VALUE' => 'Тест1',
+        ))->Fetch();
 
-        $properties = \CIBlockProperty::GetList(null, array(
-            'IBLOCK_ID' => $iblockBuilder->getIblock()->getId()
-        ));
-        $props = array(
-            'Картинка' => array(
-                'PROPERTY_TYPE' => 'S',
-                'CODE' => 'pic',
-            ),
-            'Цвет' => array(
-                'PROPERTY_TYPE' => 'S',
-                'USER_TYPE' => 'UserID',
-            ),
-        );
-        while ($property = $properties->Fetch()) {
-            $this->assertNotEmpty($props[$property['NAME']]);
-            if ($property['NAME'] == 'Картинка') {
-                $this->assertEquals($props[$property['NAME']]['PROPERTY_TYPE'], $property['PROPERTY_TYPE']);
-                $this->assertEquals($props[$property['NAME']]['CODE'], $property['CODE']);
-            }
-
-            if ($property['NAME'] == 'Цвет') {
-                $this->assertEquals($props[$property['NAME']]['PROPERTY_TYPE'], $property['PROPERTY_TYPE']);
-                $this->assertEquals($props[$property['NAME']]['USER_TYPE'], $property['USER_TYPE']);
-            }
-        }
-
+        $this->assertNotEmpty($res);
+        $this->assertEquals($res['XML_ID'], 'test1');
     }
 
 }

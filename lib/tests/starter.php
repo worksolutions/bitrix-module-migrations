@@ -8,6 +8,7 @@ namespace WS\Migrations\Tests;
 
 use WS\Migrations\Module;
 use WS\Migrations\Tests\Cases\FixTestCase;
+use WS\Migrations\Tests\Cases\HighLoadBlockBuilderCase;
 use WS\Migrations\Tests\Cases\IblockBuilderCase;
 use WS\Migrations\Tests\Cases\InstallTestCase;
 use WS\Migrations\Tests\Cases\RollbackTestCase;
@@ -35,6 +36,7 @@ class Starter {
             InstallTestCase::className(),
             RollbackTestCase::className(),
             IblockBuilderCase::className(),
+            HighLoadBlockBuilderCase::className(),
         );
     }
 
