@@ -20,17 +20,18 @@ return array(
                 'url' => $inputUri.'main',
             ),
             array(
-                'text' => $loc->getDataByPath('changeversion'),
-                'url' => $inputUri.'changeversion',
-            ),
-            array(
-                'text' => $loc->getDataByPath('log'),
-                'url' => $inputUri.'log',
-                'more_url' => array($inputUri.'detail')
-            ),
-            array(
-                'text' => $loc->getDataByPath('entitiesVersions'),
-                'url' => $inputUri.'entitiesVersions'
+                'text' => $loc->getDataByPath('automigrations'),
+                'items_id' => 'ws_migrations_menu_auto',
+                'items' => array(
+                    array(
+                        'text' => $loc->getDataByPath('changeversion'),
+                        'url' => $inputUri.'changeversion',
+                    ),
+                    array(
+                        'text' => $loc->getDataByPath('entitiesVersions'),
+                        'url' => $inputUri.'entitiesVersions'
+                    ),
+                ),
             ),
             array(
                 'text' => $loc->getDataByPath('createScenario'),
@@ -39,6 +40,11 @@ return array(
             array(
                 'text' => $loc->getDataByPath('diagnostic'),
                 'url' => $inputUri.'diagnostic'
+            ),
+            array(
+                'text' => $loc->getDataByPath('log'),
+                'url' => $inputUri.'log',
+                'more_url' => array($inputUri.'detail')
             )
         )
     )

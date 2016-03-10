@@ -20,7 +20,7 @@ if ($request->isPost()) {
 }
 /** @var $localization \WS\Migrations\Localization */
 $localization;
-
+$APPLICATION->SetTitle($localization->getDataByPath('pageTitle'));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?><form id="ws_maigrations_import" method="POST" action="<?=
 $APPLICATION->GetCurUri()?>" ENCTYPE="multipart/form-data" name="apply"><?
@@ -52,16 +52,15 @@ $color = "green";
 !$platformVersion->isValid() && $color = "red";
 ?>
     <tr style="color: <?=$color?>;">
-        <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
-        <td width="60%"><b><?=$platformVersion->getValue()?></b></td>
+        <td width="45%"><?=$localization->getDataByPath('version')?>:</td>
+        <td width="50%"><b><?=$platformVersion->getValue()?></b></td>
     </tr>
     <tr style="color: <?=$color?>;">
-        <td width="30%"><?=$localization->getDataByPath('owner')?>:</td>
-        <td width="60%"><b><?=$platformVersion->getOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
+        <td width="45%"><?=$localization->getDataByPath('owner')?>:</td>
+        <td width="55%"><b><?=$platformVersion->getOwner()?></b> [<a id="ownerSetupLink" href="#"><?=$localization->getDataByPath('setup')?></a>]</td>
     </tr>
     <tr>
-        <td></td>
-        <td ><input type="submit" name="changeversion" value="<?=$localization->getDataByPath('button_change')?>"></td>
+        <td style="padding-top: 10px;" colspan="2" align="center"><input type="submit" name="changeversion" value="<?=$localization->getDataByPath('button_change')?>"></td>
     </tr><?
 $form->EndCustomField('version');
 $form->BeginNextFormTab();

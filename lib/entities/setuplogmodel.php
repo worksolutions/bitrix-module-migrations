@@ -77,7 +77,7 @@ class SetupLogModel extends BaseEntity {
         $res  = 'cli';
         if ($this->userId) {
             $data = $this->getUserData();
-            $res = $data['NAME'].' '.$data['LAST_NAME'].' ['.$data['ID'].']';
+            $res = $data['NAME'].' '.$data['LAST_NAME'];
         }
         return $res;
     }

@@ -14,6 +14,7 @@ $lastResult = $tester->getLastResult();
 /** @var $localization \WS\Migrations\Localization */
 $localization;
 
+$APPLICATION->SetTitle($localization->getDataByPath('title'));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?><form id="ws_maigrations_import" method="POST" action="<?=$APPLICATION->GetCurUri()?>" ENCTYPE="multipart/form-data" name="apply"><?
 $form = new CAdminForm('ws_maigrations_diagnostic', array(
@@ -24,6 +25,7 @@ $form = new CAdminForm('ws_maigrations_diagnostic', array(
         "TITLE" => $localization->getDataByPath('title'),
     )
 ));
+$form->SetShowSettings(false);
 $module = \WS\Migrations\Module::getInstance();
 $form->BeginPrologContent();
 CAdminMessage::ShowNote($localization->getDataByPath('description'));
@@ -36,8 +38,8 @@ $form->BeginNextFormTab();
 $form->BeginCustomField('version', 'vv');
 ?>
     <tr>
-        <td width="30%"><?=$localization->getDataByPath('last.result')?>:</td>
-        <td width="60%"><b><?=$lastResult->isSuccess() ? $localization->message('last.success') : $localization->message('last.fail')?> [<?=$lastResult->getTime()?>]</b></td>
+        <td width="30%"><b><?=$localization->getDataByPath('last.result')?>:</b></td>
+        <td width="60%" style="padding-bottom: 4px;"><?=$lastResult->isSuccess() ? $localization->message('last.success') : $localization->message('last.fail')?> [<?=$lastResult->getTime()?>]</td>
     </tr>
 <?php
     if (!$lastResult->isSuccess()):
@@ -100,11 +102,12 @@ endif;
         <td></td>
         <td>
             <input type="hidden" value="Y" name="run" />
-            <input type="submit" name="submit" value="<?=$localization->message('run')?>">
         </td>
     </tr><?
 $form->EndCustomField('version');
 $form->BeginNextFormTab();
-$form->Buttons();
-$form->Show();
+$form->Buttons(array('btnSave' => false, 'btnApply' => false));
+$form->sButtonsContent = '<input type="submit" class="adm-btn-save" name="submit" value="'.$localization->getDataByPath('run').'" title="'.$localization->getDataByPath('run').'"/>';
+
+    $form->Show();
 ?></form>

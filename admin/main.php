@@ -29,7 +29,11 @@ $apply && LocalRedirect($APPLICATION->GetCurUri());
 $fixes = array();
 $notAppliedFixes = $module->getNotAppliedFixes();
 foreach ($notAppliedFixes as $fix) {
-    $fixes[$fix->getName()]++;
+    $name = $fix->getName();
+    if ($name == 'Reference fix') {
+        $name = $localization->message('common.reference-fix');
+    }
+    $fixes[$name]++;
 }
 $scenarios = array();
 foreach ($module->getNotAppliedScenarios() as $notAppliedScenarioClassName) {
@@ -47,10 +51,17 @@ if ($lastSetupLog) {
     }
 }
 //--------------------------------------------------------------------------
+$APPLICATION->SetTitle($localization->getDataByPath('title'));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 // 1C-Bitrix override variable!!
 $module = \WS\Migrations\Module::getInstance();
 
+CAdminMessage::ShowMessage(array(
+    'MESSAGE' => $localization->getDataByPath('platformVersion.'.($platformVersion->isValid() ? 'ok' : 'error'))
+        .' <a href="/bitrix/admin/ws_migrations.php?q=changeversion">'.($platformVersion->getOwner() ?: $platformVersion->getValue()).'</a>',
+    'TYPE' => $platformVersion->isValid() ? 'OK' : 'ERROR',
+    'HTML' => true,
+));
 ?><form method="POST" action="<?=$APPLICATION->GetCurUri()?>" ENCTYPE="multipart/form-data" name="apply"><?
 $form = new CAdminForm('ws_maigrations_main', array(
     array(
@@ -60,6 +71,8 @@ $form = new CAdminForm('ws_maigrations_main', array(
         "TITLE" => $localization->getDataByPath('title'),
     ) ,
 ));
+
+$form->SetShowSettings(false);
 
 if (!$isDiagnosticValid) {
     $form->BeginPrologContent();
@@ -74,109 +87,109 @@ $form->Begin(array(
     'FORM_ACTION' => $APPLICATION->GetCurUri()
 ));
 $form->BeginNextFormTab();
-$form->BeginCustomField('version', 'vv');
-$versionColor = "green";
-!$platformVersion->isValid() && $versionColor = "red";
-?><tr>
-    <td width="30%"><?=$localization->getDataByPath('version')?>:</td>
-    <td width="60%">
-        <b style="color: <?=$versionColor?>;"><?= $platformVersion->getValue()." [".$platformVersion->getOwner()."]"?></b><br />
-        <a href="/bitrix/admin/ws_migrations.php?q=changeversion"><?=$localization->getDataByPath('change_link')?></a>
-    </td>
-</tr><?
-$form->EndCustomField('version');
-$form->BeginCustomField('list', 'vv');
-?>
-<tr style="color: #ff8000;">
-    <td width="30%"><?=$localization->getDataByPath('list.auto')?>:</td>
-    <td width="60%">
-<?if($fixes):?>
-        <ul>
-<?foreach ($fixes as $fixName => $fixCount):?>
-            <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
-<?endforeach;?>
-            <li><a href="#" id="newChangesViewLink"><?=$localization->getDataByPath('newChangesDetail')?></a></li>
-        </ul>
-<?else:?>
-<b><?=$localization->message('common.listEmpty')?></b>
-<?endif;?>
-    </td>
-</tr>
-    <tr style="color: #ff8000;">
-        <td width="30%"><?=$localization->getDataByPath('list.scenarios')?>:</td>
-        <td width="60%">
-<?if($scenarios):?>
-        <ul>
-<?foreach ($scenarios as $scenario):?>
-            <li><b><?=$scenario?></b></li>
-<?endforeach;?>
-        </ul>
-<?else:?>
-    <b><?=$localization->message('common.listEmpty')?></b>
-<?endif;?>
-        </td>
-    </tr>
-<?
-$form->EndCustomField('list');
+if ($fixes || $scenarios) {
+    $form->BeginCustomField('list', 'vv');
+    if ($fixes) {
+        ?>
+        <tr style="color: #3591ff; font-size: 14px;">
+            <td width="20%"><b><?= $localization->getDataByPath('list.auto') ?>:</b></td>
+            <td width="80%">
+                <? if ($fixes): ?>
+                    <ol style="margin-top: 0px; list-style-type: none; padding-left: 0px;">
+                        <? foreach ($fixes as $fixName => $fixCount): ?>
+                            <li><?= $fixName ?> [<?= $fixCount ?>]</li>
+                        <? endforeach; ?>
+                        <li><a href="#"
+                               id="newChangesViewLink"><?= $localization->getDataByPath('newChangesDetail') ?></a></li>
+                    </ol>
+                    <?
+                else: ?>
+                    <b><?= $localization->message('common.listEmpty') ?></b>
+                <? endif; ?>
+            </td>
+        </tr>
+    <?php
+    }
+    if ($scenarios) {
+    ?>
+        <tr style="color: #3591ff; font-size: 14px;">
+            <td width="20%" valign="top"><b><?= $localization->getDataByPath('list.scenarios') ?>:</b></td>
+            <td width="80%">
+                <? if ($scenarios): ?>
+                    <ol style="margin-top: 0px; list-style-type: none; padding-left: 0px;">
+                        <? foreach ($scenarios as $scenario): ?>
+                            <li><?= $scenario ?></li>
+                        <? endforeach; ?>
+                    </ol>
+                    <?
+                else: ?>
+                    <b><?= $localization->message('common.listEmpty') ?></b>
+                <? endif; ?>
+            </td>
+        </tr>
+            <?
+    }
+    $form->EndCustomField('list');
+}
 //--------------------
 if ($lastSetupLog) {
     $form->AddSection('lastSetup', $localization->message('lastSetup.sectionName', array(
         ':time:' => $lastSetupLog->date->format('d.m.Y H:i:s'),
         ':user:' => $lastSetupLog->shortUserInfo()
     )));
-    $form->BeginCustomField('appliedList', 'vv');
-    ?>
-    <tr style="color: #32cd32;">
-        <td width="30%"><?=$localization->getDataByPath('appliedList')?>:</td>
+    if ($appliedFixes) {
+        $form->BeginCustomField('appliedList', 'vv');
+        ?>
+        <tr style="color: #32cd32;  font-size: 14px;">
+        <td width="30%" valign="top"><b><?= $localization->getDataByPath('appliedList') ?>:</b></td>
         <td width="60%">
-    <?if($appliedFixes):?>
-            <ul>
-    <?foreach ($appliedFixes as $fixName => $fixCount):?>
-                <li><b><?=$fixName?></b> [<b><?=$fixCount?></b>]</li>
-    <?endforeach;?>
-            </ul>
-    <?else:?>
-    <b><?=$localization->message('common.listEmpty')?></b>
-    <?endif;?>
-        </td>
-    </tr>
-    <?
-    $form->EndCustomField('appliedList');
+            <ol style="list-style-type: none; padding-left: 0px; margin-top: 0px;">
+                <? foreach ($appliedFixes as $fixName => $fixCount): ?>
+                    <li><?= $fixName ?> <?= $fixCount > 1 ? '['.$fixCount.']' : '' ?></li>
+                <?endforeach; ?>
+            </ol>
+        </tr>
+        <?php
+        $form->EndCustomField('appliedList');
+    }
     //--------------------
-    $form->BeginCustomField('errorList', 'vv');
-    ?>
-    <tr style="color: #ff0000;">
-        <td width="30%"><?=$localization->getDataByPath('errorList')?>:</td>
-        <td width="60%">
-    <?if($errorFixes):?>
-            <ul>
-    <?php
-    /** @var \WS\Migrations\Entities\AppliedChangesLogModel $errorApply */
-    foreach ($errorFixes as $errorApply):
-        $errorData = \WS\Migrations\jsonToArray($errorApply->description) ?: $errorApply->description;
-        if (is_scalar($errorData)) {
-            ?><li><b><?=$errorData?></b></li><?
-        }
-        if (is_array($errorData)) {
-            ?><li><b><a href="#" class="apply-error-link" data-id="<?=$errorApply->id?>"><?=$errorData['message']?></a></b></li><?
-        }
-    ?>
-    <?endforeach;?>
-            </ul>
-    <?else:?>
-    <b><?=$localization->message('common.listEmpty')?></b>
-    <?endif;?>
-        </td>
-    </tr>
-    <?
-    $form->EndCustomField('errorList');
+    if($errorFixes) {
+        $form->BeginCustomField('errorList', 'vv');
+        ?>
+        <tr style="color: #ff0000; font-size: 14px;">
+            <td width="30%" valign="top"><?= $localization->getDataByPath('errorList') ?>:</td>
+            <td width="60%">
+                <ol style="list-style-type: none; padding-left: 0px; margin-top: 0px;">
+                    <?php
+                    /** @var \WS\Migrations\Entities\AppliedChangesLogModel $errorApply */
+                    foreach ($errorFixes as $errorApply):
+                        $errorData = \WS\Migrations\jsonToArray($errorApply->description) ?: $errorApply->description;
+                        if (is_scalar($errorData)) {
+                            ?>
+                            <li><?= $errorData ?></li><?
+                        }
+                        if (is_array($errorData)) {
+                            ?>
+                            <li><a href="#" class="apply-error-link"
+                                      data-id="<?= $errorApply->id ?>"><?= $errorData['message'] ?></a></li><?
+                        }
+                        ?>
+                    <?endforeach; ?>
+                </ol>
+            </td>
+        </tr>
+        <?php
+        $form->EndCustomField('errorList');
+    }
 }
 $form->EndTab();
 !$fixes && !$scenarios && !$lastSetupLog && $form->bPublicMode = true;
 !$isDiagnosticValid && $form->bPublicMode = true;
-$form->Buttons(array('btnSave' => false, 'btnÀpply' => true));
+$form->Buttons(array('btnSave' => false, 'btnApply' => false));
 $isDiagnosticValid && $lastSetupLog
-    && $form->sButtonsContent = '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
+    && $form->sButtonsContent =
+        '<input type="submit" class="adm-btn-save" name="apply" value="'.$localization->getDataByPath('btnApply').'" title="'.$localization->getDataByPath('btnApply').'"/>'.
+        '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
 
 $form->Show();
 ?></form>
