@@ -13,6 +13,7 @@ abstract class Base {
 
     public function __set($prop, $value) {
         $this->data[$prop] = $value;
+        return $value;
     }
 
     public function getSaveData() {
@@ -25,7 +26,6 @@ abstract class Base {
             }
             $fields[$map[$key]] = $value;
         }
-        $fields = array_filter($fields);
         return $fields;
     }
 

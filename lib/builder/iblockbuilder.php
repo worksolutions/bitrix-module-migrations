@@ -1,32 +1,46 @@
 <?php
-/**
- * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
- */
 
 namespace WS\Migrations\Builder;
 
 use WS\Migrations\Builder\Entity\Iblock;
+use WS\Migrations\Builder\Entity\IblockType;
 use WS\Migrations\Builder\Entity\Property;
 
 class IblockBuilder {
-
-    /**
-     * @var int
-     */
-    private $iblockId;
-
-    /**
-     * @var \CIBlockProperty
-     */
-    private $propertyGateway;
     /** @var  Iblock */
     private $iblock;
     /** @var  Property[] */
     private $properties;
+    /** @var  IblockType */
+    private $iblockType;
 
     public function __construct() {
         \CModule::IncludeModule('iblock');
-        $this->propertyGateway = new \CIBlockProperty();
+    }
+
+    public function reset() {
+        $this->iblock = null;
+        $this->iblockType = null;
+        $this->properties = null;
+    }
+
+    public function addIblockType($type) {
+        if ($this->iblockType) {
+            throw new BuilderException('IblockType already set');
+        }
+        $this->iblockType = new IblockType($type);
+        return $this->iblockType;
+    }
+
+    public function updateIblockType($type) {
+        if ($this->iblockType) {
+            throw new BuilderException('IblockType already set');
+        }
+        if (!$data = $this->findIblockType($type)) {
+            throw new BuilderException("Can't find iblockType with type {$type}");
+        }
+        $this->iblockType = new IblockType($type, $data);
+        return $this->iblockType;
     }
 
     /**
@@ -35,6 +49,9 @@ class IblockBuilder {
      * @throws \Exception
      */
     public function addIblock($code) {
+        if ($this->iblock) {
+            throw new BuilderException('Iblock already set');
+        }
         $this->iblock = new Iblock($code);
         return $this->iblock;
     }
@@ -45,23 +62,19 @@ class IblockBuilder {
      * @throws \Exception
      */
     public function updateIblock($code) {
+        if ($this->iblock) {
+            throw new BuilderException('Iblock already set');
+        }
         if (!$data = $this->findIblock($code)) {
             throw new BuilderException("Can't find iblock with code {$code}");
         }
         $this->iblock = new Iblock($code, $data);
-        $this->iblockId = $this->iblock->id;
         return $this->iblock;
-    }
-
-    public function setIblockId($iblockId) {
-        $this->iblockId = $iblockId;
-        return $this;
     }
 
     /**
      * @param $name
      * @return Property
-     * @throws \Exception
      */
     public function addProperty($name) {
         $prop = new Property($name);
@@ -72,25 +85,19 @@ class IblockBuilder {
     /**
      * @param $name
      * @return Property
-     * @throws \Exception
+     * @throws BuilderException
      */
     public function updateProperty($name) {
-        if (!$this->getIblockId()) {
+        if (!$this->iblock->getId()) {
             throw new BuilderException("Iblock not initialized");
         }
         if (!$data = $this->findProperty($name)) {
             throw new BuilderException("Can't find property with name {$name}");
         }
+        echo "<pre>"; print_r($data);echo "</pre>";
         $prop = new Property($name, $data);
         $this->properties[] = $prop;
         return $prop;
-    }
-
-    /**
-     * @return int
-     */
-    public function getIblockId() {
-        return $this->iblockId;
     }
 
     /**
@@ -100,11 +107,9 @@ class IblockBuilder {
         global $DB;
         $DB->StartTransaction();
         try {
-            $this->commitIblock();
+            $this->commitIblockType();
 
-            if (!$this->getIblockId()) {
-                throw new \Exception("Iblock did'nt set");
-            }
+            $this->commitIblock();
 
             $this->commitProperties();
         } catch (\Exception $e) {
@@ -112,6 +117,85 @@ class IblockBuilder {
             throw new BuilderException($e->getMessage());
         }
         $DB->Commit();
+    }
+
+    private function commitIblockType() {
+        if (!$this->iblockType) {
+            return;
+        }
+        $ibType = new \CIBlockType();
+        if ($this->iblockType->iblockTypeId) {
+            if (!$ibType->Update($this->iblockType->id, $this->iblockType->getSaveData())) {
+                throw new BuilderException('IblockType was not updated. ' . $ibType->LAST_ERROR);
+            }
+        } else {
+            $id = $ibType->Add($this->iblockType->getSaveData());
+            $this->iblockType->setId($id);
+        }
+        if (!$this->iblockType->getId()) {
+            throw new BuilderException('IblockType was not created. ' . $ibType->LAST_ERROR);
+        }
+    }
+
+    private function commitIblock() {
+        if (!$this->iblock) {
+            return;
+        }
+        $ib = new \CIBlock();
+        if ($this->iblock->getId()) {
+            if (!$ib->Update($this->iblock->id, $this->iblock->getSaveData())) {
+                throw new BuilderException('Iblock was not updated. ' . $ib->LAST_ERROR);
+            }
+        } else {
+            $iblockId = $ib->Add($this->iblock->getSaveData());
+            $this->iblock->setId($iblockId);
+        }
+        if (!$this->iblock->getId()) {
+            throw new BuilderException('Iblock was not created. ' . $ib->LAST_ERROR);
+        }
+    }
+
+    private function commitProperties() {
+        $propertyGw = new \CIBlockProperty();
+        if (empty($this->properties)) {
+            return;
+        }
+        if (!$this->iblock->getId()) {
+            throw new BuilderException("Iblock didn't set");
+        }
+
+        foreach ($this->properties as $property) {
+            if ($property->getId() > 0) {
+                continue;
+            }
+            $id = $propertyGw->Add(array_merge($property->getSaveData(), array('IBLOCK_ID' => $this->iblock->getId())));
+            if (!$id) {
+                throw new BuilderException("Property was {$property->name} not created. " . $propertyGw->LAST_ERROR);
+            }
+        }
+
+        foreach ($this->properties as $property) {
+            if (!$property->getId()) {
+                continue;
+            }
+            $id = $propertyGw->Update($property->id, array_merge($property->getSaveData(), array('IBLOCK_ID' => $this->iblock->getId())));
+            if (!$id) {
+                throw new BuilderException("Property was {$property->name} not updated. " . $propertyGw->LAST_ERROR);
+            }
+        }
+    }
+
+    /**
+     * @return Iblock
+     */
+    public function getIblock() {
+        return $this->iblock;
+    }
+
+    private function findIblockType($type) {
+        return \CIBlockType::GetList(null, array(
+            'ID' => $type
+        ))->Fetch();
     }
 
     private function findIblock($code) {
@@ -122,48 +206,9 @@ class IblockBuilder {
 
     private function findProperty($name) {
         return \CIBlockProperty::GetList(null, array(
-            '=NAME' => $name,
-            'IBLOCK_ID' => $this->getIblockId()
+            'NAME' => $name,
+            'IBLOCK_ID' => $this->iblock->getId()
         ))->Fetch();
     }
 
-    private function commitIblock() {
-        if (!$this->iblock) {
-            return;
-        }
-        $ib = new \CIBlock();
-        if ($this->iblock->id) {
-            if (!$ib->Update($this->iblock->id, $this->iblock->getSaveData())) {
-                throw new \Exception('Iblock was not updated. ' . $ib->LAST_ERROR);
-            }
-            $this->iblockId = $this->iblock->id;
-        } else {
-            $this->iblockId = $ib->Add($this->iblock->getSaveData());
-        }
-        if (!$this->iblockId) {
-            throw new \Exception('Iblock was not created. ' . $ib->LAST_ERROR);
-        }
-    }
-
-    private function commitProperties() {
-        foreach ($this->properties as $property) {
-            if ($property->id > 0) {
-                continue;
-            }
-            $id = $this->propertyGateway->Add(array_merge($property->getSaveData(), array('IBLOCK_ID' => $this->getIblockId())));
-            if (!$id) {
-                throw new \Exception("Property was {$property->name} not created. " . $this->propertyGateway->LAST_ERROR);
-            }
-        }
-
-        foreach ($this->properties as $property) {
-            if (!$property->id) {
-                continue;
-            }
-            $id = $this->propertyGateway->Update($property->id, array_merge($property->getSaveData(), array('IBLOCK_ID' => $this->getIblockId())));
-            if (!$id) {
-                throw new \Exception("Property was {$property->name} not updated. " . $this->propertyGateway->LAST_ERROR);
-            }
-        }
-    }
 }

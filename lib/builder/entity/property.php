@@ -128,6 +128,7 @@ class Property extends Base {
     public function setType($propertyType, $userType = false) {
         $this->propertyType = $propertyType;
         if (!$userType) {
+            $this->userType = '';
             return $this;
         }
         $type = explode(':', $userType);
@@ -273,6 +274,13 @@ class Property extends Base {
     public function setHint($hint) {
         $this->hint = $hint;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId() {
+        return $this->id;
     }
 
 }

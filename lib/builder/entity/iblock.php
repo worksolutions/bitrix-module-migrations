@@ -30,7 +30,7 @@ use Bitrix\Main\Type\DateTime;
  * @property int version
  * @property array picture
  * @property dateTime dateUpdate
- * @property string groupId
+ * @property array groupId
  * @package WS\Migrations\Builder\Entity
  */
 class Iblock extends Base {
@@ -124,7 +124,7 @@ class Iblock extends Base {
     }
 
     /**
-     * @param string $groupId
+     * @param array $groupId
      * @return Iblock
      */
     public function setGroupId($groupId) {
@@ -293,4 +293,21 @@ class Iblock extends Base {
         $this->picture = $picture;
         return $this;
     }
+
+    /**
+     * @param int $id
+     * @return Iblock
+     */
+    public function setId($id) {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId() {
+        return $this->id;
+    }
+
 }
