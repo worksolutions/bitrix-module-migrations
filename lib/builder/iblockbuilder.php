@@ -171,6 +171,9 @@ class IblockBuilder {
             if (!$id) {
                 throw new BuilderException("Property was {$property->name} not created. " . $propertyGw->LAST_ERROR);
             }
+            $property->setId($id);
+
+            $this->commitEnum($property);
         }
 
         foreach ($this->properties as $property) {
@@ -181,6 +184,7 @@ class IblockBuilder {
             if (!$id) {
                 throw new BuilderException("Property was {$property->name} not updated. " . $propertyGw->LAST_ERROR);
             }
+            $this->commitEnum($property);
         }
     }
 
@@ -208,6 +212,31 @@ class IblockBuilder {
             'NAME' => $name,
             'IBLOCK_ID' => $this->iblock->getId()
         ))->Fetch();
+    }
+
+    /**
+     * @param Property $property
+     * @throws BuilderException
+     */
+    private function commitEnum($property) {
+        $obEnum = new \CIBlockPropertyEnum;
+        foreach ($property->getEnumVariants() as $key => $variant) {
+            if ($variant->del == 'Y' && $variant->getId() > 0) {
+                $obEnum->Delete($variant->getId());
+                continue;
+            }
+            if ($variant->getId() > 0) {
+                if (!$obEnum->Update($variant->getId(), $variant->getSaveData())) {
+                    throw new BuilderException("Failed to update enum '{$variant->value}'");
+                }
+                continue;
+            }
+
+            if (!$obEnum->Add(array_merge($variant->getSaveData(), array('PROPERTY_ID' => $property->getId())))) {
+                throw new BuilderException("Failed to add enum '{$variant->value}'");
+            }
+        }
+
     }
 
 }
