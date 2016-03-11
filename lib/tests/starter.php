@@ -8,6 +8,7 @@ namespace WS\Migrations\Tests;
 
 use WS\Migrations\Module;
 use WS\Migrations\Tests\Cases\AgentBuilderCase;
+use WS\Migrations\Tests\Cases\EventsBuilderCase;
 use WS\Migrations\Tests\Cases\FixTestCase;
 use WS\Migrations\Tests\Cases\HighLoadBlockBuilderCase;
 use WS\Migrations\Tests\Cases\IblockBuilderCase;
@@ -39,6 +40,7 @@ class Starter {
             IblockBuilderCase::className(),
             HighLoadBlockBuilderCase::className(),
             AgentBuilderCase::className(),
+            EventsBuilderCase::className(),
         );
     }
 

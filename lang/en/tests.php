@@ -92,5 +92,11 @@ return array(
             'errors' => array(
             )
         ),
+        \WS\Migrations\Tests\Cases\EventsBuilderCase::className() => array(
+            'name' => 'EventsBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
     )
 );
