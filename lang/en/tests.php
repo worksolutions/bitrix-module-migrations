@@ -98,5 +98,11 @@ return array(
             'errors' => array(
             )
         ),
+        \WS\Migrations\Tests\Cases\FormBuilderCase::className() => array(
+            'name' => 'FormBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
     )
 );

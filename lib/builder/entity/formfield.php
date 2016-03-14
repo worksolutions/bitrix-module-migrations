@@ -1,6 +1,7 @@
 <?php
 
 namespace WS\Migrations\Builder\Entity;
+use WS\Migrations\Builder\BuilderException;
 
 /**
  * Class FormField
@@ -31,6 +32,8 @@ class FormField extends Base {
     const FIELD_TYPE_TEXT = 'text';
     const FIELD_TYPE_INTEGER = 'integer';
     const FIELD_TYPE_DATE = 'date';
+    /** @var  FormAnswer[] */
+    private $answers;
 
 
     public function __construct($sid, $data = array()) {
@@ -247,4 +250,59 @@ class FormField extends Base {
         $this->arFilterField = $arFilterField;
         return $this;
     }
+
+    /**
+     * @param $message
+     * @return FormAnswer
+     */
+    public function addAnswer($message) {
+        $answer = new FormAnswer($message);
+        $this->answers[] = $answer;
+        return $answer;
+    }
+
+    /**
+     * @param $message
+     * @return FormAnswer
+     * @throws BuilderException
+     */
+    public function updateAnswer($message) {
+        if (!$this->id) {
+            throw new BuilderException("Can't update answer. Form Field not saved");
+        }
+        $data = $this->findAnswer($message);
+        $answer = new FormAnswer($message, $data);
+        $this->answers[] = $answer;
+        return $answer;
+    }
+
+    public function removeAnswer($message) {
+        if (!$this->id) {
+            throw new BuilderException("Can't remove answer. Form Field not saved");
+        }
+        $data = $this->findAnswer($message);
+        $data['DEL'] = 'Y';
+        $answer = new FormAnswer($message, $data);
+        $this->answers[] = $answer;
+        return $answer;
+    }
+
+    private function findAnswer($message) {
+        $data = \CFormAnswer::GetList($this->id, $by, $order, array(
+            'MESSAGE' => $message
+        ), $isFiltered)->Fetch();
+
+        if (empty($data)) {
+            throw new BuilderException("Answer '{$message}' not found");
+        }
+        return $data;
+    }
+
+    /**
+     * @return FormAnswer[]
+     */
+    public function getAnswers() {
+        return $this->answers;
+    }
+
 }

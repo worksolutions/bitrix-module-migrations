@@ -4,12 +4,15 @@ namespace WS\Migrations\Builder;
 
 use WS\Migrations\Builder\Entity\Form;
 use WS\Migrations\Builder\Entity\FormField;
+use WS\Migrations\Builder\Entity\FormStatus;
 
 class FormBuilder {
     /** @var  Form */
     private $form;
     /** @var  FormField[] */
     private $fields;
+    /** @var  FormStatus[] */
+    private $statuses;
 
     public function __construct() {
         \CModule::IncludeModule('form');
@@ -17,6 +20,8 @@ class FormBuilder {
 
     public function reset() {
         $this->form = null;
+        $this->fields = null;
+        $this->statuses = null;
     }
 
     /**
@@ -45,6 +50,35 @@ class FormBuilder {
         $formData = $this->findForm($sid);
         $this->form = new Form($formData['NAME'], $sid, $formData);
         return $this->form;
+    }
+
+    /**
+     * @param $title
+     * @return FormStatus
+     * @throws BuilderException
+     */
+    public function addStatus($title) {
+        if (!$this->form) {
+            throw new BuilderException("Form doesn't set");
+        }
+        $status = new FormStatus($title);
+        $this->statuses[] = $status;
+        return $status;
+    }
+
+    /**
+     * @param $title
+     * @return FormStatus
+     * @throws BuilderException
+     */
+    public function updateStatus($title) {
+        if (!$this->form) {
+            throw new BuilderException("Form doesn't set");
+        }
+        $data = $this->findStatus($title);
+        $status = new FormStatus($title, $data);
+        $this->statuses[] = $status;
+        return $status;
     }
 
     /**
@@ -85,23 +119,12 @@ class FormBuilder {
         try {
             $this->commitForm();
             $this->commitFields();
+            $this->commitStatuses();
         } catch (\Exception $e) {
             $DB->Rollback();
             throw new BuilderException($e->getMessage());
         }
         $DB->Commit();
-    }
-
-    private function findForm($sid) {
-        $data = \CForm::GetList($by = 'ID', $order = 'ASC', array(
-            'SID' => $sid
-        ), $isFiltered)->Fetch();
-
-        if (!$data) {
-            throw new BuilderException("Form '{$sid}' not found");
-        }
-
-        return $data;
     }
 
     /**
@@ -127,7 +150,55 @@ class FormBuilder {
                 throw new BuilderException("Field '{$field->sid}' wasn't saved. " . $strError);
             }
             $field->setId($fieldId);
+            $this->commitAnswers($field);
         }
+    }
+
+    /**
+     * @param FormField $field
+     * @throws BuilderException
+     */
+    private function commitAnswers($field) {
+        global $strError;
+        $gw = new \CFormAnswer();
+        foreach ($field->getAnswers() as $answer) {
+            if ($answer->needDelete()) {
+                if (!$gw->Delete($answer->getId())) {
+                    throw new BuilderException("Can't delete '{$answer->message}'. ". $strError);
+                }
+            }
+            $data = $answer->getSaveData();
+            $data['QUESTION_ID'] = $field->getId();
+            if (!$gw->Set($data, $answer->getId())) {
+                throw new BuilderException("Answer wasn't saved. " . $strError);
+            }
+        }
+    }
+
+    private function commitStatuses() {
+        global $strError;
+        $gw = new \CFormStatus();
+        foreach ($this->statuses as $status) {
+            $saveData = $status->getSaveData();
+            $saveData['FORM_ID'] = $this->form->getId();
+            $statusId = $gw->Set($saveData, $status->getId(), 'N');
+            if (!$statusId) {
+                throw new BuilderException("Field '{$status->title}' wasn't saved. " . $strError);
+            }
+            $status->setId($statusId);
+        }
+    }
+
+    private function findForm($sid) {
+        $data = \CForm::GetList($by = 'ID', $order = 'ASC', array(
+            'SID' => $sid
+        ), $isFiltered)->Fetch();
+
+        if (!$data) {
+            throw new BuilderException("Form '{$sid}' not found");
+        }
+
+        return $data;
     }
 
     private function findField($sid) {
@@ -137,7 +208,31 @@ class FormBuilder {
         $field = \CFormField::GetList($this->form->getId(), 'ALL', $by, $order, array(
             'SID' => $sid,
         ), $isFiltered)->Fetch();
-
+        if (empty($field)) {
+            throw new BuilderException("Form field '{$sid}' not found");
+        }
         return $field;
     }
+
+    private function findStatus($title) {
+        if (!$this->form->getId()) {
+            throw new BuilderException("Form doesn't set");
+        }
+        $status = \CFormStatus::GetList($this->form->getId(), $by, $order, array(
+            'TITLE' => $title,
+        ), $isFiltered)->Fetch();
+
+        if (empty($status)) {
+            throw new BuilderException("Form status '{$title}' not found");
+        }
+        return $status;
+    }
+
+    /**
+     * @return Form
+     */
+    public function getForm() {
+        return $this->form;
+    }
+
 }

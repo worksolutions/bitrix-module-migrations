@@ -245,7 +245,7 @@ class Form extends Base {
     }
 
     /**
-     * @param string $useCaptcha
+     * @param bool $useCaptcha
      * @return Form
      */
     public function setUseCaptcha($useCaptcha) {
