@@ -10,6 +10,7 @@ use WS\Migrations\Module;
 use WS\Migrations\Tests\Cases\AgentBuilderCase;
 use WS\Migrations\Tests\Cases\EventsBuilderCase;
 use WS\Migrations\Tests\Cases\FixTestCase;
+use WS\Migrations\Tests\Cases\FormBuilderCase;
 use WS\Migrations\Tests\Cases\HighLoadBlockBuilderCase;
 use WS\Migrations\Tests\Cases\IblockBuilderCase;
 use WS\Migrations\Tests\Cases\InstallTestCase;
@@ -41,6 +42,7 @@ class Starter {
             HighLoadBlockBuilderCase::className(),
             AgentBuilderCase::className(),
             EventsBuilderCase::className(),
+            FormBuilderCase::className(),
         );
     }
 
