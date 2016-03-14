@@ -4,7 +4,7 @@ namespace WS\Migrations\Builder\Entity;
 use Bitrix\Main\Type\DateTime;
 
 /**
- * Class EventType
+ * Class EventMessage
  * @property int id
  * @property string siteId
  * @property string active
