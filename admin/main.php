@@ -99,15 +99,14 @@ if ($fixes || $scenarios) {
     if ($fixes) {
         ?>
         <tr style="color: #3591ff; font-size: 14px;">
-            <td width="30%"><b><?= $localization->getDataByPath('list.auto') ?>:</b></td>
+            <td width="30%" valign="top"><b><?= $localization->getDataByPath('list.auto') ?>:</b></td>
             <td width="70%">
                 <? if ($fixes): ?>
                     <ol style="margin-top: 0px; list-style-type: none; padding-left: 0px;">
                         <? foreach ($fixes as $fixName => $fixCount): ?>
                             <li><?= $fixName ?> [<?= $fixCount ?>]</li>
                         <? endforeach; ?>
-                        <li><a href="#"
-                               id="newChangesViewLink"><?= $localization->getDataByPath('newChangesDetail') ?></a></li>
+                        <li><a href="#" style="color: #242E32; text-decoration: none; border-bottom: 1px dashed #242E32" id="newChangesViewLink"><?= $localization->getDataByPath('newChangesDetail') ?></a></li>
                     </ol>
                     <?
                 else: ?>
