@@ -586,10 +586,14 @@ class Module {
      * @param $fileName
      * @param $content
      * @return string
+     * @throws \Exception
      */
     public function putScriptClass($fileName, $content) {
         $file = new File($this->_getScenariosDir().DIRECTORY_SEPARATOR.$fileName);
-        $file->putContents($content);
+        $success = $file->putContents($content);
+        if (!$success) {
+            throw new \Exception("Could'nt save file");
+        }
         return $file->getPath();
     }
 

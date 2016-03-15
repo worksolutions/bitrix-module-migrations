@@ -37,41 +37,6 @@ return array(
             'tab' => 'Other versions'
         )
     ),
-    'export' => array(
-        'title' => 'Export migrations',
-        'version' => 'The current version of the database'
-    ),
-    'import' => array(
-        'title' => 'Import migrations',
-        'version' => 'The current version of the database',
-        'description' => "Transferring data schema
-
-        In applying the \"Clean dump\", please apply import (without using the scheme), the current project will change the version that will function independently.
-
-        The scheme used to create new data according to existing i.e. through the creation of new models of records in the event that relevant versions of imported records new data schema will not be created, they just modified according to imports.
-        ",
-        'fields' => array(
-            'file' => 'Import file (version.json)',
-            'isScheme' => 'Transfer scheme only'
-        )
-    ),
-    'log' => array(
-        'title' => 'Changes log',
-        'fields' => array(
-            'updateDate' => 'Update`s date',
-            'description' => 'Description',
-            'source' => 'Source',
-            'dispatcher' => 'Dispatcher'
-        ),
-        'messages' => array(
-            'InsertReference' => 'Insert another platform reference',
-            'view' => 'Changes analysis',
-            'pages' => 'Pages',
-            'actualization' => 'Actualize',
-            'descriptionMoreLink' => 'more',
-            'errorWindow' => 'Error information'
-        )
-    ),
     'detail' => array(
         'title' => '#date. #source. Deployer - #deployer',
         'tabs' => array(
@@ -118,15 +83,41 @@ return array(
             'iblockSection' => 'Iblock Section',
         )
     ),
+    'createScenario' => array(
+        'title' => 'Scenario',
+        'field' => array(
+            'name' => 'Name',
+            'description' => 'Description'
+        ),
+        'path-to-file' => 'Migration class places in file #path#',
+        'save-file-error' => 'File has not saved'
+    ),
     'diagnostic' => array(
         'title' => 'Diagnostic',
-        'description' => 'Diagnostic',
+        'description' => 'Diagnostic state, tips of problem',
         'last' => array(
-            'description' => 'Error`s description',
-            'result' => 'Result of diagnostic',
+            'description' => 'Errors',
+            'result' => 'Result',
             'success' => 'Success',
             'fail' => 'Error'
         ),
-        'run' => 'Run',
+        'run' => 'Start diagnostic',
+    ),
+    'log' => array(
+        'title' => 'Changes log',
+        'fields' => array(
+            'updateDate' => 'Date',
+            'description' => 'Update description',
+            'source' => 'Source',
+            'dispatcher' => 'Updated'
+        ),
+        'messages' => array(
+            'InsertReference' => 'Insert another platform reference',
+            'view' => 'Changes analyse',
+            'pages' => 'Pages',
+            'actualization' => 'Actualize',
+            'descriptionMoreLink' => 'more',
+            'errorWindow' => 'Error information'
+        )
     )
 );

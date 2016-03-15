@@ -1,12 +1,11 @@
 <?php
 return array(
     'title' => 'Data migrations',
-    'changeversion' => 'Changing the database version',
-    'import' => 'Import migrations',
-    'export' => 'Export migrations',
-    'apply' => 'Applying',
-    'log' => 'Changes log',
-    'entitiesVersions' => 'Data of versions',
-    'createScenario' => 'Create update scenario',
+    'changeversion' => 'Platform versions',
+    'apply' => 'Update',
+    'automigrations' => 'Auto migrations',
+    'log' => 'Log',
+    'entitiesVersions' => 'References',
+    'createScenario' => 'Scenario',
     'diagnostic' => 'Diagnostic'
 );

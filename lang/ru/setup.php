@@ -9,7 +9,8 @@ return array(
         'apply' => 'Установить'
     ),
     'errors' => array(
-        'notCreateDir' => 'Невозможно создать директорию'
+        'notCreateDir' => 'Невозможно создать директорию',
+        'catalogFieldEmpty' => 'Постое значение каталога'
     ),
     'section' => array(
         'disableHandlers' => 'Применять синхронизацию'
