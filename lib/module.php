@@ -703,6 +703,11 @@ class Module {
         $this->_disableListen();
         $setupLog = $this->_useSetupLog();
         $time = microtime(true);
+        $countFixes = count($fixes);
+        $data = array(
+            'name' => "References updates[{$countFixes}]",
+        );
+        is_callable($callback) && $callback($data, 'start');
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
             $applyFixLog = new AppliedChangesLogModel();
@@ -737,7 +742,7 @@ class Module {
             'time' => microtime(true) - $time,
             'log' => $applyFixLog
         );
-        is_callable($callback) && $callback($data);
+        is_callable($callback) && $callback($data, 'end');
         $this->_enableListen();
         return count($fixes);
     }
@@ -791,7 +796,8 @@ class Module {
      * Applies all fixes
      * @return int
      */
-    public function applyNewFixes($callback) {
+    public function applyNewFixes($callback = false) {
+        is_callable($callback) && $callback(count($this->getNotAppliedScenarios()) + 1, 'setCount');
         $count = $this->applyFixesList($this->getNotAppliedFixes(), $callback) ?: 0;
         $count += $this->applyNewScenarios($callback) ?: 0;
         return $count;
@@ -831,7 +837,7 @@ class Module {
      * @param $callback
      * @return null
      */
-    public function rollbackLastChanges($callback) {
+    public function rollbackLastChanges($callback = false) {
         $setupLog = $this->getLastSetupLog();
         if (!$setupLog) {
             return null;
@@ -850,6 +856,29 @@ class Module {
         $count = 0;
         $time = microtime(true);
         $callbackLog = false;
+        $migrationsCount = 0;
+        foreach ($list as $log) {
+            if (!$log->success) {
+                continue;
+            }
+            $processName = $log->processName;
+            if ($processName == self::SPECIAL_PROCESS_SCENARIO) {
+                $migrationsCount++;
+            } else {
+                $callbackLog = $log;
+                $count++;
+            }
+        }
+        if ($count) {
+            $migrationsCount++;
+        }
+        is_callable($callback) && $callback($migrationsCount, 'setCount');
+        if ($count) {
+            $callbackData = array(
+                'name' => "References updates[$count]"
+            );
+            is_callable($callback) && $callback($callbackData, 'start');
+        }
         foreach ($list as $log) {
             $processName = $log->processName;
             if ($processName == self::SPECIAL_PROCESS_SCENARIO) {
@@ -859,8 +888,6 @@ class Module {
             if (!$log->success) {
                 continue;
             }
-            $callbackLog = $log;
-            $count++;
             try {
                 $processName = $log->processName;
                 $process = $this->getProcess($processName);
@@ -871,12 +898,12 @@ class Module {
             }
         }
         if ($count > 0) {
-            $calbackData = array(
+            $callbackData = array(
                 'time' => microtime(true) - $time,
                 'log' => $callbackLog,
                 'count' => $count
             );
-            is_callable($callback) && $callback($calbackData);
+            is_callable($callback) && $callback($callbackData, 'end');
         }
 
         foreach ($list as $log) {
@@ -889,6 +916,10 @@ class Module {
                 continue;
             }
             $time = microtime(true);
+            $callbackData = array(
+                'name' => $log->description,
+            );
+            is_callable($callback) && $callback($callbackData, 'start');
             try {
                 $class = $log->subjectName;
                 if (!class_exists($class)) {
@@ -904,11 +935,11 @@ class Module {
             } catch (\Exception $e) {
 
             }
-            $calbackData = array(
+            $callbackData = array(
                 'time' => microtime(true) - $time,
                 'log' => $log
             );
-            is_callable($callback) && $callback($calbackData);
+            is_callable($callback) && $callback($callbackData, 'end');
         }
         $this->_enableListen();
     }
@@ -1059,6 +1090,11 @@ class Module {
             $time = microtime(true);
             /** @var ScriptScenario $object */
             $object = new $class(array(), $this->getReferenceController());
+            $data = array(
+                'name' => $object->name()
+            );
+            is_callable($callback) && $callback($data, 'start');
+
             $applyFixLog = new AppliedChangesLogModel();
             $applyFixLog->processName = self::SPECIAL_PROCESS_SCENARIO;
             $applyFixLog->subjectName = $class;
@@ -1081,7 +1117,7 @@ class Module {
                 'time' => microtime(true) - $time,
                 'log' => $applyFixLog
             );
-            is_callable($callback) && $callback($data);
+            is_callable($callback) && $callback($data, 'end');
         }
         $this->_enableListen();
         return count($classes);

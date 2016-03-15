@@ -48,16 +48,29 @@ $printRegisteredFixes = function () use (& $registeredFixes, $print) {
         $print($name.' '.$count);
     }
 };
-
-$showProgress = function ($data) use (&$print) {
-    /**@var \WS\Migrations\Entities\AppliedChangesLogModel $log */
-    $log = $data['log'];
-    $time = round($data['time'], 2);
-    $message = $log->description . ", time $time sec";
-    if (isset($data['count'])) {
-        $message .= " [{$data['count']}]";
+$migrationNumber = 0;
+$migrationCount = 0;
+$start = 0;
+$showProgress = function ($data, $type) use (& $print, & $migrationNumber, & $migrationCount, &$start) {
+    if ($type == 'setCount') {
+        $migrationCount = $data;
     }
-    $print($message, $log->success ? 'green' : 'red');
+    if ($type == 'start') {
+        $migrationNumber++;
+        $print("Start: {$data['name']}({$migrationNumber}/$migrationCount)", 'yellow');
+    }
+    if ($type == 'end') {
+        /**@var \WS\Migrations\Entities\AppliedChangesLogModel $log */
+        $log = $data['log'];
+        $time = round($data['time'], 2);
+        $message = 'End: '. $log->description;
+        if (isset($data['count'])) {
+            $message .= "[{$data['count']}]";
+        }
+        $overallTime = round(microtime(true) - $start, 2);
+        $message .= ": $time sec ($overallTime sec)";
+        $print($message, $log->success ? 'green' : 'red');
+    }
 };
 
 $print("");
@@ -111,6 +124,7 @@ switch ($action) {
         }
         $print("Applying new fixes started....", 'yellow');
         $time = time();
+        $start = microtime(true);
         $count = (int)$module->applyNewFixes($showProgress);
         $interval = time() - $time;
         $print("Apply action finished! $count items, time $interval sec", 'yellow');
@@ -121,8 +135,11 @@ switch ($action) {
         if ($answer != 'yes') {
             exit();
         }
+        $print("Rollback action started...", 'yellow');
+        $start = microtime(true);
         $module->rollbackLastChanges($showProgress);
-        $print("Rollback action finished!", 'yellow');
+        $interval = round(microtime(true) - $start, 2);
+        $print("Rollback action finished! Time $interval sec", 'yellow');
         break;
     default:
         $print("Action `$action` is not supported");
