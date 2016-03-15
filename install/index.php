@@ -67,11 +67,8 @@ Class ws_migrations extends CModule {
         global $errors;
         $errors = array();
         if ($data['catalog']) {
-            $dir = $this->docRoot() .$data['catalog'];
-            if (!is_dir($dir)) {
-                mkdir($dir);
-            }
-            if (!is_dir($dir)) {
+            $dir = $this->docRoot() . $data['catalog'];
+            if (!is_dir($dir) && !$this->createDir($data['catalog'])) {
                 $errors[] = $loc->getDataByPath('error.notCreateDir');
             }
             if (!$errors) {
@@ -163,5 +160,18 @@ Class ws_migrations extends CModule {
      */
     private function docRoot() {
         return rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/';
+    }
+
+    private function createDir($dir) {
+        $parts = explode('/', $dir);
+        $dir = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
+        foreach ($parts as $part) {
+            $dir .= '/'.$part;
+            if (!mkdir($dir)) {
+                return false;
+            }
+            chmod($dir, 0777);
+        }
+        return true;
     }
 }

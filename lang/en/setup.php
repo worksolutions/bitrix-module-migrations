@@ -9,7 +9,8 @@ return array(
         'apply' => 'Set Up'
     ),
     'errors' => array(
-        'notCreateDir' => 'Unable to create directory'
+        'notCreateDir' => 'Unable to create directory',
+        'catalogFieldEmpty' => 'Catalog field is empty'
     ),
     'section' => array(
         'disableHandlers' => 'Use synchronization'
