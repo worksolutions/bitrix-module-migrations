@@ -15,7 +15,8 @@ return array(
             'sectionName' => 'Last update :time: - :user:'
         ),
         'common' => array(
-            'listEmpty' => 'List is empty'
+            'listEmpty' => 'List is empty',
+            'pageEmpty' => 'Data for update don`t exists yet'
         ),
         'newChangesDetail' => 'Changes list',
         'newChangesTitle' => 'New changes',
