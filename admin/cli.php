@@ -12,7 +12,26 @@ define('CHK_EVENT', true);
  * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
  */
 $out = fopen('php://stdout', 'w');
-$print = function ($str) use (& $out) {
+
+$colors = array(
+    'black' => 30,
+    'red' => 31,
+    'green' => 32,
+    'yellow' => 33,
+    'blue' => 34,
+    'magenta' => 35,
+    'cyan' => 36,
+    'white' => 37,
+    'default' => 0
+);
+
+$colorize = function ($text, $color) use ($colors) {
+    $colorVal = isset($colors[$color]) ? $colors[$color] : $colors['default'];
+    return chr(27) . "[{$colorVal}m" . $text . chr(27) . "[0m";
+};
+
+$print = function ($str, $color = false) use (& $out, & $colorize) {
+    $color && $str = $colorize($str, $color);
     fwrite($out, $str."\n");
 };
 $readln = function () {
@@ -28,6 +47,17 @@ $printRegisteredFixes = function () use (& $registeredFixes, $print) {
         $count = $count > 1 ? '['.$count.']' : '';
         $print($name.' '.$count);
     }
+};
+
+$showProgress = function ($data) use (&$print) {
+    /**@var \WS\Migrations\Entities\AppliedChangesLogModel $log */
+    $log = $data['log'];
+    $time = round($data['time'], 2);
+    $message = $log->description . ", time $time sec";
+    if (isset($data['count'])) {
+        $message .= " [{$data['count']}]";
+    }
+    $print($message, $log->success ? 'green' : 'red');
 };
 
 $print("");
@@ -79,11 +109,11 @@ switch ($action) {
             $print("Diagnostic is not valid");
             exit();
         }
-        $print("Applying new fixes is started....");
+        $print("Applying new fixes started....", 'yellow');
         $time = time();
-        $count = (int)$module->applyNewFixes();
+        $count = (int)$module->applyNewFixes($showProgress);
         $interval = time() - $time;
-        $print("Apply action is finished! $count items, time $interval sec");
+        $print("Apply action finished! $count items, time $interval sec", 'yellow');
         break;
     case "rollback":
         $print("Are you sure? (yes|no):");
@@ -91,8 +121,8 @@ switch ($action) {
         if ($answer != 'yes') {
             exit();
         }
-        $module->rollbackLastChanges();
-        $print("Rollback action is finished!");
+        $module->rollbackLastChanges($showProgress);
+        $print("Rollback action finished!", 'yellow');
         break;
     default:
         $print("Action `$action` is not supported");

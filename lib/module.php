@@ -685,10 +685,11 @@ class Module {
 
     /**
      * @param $fixes
+     * @param $callback
      * @return int
      * @throws \Exception
      */
-    public function applyFixesList($fixes) {
+    public function applyFixesList($fixes, $callback = false) {
         if (!$this->getPlatformVersion()->isValid()) {
             throw new \Exception('Module platform version is not valid');
         }
@@ -697,6 +698,7 @@ class Module {
         }
         $this->_disableListen();
         $setupLog = $this->_useSetupLog();
+        $time = microtime(true);
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
             $applyFixLog = new AppliedChangesLogModel();
@@ -726,6 +728,12 @@ class Module {
             }
             $applyFixLog->save();
         }
+        $data = array(
+            'count' => count($fixes),
+            'time' => microtime(true) - $time,
+            'log' => $applyFixLog
+        );
+        is_callable($callback) && $callback($data);
         $this->_enableListen();
         return count($fixes);
     }
@@ -779,9 +787,9 @@ class Module {
      * Applies all fixes
      * @return int
      */
-    public function applyNewFixes() {
-        $count = $this->applyFixesList($this->getNotAppliedFixes()) ?: 0;
-        $count += $this->applyNewScenarios() ?: 0;
+    public function applyNewFixes($callback) {
+        $count = $this->applyFixesList($this->getNotAppliedFixes(), $callback) ?: 0;
+        $count += $this->applyNewScenarios($callback) ?: 0;
         return $count;
     }
 
@@ -816,50 +824,87 @@ class Module {
     }
 
     /**
+     * @param $callback
      * @return null
      */
-    public function rollbackLastChanges() {
+    public function rollbackLastChanges($callback) {
         $setupLog = $this->getLastSetupLog();
         if (!$setupLog) {
             return null;
         }
-        $this->rollbackByLogs($setupLog->getAppliedLogs() ?: array());
+        $this->rollbackByLogs($setupLog->getAppliedLogs() ?: array(), $callback);
         $setupLog->delete();
     }
 
     /**
      * @param AppliedChangesLogModel[] $list
+     * @param $callback
      * @return null
      */
-    public function rollbackByLogs($list) {
+    public function rollbackByLogs($list, $callback = false) {
         $this->_disableListen();
+        $count = 0;
+        $time = microtime(true);
+        $callbackLog = false;
         foreach ($list as $log) {
+            $processName = $log->processName;
+            if ($processName == self::SPECIAL_PROCESS_SCENARIO) {
+                continue;
+            }
             $log->delete();
             if (!$log->success) {
                 continue;
             }
+            $callbackLog = $log;
+            $count++;
             try {
                 $processName = $log->processName;
-                if ($processName == self::SPECIAL_PROCESS_SCENARIO) {
-                    $class = $log->subjectName;
-                    if (!class_exists($class)) {
-                        include $this->_getScenariosDir().DIRECTORY_SEPARATOR.$class.'.php';
-                    }
-                    if (!is_subclass_of($class, '\WS\Migrations\ScriptScenario')) {
-                        continue;
-                    }
-                    $data = $log->updateData;
-                    /** @var ScriptScenario $object */
-                    $object = new $class($data, $this->getReferenceController());
-                    $object->rollback();
-                    continue;
-                }
                 $process = $this->getProcess($processName);
                 $subjectHandler = $this->getSubjectHandler($log->subjectName);
                 $process->rollback($subjectHandler, $log);
             } catch (\Exception $e) {
                 continue;
             }
+        }
+        if ($count > 0) {
+            $calbackData = array(
+                'time' => microtime(true) - $time,
+                'log' => $callbackLog,
+                'count' => $count
+            );
+            is_callable($callback) && $callback($calbackData);
+        }
+
+        foreach ($list as $log) {
+            $processName = $log->processName;
+            if ($processName != self::SPECIAL_PROCESS_SCENARIO) {
+                continue;
+            }
+            $log->delete();
+            if (!$log->success) {
+                continue;
+            }
+            $time = microtime(true);
+            try {
+                $class = $log->subjectName;
+                if (!class_exists($class)) {
+                    include $this->_getScenariosDir().DIRECTORY_SEPARATOR.$class.'.php';
+                }
+                if (!is_subclass_of($class, '\WS\Migrations\ScriptScenario')) {
+                    continue;
+                }
+                $data = $log->updateData;
+                /** @var ScriptScenario $object */
+                $object = new $class($data, $this->getReferenceController());
+                $object->rollback();
+            } catch (\Exception $e) {
+
+            }
+            $calbackData = array(
+                'time' => microtime(true) - $time,
+                'log' => $log
+            );
+            is_callable($callback) && $callback($calbackData);
         }
         $this->_enableListen();
     }
@@ -999,7 +1044,7 @@ class Module {
         return $files;
     }
 
-    public function applyNewScenarios() {
+    public function applyNewScenarios($callback = false) {
         $classes = $this->getNotAppliedScenarios();
         if (!$classes) {
             return 0;
@@ -1007,6 +1052,7 @@ class Module {
         $setupLog = $this->_useSetupLog();
         $this->_disableListen();
         foreach ($classes as $class) {
+            $time = microtime(true);
             /** @var ScriptScenario $object */
             $object = new $class(array(), $this->getReferenceController());
             $applyFixLog = new AppliedChangesLogModel();
@@ -1027,6 +1073,11 @@ class Module {
                 $applyFixLog->description .= " Exception:".$e->getMessage();
             }
             $applyFixLog->save();
+            $data = array(
+                'time' => microtime(true) - $time,
+                'log' => $applyFixLog
+            );
+            is_callable($callback) && $callback($data);
         }
         $this->_enableListen();
         return count($classes);
