@@ -27,6 +27,16 @@ $fDiff = function ($array1, $array2) use (& $fDiff) {
 $localization;
 $module = \WS\Migrations\Module::getInstance();
 
+$serviceLabels = array(
+    '~reference',
+    '~property_list_values',
+    'Reference fix',
+    'reference',
+    'group',
+    'dbVersion',
+    'Insert reference'
+);
+
 $label = $_GET['label'];
 $type  = $_GET['type'];
 $data = array();
@@ -82,7 +92,7 @@ switch ($type) {
 $APPLICATION->SetTitle($localization->message('title',$arTitle));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-$tabControl = new CAdminTabControl('ws_maigrations_label_detail', array(
+$tabs = array(
     array(
         "DIV" => "edit1",
         "TAB" => $localization->getDataByPath('tabs.diff'),
@@ -94,25 +104,45 @@ $tabControl = new CAdminTabControl('ws_maigrations_label_detail', array(
         "TAB" => $localization->getDataByPath('tabs.final'),
         "ICON" => "iblock",
         "TITLE" => $localization->getDataByPath('tabs.final')
-    ),
-    array(
+    )
+);
+$hasOriginalData = false;
+foreach ($data as $iData) {
+    if ($iData['originalData']) {
+        $hasOriginalData = true;
+        break;
+    }
+}
+if ($hasOriginalData) {
+    $tabs[] = array(
         "DIV" => "edit3",
         "TAB" => $localization->getDataByPath('tabs.merge'),
         "ICON" => "iblock",
         "TITLE" => $localization->getDataByPath('tabs.merge')
-    )
-));
-$fSection = function ($label) {
+    );
+}
+$tabControl = new CAdminTabControl('ws_maigrations_label_detail', $tabs);
+$fSection = function ($label) use ($serviceLabels, $localization) {
+    if (in_array($label, $serviceLabels, true)) {
+        $label = $localization->message('serviceLabels.'.$label);
+    }
     ?>
     <tr class="heading">
-        <td colspan="2"><?=$label?></td>
+        <td colspan="2">
+            <?=$label?>
+            <a href="#" style="text-decoration: none; border-bottom: 1px dashed;" class="show">показать данные</a>
+            <a href="#" style="text-decoration: none; border-bottom: 1px dashed; display: none;" class="hide">скрыть данные</a>
+        </td>
     </tr>
     <?php
 };
-$fRow = function ($label, $value) {
+$fRow = function ($label, $value) use ($serviceLabels, $localization) {
+    if (in_array($label, $serviceLabels, true)) {
+        $label = $localization->message('serviceLabels.'.$label);
+    }
     ?>
     <tr>
-        <td width="30%"><b><?=$label?>:</b></td>
+        <td width="30%" valign="top"><b><?=$label?>:</b></td>
         <td width="60%"><?=is_array($value) ? \Bitrix\Main\Diag\Debug::dump($value) : $value?></td>
     </tr>
     <?php
@@ -145,7 +175,7 @@ foreach ($data as $iData) {
             if (!array_filter($value)) {
                 continue;
             }
-            $fSection($field);
+            $fRow($field);
             foreach ($value as $subValueField => $subValue) {
                 if (!$subValue) {
                     continue;
@@ -172,7 +202,7 @@ foreach ($data as $iData) {
             continue;
         }
         if (is_array($value)) {
-            $fSection($field);
+            $fRow($field, '');
             foreach ($value as $subValueField => $subValue) {
                 if (!$subValue) {
                     continue;
@@ -198,7 +228,7 @@ foreach ($data as $iData) {
             continue;
         }
         if (is_array($value)) {
-            $fSection($field);
+            $fRow($field, '');
             foreach ($value as $subValueField => $subValue) {
                 if (!$subValue) {
                     continue;
@@ -213,3 +243,56 @@ foreach ($data as $iData) {
 $tabControl->EndTab();
 $tabControl->Buttons();
 $tabControl->End();
+CJSCore::Init(array('jquery'));
+?>
+<script type="text/javascript">
+    $(function () {
+        function Section(header, rows) {
+            this.rows = rows;
+            this.header = header;
+
+            var This = this;
+            $(header).find('a.hide').click(function (e) {
+                e.preventDefault();
+                This.hide();
+            });
+            $(header).find('a.show').click(function (e) {
+                e.preventDefault();
+                This.show();
+            });
+        }
+
+        Section.prototype.show = function () {
+            $(this.rows).each(function () {
+                $(this).show();
+            });
+            $(this.header).find('a.hide').show();
+            $(this.header).find('a.show').hide();
+        };
+
+        Section.prototype.hide = function () {
+            $(this.rows).each(function () {
+                $(this).hide();
+            });
+            $(this.header).find('a.hide').hide();
+            $(this.header).find('a.show').show();
+        };
+
+        $('tr.heading').each(function () {
+            var rows = [];
+            var el = $(this).next();
+            while (true) {
+                if ($(el).is(".heading")) {
+                    break;
+                }
+                if (!$(el).is('tr')) {
+                    break;
+                }
+                rows.push(el);
+                el = $(el).next();
+            }
+            var sec = new Section(this, rows);
+            sec.hide();
+        });
+    });
+</script>

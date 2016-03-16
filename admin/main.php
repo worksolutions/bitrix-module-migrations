@@ -150,7 +150,11 @@ if ($lastSetupLog) {
         <td width="30%" valign="top"><b><?= $localization->getDataByPath('appliedList') ?>:</b></td>
         <td width="70%">
             <ol style="list-style-type: none; padding-left: 0px; margin-top: 0px;">
-                <? foreach ($appliedFixes as $fixName => $fixCount): ?>
+                <? foreach ($appliedFixes as $fixName => $fixCount):
+                    if ($fixName == 'Insert reference') {
+                        $fixName = $localization->message('common.reference-fix');
+                    }
+                ?>
                     <li><?= $fixName ?> <?= $fixCount > 1 ? '['.$fixCount.']' : '' ?></li>
                 <?endforeach; ?>
             </ol>
@@ -211,6 +215,7 @@ $lastSetupLog
                 'title': "<?=$localization->message("newChangesTitle")?>",
                 'content_url': '/bitrix/admin/ws_migrations.php?q=newChangesList',
                 'width': 900,
+                'height': 130,
                 'buttons': [BX.CAdminDialog.btnClose],
                 'resizable': false
             })).Show();
