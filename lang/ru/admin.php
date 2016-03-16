@@ -129,5 +129,10 @@ return array(
         'message' => array(
             'nobody' => 'Обновление площадки еще не произошло'
         )
-    )
+    ),
+    'cli' => array(
+        'common' => array(
+            'reference-fix' => 'Синхронизация связей'
+        ),
+    ),
 );

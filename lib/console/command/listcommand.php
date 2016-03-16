@@ -5,15 +5,18 @@ namespace WS\Migrations\Console\Command;
 class ListCommand extends BaseCommand{
 
     private $registeredFixes;
+    /** @var  \WS\Migrations\Localization */
+    private $localization;
 
     protected function initParams($params) {
         $this->registeredFixes = array();
+        $this->localization = \WS\Migrations\Module::getInstance()->getLocalization('admin')->fork('cli');
     }
 
     public function execute($callback = false) {
         $has = false;
         foreach ($this->module->getNotAppliedFixes() as $notAppliedFix) {
-            $this->registerFix($notAppliedFix->getLabel());
+            $this->registerFix($notAppliedFix->getName());
             $has = true;
         }
         foreach ($this->module->getNotAppliedScenarios() as $notAppliedScenario) {
@@ -25,6 +28,9 @@ class ListCommand extends BaseCommand{
     }
 
     private function registerFix($name) {
+        if ($name == 'Reference fix') {
+            $name = $this->localization->message('common.reference-fix');
+        }
         $this->registeredFixes[$name]++;
     }
 
