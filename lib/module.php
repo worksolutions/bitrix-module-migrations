@@ -46,7 +46,7 @@ class Module {
     const FALLBACK_LOCALE = 'en';
 
     private $localizePath = null,
-            $localizations = array();
+        $localizations = array();
 
     private static $name = 'ws.migrations';
 
@@ -702,14 +702,42 @@ class Module {
         }
         $this->_disableListen();
         $setupLog = $this->_useSetupLog();
-        $time = microtime(true);
-        $countFixes = count($fixes);
-        $data = array(
-            'name' => "References updates[{$countFixes}]",
-        );
-        is_callable($callback) && $callback($data, 'start');
+
+        $fixNames = array();
+        $prevFixName = '';
+        $cnt = 0;
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
+            if ($prevFixName != $fix->getName()) {
+                $cnt++;
+                $prevFixName = $fix->getName();
+            }
+            $fixNames[$fix->getName() . $cnt]++;
+        }
+        $prevFixName = '';
+        $time = microtime(true);
+        /** @var CollectorFix $fix */
+        foreach ($fixes as $fix) {
+
+            if ($prevFixName != $fix->getName() && !empty($prevFixName)) {
+                $data = array(
+                    'count' => count($fixes),
+                    'time' => microtime(true) - $time,
+                    'log' => $applyFixLog,
+                    'error' => ''
+                );
+                is_callable($callback) && $callback($data, 'end');
+            }
+
+            if ($prevFixName != $fix->getName()) {
+                $time = microtime(true);
+                $countFixes = $fixNames[$fix->getName()];
+                $data = array(
+                    'name' => "{$fix->getName()}" . ($countFixes > 1 ? "[{$countFixes}]" : ""),
+                );
+                is_callable($callback) && $callback($data, 'start');
+            }
+            $prevFixName = $fix->getName();
             $applyFixLog = new AppliedChangesLogModel();
             try {
                 $applyFixLog->processName = $fix->getProcess();
@@ -798,7 +826,18 @@ class Module {
      * @return int
      */
     public function applyNewFixes($callback = false) {
-        is_callable($callback) && $callback(count($this->getNotAppliedScenarios()) + 1, 'setCount');
+        if (is_callable($callback)) {
+            $countFixes = 0;
+            $prevName = '';
+            foreach ($this->getNotAppliedFixes() as $fix) {
+                if ($prevName == $fix->getName()) {
+                    continue;
+                }
+                $countFixes++;
+                $prevName = $fix->getName();
+            }
+            $callback(count($this->getNotAppliedScenarios()) + $countFixes, 'setCount');
+        }
         $count = $this->applyFixesList($this->getNotAppliedFixes(), $callback) ?: 0;
         $count += $this->applyNewScenarios($callback) ?: 0;
         return $count;
@@ -876,7 +915,7 @@ class Module {
         is_callable($callback) && $callback($migrationsCount, 'setCount');
         if ($count) {
             $callbackData = array(
-                'name' => "References updates[$count]"
+                'name' => "References updates" . ($count > 1 ? "[$count]" : "")
             );
             is_callable($callback) && $callback($callbackData, 'start');
         }
