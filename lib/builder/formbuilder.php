@@ -20,8 +20,8 @@ class FormBuilder {
 
     public function reset() {
         $this->form = null;
-        $this->fields = null;
-        $this->statuses = null;
+        $this->fields = array();
+        $this->statuses = array();
     }
 
     /**

@@ -16,8 +16,8 @@ class EventsBuilder {
 
     public function reset() {
         $this->eventType = null;
-        $this->newMessages = null;
-        $this->exitsMessages = null;
+        $this->newMessages = array();
+        $this->exitsMessages = array();
     }
 
     /**

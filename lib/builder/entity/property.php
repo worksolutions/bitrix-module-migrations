@@ -62,6 +62,7 @@ class Property extends Base {
     public function __construct($name, $data = array()) {
         $this->name = $name;
         $this->dateUpdate = new DateTime();
+        $this->enumVariants = array();
         $this->setSaveData($data);
     }
 

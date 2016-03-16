@@ -43,6 +43,7 @@ class UserField extends Base {
 
     public function __construct($code, $data = false) {
         $this->code = strtoupper($code);
+        $this->enumVariants = array();
         $this->setSaveData($data);
     }
 

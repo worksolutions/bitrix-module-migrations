@@ -21,7 +21,7 @@ class IblockBuilder {
     public function reset() {
         $this->iblock = null;
         $this->iblockType = null;
-        $this->properties = null;
+        $this->properties = array();
     }
 
     public function addIblockType($type) {

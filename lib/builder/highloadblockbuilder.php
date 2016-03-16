@@ -19,7 +19,7 @@ class HighLoadBlockBuilder {
 
     public function reset() {
         $this->highLoadBlock = null;
-        $this->fields = null;
+        $this->fields = array();
     }
 
     public function addHLBlock($name, $tableName) {

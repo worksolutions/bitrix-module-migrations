@@ -38,6 +38,7 @@ class FormField extends Base {
 
     public function __construct($sid, $data = array()) {
         $this->sid = $sid;
+        $this->answers = array();
         $this->setSaveData($data);
     }
 
