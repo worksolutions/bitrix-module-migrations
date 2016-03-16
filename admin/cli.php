@@ -67,18 +67,18 @@ $showProgress = function ($data, $type) use (& $print, & $migrationNumber, & $mi
     }
     if ($type == 'start') {
         $migrationNumber++;
-        $print("Start: {$data['name']}({$migrationNumber}/$migrationCount)", 'yellow');
+        $print("{$data['name']}({$migrationNumber}/$migrationCount)", 'yellow');
     }
     if ($type == 'end') {
         /**@var \WS\Migrations\Entities\AppliedChangesLogModel $log */
         $log = $data['log'];
         $time = round($data['time'], 2);
-        $message = 'End: '. $log->description;
-        if (isset($data['count'])) {
-            $message .= "[{$data['count']}]";
+        $message = '';
+        if (!empty($data['error'])) {
+            $message .= $data['error'] . '. ';
         }
         $overallTime = round(microtime(true) - $start, 2);
-        $message .= ": $time sec ($overallTime sec)";
+        $message .= "$time sec ($overallTime sec)";
         $print($message, $log->success ? 'green' : 'red');
     }
 };
@@ -86,11 +86,10 @@ $showProgress = function ($data, $type) use (& $print, & $migrationNumber, & $mi
 $print("");
 
 array_shift($argv);
-if (empty($argv)) {
-    $print("Call params are empty");
-    exit();
-}
 $params = $argv;
+if (empty($argv)) {
+    $params[0] = '--help';
+}
 if ($params[0] == '--help') {
     $print("Action list:");
     $print("* list List of new migrations");
@@ -190,6 +189,33 @@ switch ($action) {
             break;
         }
         $print($fileName, 'green');
+        break;
+    case 'last':
+        $lastSetupLog = \WS\Migrations\Module::getInstance()->getLastSetupLog();
+        if (!$lastSetupLog) {
+           break;
+        }
+        $appliedFixes = array();
+        $errorFixes = array();
+
+        foreach ($lastSetupLog->getAppliedLogs() as $appliedLog) {
+            !$appliedLog->success && $errorFixes[] = $appliedLog;
+            $appliedLog->success && $appliedFixes[$appliedLog->description]++;
+        }
+        foreach ($appliedFixes as $fixName => $fixCount) {
+            $print($fixName . ($fixCount > 1 ? "[$fixCount]" : ""), 'green');
+        }
+        /** @var \WS\Migrations\Entities\AppliedChangesLogModel $errorApply */
+        foreach ($errorFixes as $errorApply) {
+            $errorData = \WS\Migrations\jsonToArray($errorApply->description) ?: $errorApply->description;
+            if (is_scalar($errorData)) {
+                $print($errorData, 'red');
+            }
+            if (is_array($errorData)) {
+                $print($errorData['message'], 'red');
+            }
+
+        }
         break;
     default:
         $print("Action `$action` is not supported");

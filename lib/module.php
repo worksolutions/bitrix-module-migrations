@@ -740,7 +740,8 @@ class Module {
         $data = array(
             'count' => count($fixes),
             'time' => microtime(true) - $time,
-            'log' => $applyFixLog
+            'log' => $applyFixLog,
+            'error' => ''
         );
         is_callable($callback) && $callback($data, 'end');
         $this->_enableListen();
@@ -901,7 +902,8 @@ class Module {
             $callbackData = array(
                 'time' => microtime(true) - $time,
                 'log' => $callbackLog,
-                'count' => $count
+                'count' => $count,
+                'error' => '',
             );
             is_callable($callback) && $callback($callbackData, 'end');
         }
@@ -920,6 +922,7 @@ class Module {
                 'name' => $log->description,
             );
             is_callable($callback) && $callback($callbackData, 'start');
+            $error = '';
             try {
                 $class = $log->subjectName;
                 if (!class_exists($class)) {
@@ -933,11 +936,12 @@ class Module {
                 $object = new $class($data, $this->getReferenceController());
                 $object->rollback();
             } catch (\Exception $e) {
-
+                $error = "Exception:" . $e->getMessage();
             }
             $callbackData = array(
                 'time' => microtime(true) - $time,
-                'log' => $log
+                'log' => $log,
+                'error' => $error
             );
             is_callable($callback) && $callback($callbackData, 'end');
         }
@@ -1104,18 +1108,21 @@ class Module {
             list($dbVersion, $versionOwner) = $object->version();
             $applyFixLog->source = $dbVersion;
             $this->_useVersion($dbVersion, $versionOwner);
+            $error = '';
             try {
                 $object->commit();
                 $applyFixLog->updateData = $object->getData();
                 $applyFixLog->success = true;
             } catch (\Exception $e) {
                 $applyFixLog->success = false;
-                $applyFixLog->description .= " Exception:".$e->getMessage();
+                $applyFixLog->description .= " Exception:" . $e->getMessage();
+                $error = "Exception:" . $e->getMessage();
             }
             $applyFixLog->save();
             $data = array(
                 'time' => microtime(true) - $time,
-                'log' => $applyFixLog
+                'log' => $applyFixLog,
+                'error' => $error
             );
             is_callable($callback) && $callback($data, 'end');
         }
