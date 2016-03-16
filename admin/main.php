@@ -151,7 +151,7 @@ if ($lastSetupLog) {
         <td width="70%">
             <ol style="list-style-type: none; padding-left: 0px; margin-top: 0px;">
                 <? foreach ($appliedFixes as $fixName => $fixCount):
-                    if ($fixName == 'Insert reference') {
+                    if ($fixName == 'Insert reference' || $fixName == 'References updates') {
                         $fixName = $localization->message('common.reference-fix');
                     }
                 ?>
