@@ -30,7 +30,8 @@ use WS\Migrations\Tests\Starter;
  */
 class Module {
 
-    const FIX_CHANGES_ADD_KEY           = 'add';
+    const FIX_CHANGES_BEFORE_ADD_KEY    = 'beforeAdd';
+    const FIX_CHANGES_AFTER_ADD_KEY     = 'afterAdd';
     const FIX_CHANGES_BEFORE_CHANGE_KEY = 'beforeChange';
     const FIX_CHANGES_AFTER_CHANGE_KEY  = 'afterChange';
     const FIX_CHANGES_BEFORE_DELETE_KEY = 'beforeDelete';
@@ -300,21 +301,22 @@ class Module {
     protected function handlers() {
         return array(
             IblockHandler::className() => array(
-                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockAdd'),
+                self::FIX_CHANGES_BEFORE_ADD_KEY => array('iblock', 'OnBeforeIBlockAdd'),
+                self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockUpdate'),
                 self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockDelete'),
                 self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockDelete'),
             ),
             IblockPropertyHandler::className() => array(
-                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockPropertyAdd'),
+                self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockPropertyAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockPropertyUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockPropertyUpdate'),
                 self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockPropertyDelete'),
                 self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockPropertyDelete')
             ),
             IblockSectionHandler::className() => array(
-                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockSectionAdd'),
+                self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockSectionAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockSectionUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockSectionUpdate'),
                 self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockSectionDelete'),
@@ -498,7 +500,9 @@ class Module {
 
         $result = false;
         switch ($eventKey) {
-            case self::FIX_CHANGES_ADD_KEY:
+            case self::FIX_CHANGES_BEFORE_ADD_KEY:
+                break;
+            case self::FIX_CHANGES_AFTER_ADD_KEY:
                 $process = $this->_getProcessAdd();
                 $fix
                     ->setProcess(get_class($process))
@@ -1028,6 +1032,7 @@ class Module {
         foreach ($this->getSubjectHandlers() as $handler) {
             $handler->registerExistsReferences();
         }
+        $this->getDiagnosticTester()->run();
     }
 
     /**

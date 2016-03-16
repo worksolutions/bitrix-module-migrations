@@ -30,7 +30,7 @@ class AddProcess extends BaseProcess {
     }
 
     public function change(BaseSubjectHandler $subjectHandler, CollectorFix $fix, $data = array()) {
-        $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_ADD_KEY, $data);
+        $id = $subjectHandler->getIdByChangeMethod(Module::FIX_CHANGES_AFTER_ADD_KEY, $data);
 
         $snapshot = $subjectHandler->getSnapshot($id);
         if (!$snapshot) {

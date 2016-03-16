@@ -31,7 +31,7 @@ class IblockHandler extends BaseSubjectHandler  {
      */
     public function getIdByChangeMethod($method, $data = array()) {
         switch ($method) {
-            case Module::FIX_CHANGES_ADD_KEY:
+            case Module::FIX_CHANGES_AFTER_ADD_KEY:
             case Module::FIX_CHANGES_BEFORE_CHANGE_KEY:
             case Module::FIX_CHANGES_AFTER_CHANGE_KEY:
                 return $data[0]['ID'];
