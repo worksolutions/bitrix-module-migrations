@@ -536,7 +536,7 @@ class Module {
      * @return Collector
      */
     private function _createCollector() {
-        return Collector::createInstance($this->_getFixFilesDir(), $this);
+        return Collector::createInstance($this->_getFixFilesDir());
     }
 
     /**
@@ -605,7 +605,7 @@ class Module {
         $collectors = array();
         /** @var File $file */
         foreach ($files as $file) {
-            $collectors[] = Collector::createByFile($file->getPath(), $this);
+            $collectors[] = Collector::createByFile($file->getPath());
         }
         return $collectors;
     }
@@ -686,10 +686,9 @@ class Module {
         }
     }
 
-
     /**
      * @param $fixes
-     * @param $callback
+     * @param bool|callable|false $callback
      * @return int
      * @throws \Exception
      */
@@ -707,7 +706,7 @@ class Module {
         $data = array(
             'name' => "References updates[{$countFixes}]",
         );
-        is_callable($callback) && $callback($data, 'start');
+        !is_bool($callback) && is_callable($callback) && $callback($data, 'start');
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
             $applyFixLog = new AppliedChangesLogModel();
@@ -795,7 +794,9 @@ class Module {
 
     /**
      * Applies all fixes
+     * @param callable|bool $callback
      * @return int
+     * @throws \Exception
      */
     public function applyNewFixes($callback = false) {
         is_callable($callback) && $callback(count($this->getNotAppliedScenarios()) + 1, 'setCount');
@@ -849,7 +850,7 @@ class Module {
 
     /**
      * @param AppliedChangesLogModel[] $list
-     * @param $callback
+     * @param callable|bool $callback
      * @return null
      */
     public function rollbackByLogs($list, $callback = false) {
@@ -1083,6 +1084,10 @@ class Module {
         return $files;
     }
 
+    /**
+     * @param bool|callable $callback
+     * @return int
+     */
     public function applyNewScenarios($callback = false) {
         $classes = $this->getNotAppliedScenarios();
         if (!$classes) {
