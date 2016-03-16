@@ -13,6 +13,16 @@ define('CHK_EVENT', true);
  */
 $out = fopen('php://stdout', 'w');
 
+$isParam = function ($value) {
+    $params = array(
+        '-f',
+        '-d',
+        '-n',
+        '--help'
+    );
+
+    return in_array(trim($value), $params);
+};
 $colors = array(
     'black' => 30,
     'red' => 31,
@@ -86,6 +96,7 @@ if ($params[0] == '--help') {
     $print("* list List of new migrations");
     $print("* apply Apply new migrations, \n   -f Without approve");
     $print("* rollback Rollback last applied migrations");
+    $print("* createScenario Create new migration scenario, \n  -n 'Name' scenario name \n  -d 'Description' scenario description");
     exit();
 }
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -140,6 +151,45 @@ switch ($action) {
         $module->rollbackLastChanges($showProgress);
         $interval = round(microtime(true) - $start, 2);
         $print("Rollback action finished! Time $interval sec", 'yellow');
+        break;
+    case "createScenario":
+        if ($index = array_search('-n', $argv)) {
+            isset($argv[$index + 1]) && !$isParam($argv[$index + 1]) && $name = trim($argv[$index + 1]);
+        }
+        if ($index = array_search('-d', $argv)) {
+            isset($argv[$index + 1]) && !$isParam($argv[$index + 1]) && $description = trim($argv[$index + 1]);
+        }
+        if (empty($name)) {
+            $print('Enter name:');
+            $name = $readln();
+            $i = 0;
+            while (!strlen(trim($name))) {
+                $print("Name mustn't be empty. Enter name:");
+                $name = $readln();
+            }
+        }
+        if (empty($description) && !array_search('-d', $argv)) {
+            $print('Enter description:');
+            $description = $readln();
+        }
+
+        $templateContent = file_get_contents(__DIR__.'/../data/scenarioTemplate.tpl');
+        $arReplace = array(
+            '#class_name#' => $className = 'ws_m_'.time().'_'.CUtil::translit($name, LANGUAGE_ID),
+            '#name#' => $name,
+            '#description#' => $description,
+            '#db_version#' => $module->getPlatformVersion()->getValue(),
+            '#owner#' => $module->getPlatformVersion()->getOwner()
+        );
+        $classContent = str_replace(array_keys($arReplace), array_values($arReplace), $templateContent);
+        $fileName = $className.'.php';
+        try {
+            $fileName = $module->putScriptClass($fileName, $classContent);
+        } catch (Exception $e) {
+            $print("An error occurred saving file", 'red');
+            break;
+        }
+        $print($fileName, 'green');
         break;
     default:
         $print("Action `$action` is not supported");
