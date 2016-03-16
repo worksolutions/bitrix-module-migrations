@@ -17,7 +17,8 @@ return array(
         ),
         'common' => array(
             'listEmpty' => 'Список пуст',
-            'reference-fix' => 'Синхронизация связей'
+            'reference-fix' => 'Синхронизация связей',
+            'pageEmpty' => 'Данных для обновления пока нет'
         ),
         'newChangesDetail' => 'подробно',
         'newChangesTitle' => 'Список изменений',

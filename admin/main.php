@@ -56,6 +56,13 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 // 1C-Bitrix override variable!!
 $module = \WS\Migrations\Module::getInstance();
 
+!$fixes && !$scenarios && !$lastSetupLog && CAdminMessage::ShowMessage(
+    array(
+        "MESSAGE" => $localization->message('common.pageEmpty'),
+        "TYPE" => "OK"
+    )
+);
+
 CAdminMessage::ShowMessage(array(
     'MESSAGE' => $localization->getDataByPath('platformVersion.'.($platformVersion->isValid() ? 'ok' : 'error'))
         .' <a href="/bitrix/admin/ws_migrations.php?q=changeversion">'.($platformVersion->getOwner() ?: $platformVersion->getValue()).'</a>',
@@ -92,15 +99,14 @@ if ($fixes || $scenarios) {
     if ($fixes) {
         ?>
         <tr style="color: #3591ff; font-size: 14px;">
-            <td width="20%"><b><?= $localization->getDataByPath('list.auto') ?>:</b></td>
-            <td width="80%">
+            <td width="30%" valign="top"><b><?= $localization->getDataByPath('list.auto') ?>:</b></td>
+            <td width="70%">
                 <? if ($fixes): ?>
                     <ol style="margin-top: 0px; list-style-type: none; padding-left: 0px;">
                         <? foreach ($fixes as $fixName => $fixCount): ?>
                             <li><?= $fixName ?> [<?= $fixCount ?>]</li>
                         <? endforeach; ?>
-                        <li><a href="#"
-                               id="newChangesViewLink"><?= $localization->getDataByPath('newChangesDetail') ?></a></li>
+                        <li><a href="#" style="color: #242E32; text-decoration: none; border-bottom: 1px dashed #242E32" id="newChangesViewLink"><?= $localization->getDataByPath('newChangesDetail') ?></a></li>
                     </ol>
                     <?
                 else: ?>
@@ -113,8 +119,8 @@ if ($fixes || $scenarios) {
     if ($scenarios) {
     ?>
         <tr style="color: #3591ff; font-size: 14px;">
-            <td width="20%" valign="top"><b><?= $localization->getDataByPath('list.scenarios') ?>:</b></td>
-            <td width="80%">
+            <td width="30%" valign="top"><b><?= $localization->getDataByPath('list.scenarios') ?>:</b></td>
+            <td width="70%">
                 <? if ($scenarios): ?>
                     <ol style="margin-top: 0px; list-style-type: none; padding-left: 0px;">
                         <? foreach ($scenarios as $scenario): ?>
@@ -142,7 +148,7 @@ if ($lastSetupLog) {
         ?>
         <tr style="color: #32cd32;  font-size: 14px;">
         <td width="30%" valign="top"><b><?= $localization->getDataByPath('appliedList') ?>:</b></td>
-        <td width="60%">
+        <td width="70%">
             <ol style="list-style-type: none; padding-left: 0px; margin-top: 0px;">
                 <? foreach ($appliedFixes as $fixName => $fixCount): ?>
                     <li><?= $fixName ?> <?= $fixCount > 1 ? '['.$fixCount.']' : '' ?></li>
@@ -186,12 +192,13 @@ $form->EndTab();
 !$fixes && !$scenarios && !$lastSetupLog && $form->bPublicMode = true;
 !$isDiagnosticValid && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnApply' => false));
-$isDiagnosticValid && $lastSetupLog
-    && $form->sButtonsContent =
-        '<input type="submit" class="adm-btn-save" name="apply" value="'.$localization->getDataByPath('btnApply').'" title="'.$localization->getDataByPath('btnApply').'"/>'.
+$isDiagnosticValid && ($fixes || $scenarios)
+    && $form->sButtonsContent .=
+        '<input type="submit" class="adm-btn-save" name="apply" value="'.$localization->getDataByPath('btnApply').'" title="'.$localization->getDataByPath('btnApply').'"/>';
+$lastSetupLog
+    && $form->sButtonsContent .=
         '<input type="submit" name="rollback" value="'.$localization->getDataByPath('btnRollback').'" title="'.$localization->getDataByPath('btnRollback').'"/>';
-
-$form->Show();
+    $form->Show();
 ?></form>
 <script type="text/javascript">
     $(function () {
