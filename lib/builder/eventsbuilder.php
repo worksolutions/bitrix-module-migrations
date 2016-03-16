@@ -48,18 +48,29 @@ class EventsBuilder {
         return $this->eventType;
     }
 
+    /**
+     * @param $from
+     * @param $to
+     * @param $siteId
+     * @return EventMessage
+     */
     public function addEventMessage($from, $to, $siteId) {
         $message = new EventMessage($from, $to, $siteId);
         $this->newMessages[] = $message;
         return $message;
     }
 
+    /**
+     * @return Entity\EventMessage[]
+     * @throws BuilderException
+     */
     public function updateEventMessages() {
         foreach ($this->findMessages() as $data) {
             $this->exitsMessages[] = new EventMessage(false, false, false, $data);
         }
         return $this->exitsMessages;
     }
+
     /**
      * @return EventType
      */
@@ -121,6 +132,9 @@ class EventsBuilder {
         }
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitNewEventMessages() {
         global $APPLICATION;
         if (!$this->getEventType()->getId()) {
@@ -139,6 +153,9 @@ class EventsBuilder {
         }
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitExistsEventMessages() {
         global $APPLICATION;
         if (!$this->getEventType()->getId()) {
@@ -163,6 +180,11 @@ class EventsBuilder {
         }
     }
 
+    /**
+     * @return array
+     * @throws BuilderException
+     * @throws \Bitrix\Main\ArgumentException
+     */
     private function findMessages() {
         if (!$this->getEventType()->getId()) {
             throw new BuilderException("EventType doesn't set");

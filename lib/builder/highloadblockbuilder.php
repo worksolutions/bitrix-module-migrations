@@ -22,6 +22,12 @@ class HighLoadBlockBuilder {
         $this->fields = array();
     }
 
+    /**
+     * @param $name
+     * @param $tableName
+     * @return HighLoadBlock
+     * @throws BuilderException
+     */
     public function addHLBlock($name, $tableName) {
         if ($this->highLoadBlock) {
             throw new BuilderException('reset builder data for continue');
@@ -30,6 +36,11 @@ class HighLoadBlockBuilder {
         return $this->highLoadBlock;
     }
 
+    /**
+     * @param $tableName
+     * @return HighLoadBlock
+     * @throws BuilderException
+     */
     public function updateHLBlock($tableName) {
         if ($this->highLoadBlock) {
             throw new BuilderException('reset builder data for continue');
@@ -39,12 +50,21 @@ class HighLoadBlockBuilder {
         return $this->highLoadBlock;
     }
 
+    /**
+     * @param $code
+     * @return UserField
+     */
     public function addField($code) {
         $field = new UserField($code);
         $this->fields[] = $field;
         return $field;
     }
 
+    /**
+     * @param $code
+     * @return UserField
+     * @throws BuilderException
+     */
     public function updateField($code) {
         $data = $this->findField($code);
         $field = new UserField($code, $data);
@@ -52,6 +72,9 @@ class HighLoadBlockBuilder {
         return $field;
     }
 
+    /**
+     * @throws BuilderException
+     */
     public function commit() {
         global $DB;
         $DB->StartTransaction();
@@ -90,6 +113,10 @@ class HighLoadBlockBuilder {
         return $this->highLoadBlock;
     }
 
+    /**
+     * @throws BuilderException
+     * @throws \Bitrix\Main\SystemException
+     */
     private function commitHighLoadBlock() {
         if (!$this->highLoadBlock->getId()) {
             $hbRes = HighloadBlockTable::add($this->highLoadBlock->getSaveData());
@@ -100,11 +127,14 @@ class HighLoadBlockBuilder {
             );
         }
         if (!$hbRes->isSuccess()) {
-            throw new \Exception($this->highLoadBlock->tableName . ' ' . implode(', ', $hbRes->getErrorMessages()));
+            throw new BuilderException($this->highLoadBlock->tableName . ' ' . implode(', ', $hbRes->getErrorMessages()));
         }
         $this->highLoadBlock->setId($hbRes->getId());
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitFields() {
         global $APPLICATION;
         if (!$this->getHighLoadBlock()->getId()) {
@@ -154,6 +184,11 @@ class HighLoadBlockBuilder {
         }
     }
 
+    /**
+     * @param $code
+     * @return array
+     * @throws BuilderException
+     */
     private function findField($code) {
         if (!$this->highLoadBlock) {
             throw new BuilderException('set higloadBlock for continue');

@@ -24,6 +24,11 @@ class IblockBuilder {
         $this->properties = array();
     }
 
+    /**
+     * @param $type
+     * @return IblockType
+     * @throws BuilderException
+     */
     public function addIblockType($type) {
         if ($this->iblockType) {
             throw new BuilderException('IblockType already set');
@@ -32,6 +37,11 @@ class IblockBuilder {
         return $this->iblockType;
     }
 
+    /**
+     * @param $type
+     * @return IblockType
+     * @throws BuilderException
+     */
     public function updateIblockType($type) {
         if ($this->iblockType) {
             throw new BuilderException('IblockType already set');
@@ -118,6 +128,9 @@ class IblockBuilder {
         $DB->Commit();
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitIblockType() {
         if (!$this->iblockType) {
             return;
@@ -136,6 +149,9 @@ class IblockBuilder {
         }
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitIblock() {
         if (!$this->iblock) {
             return;
@@ -154,6 +170,9 @@ class IblockBuilder {
         }
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitProperties() {
         $propertyGw = new \CIBlockProperty();
         if (empty($this->properties)) {
@@ -195,12 +214,20 @@ class IblockBuilder {
         return $this->iblock;
     }
 
+    /**
+     * @param $type
+     * @return array
+     */
     private function findIblockType($type) {
         return \CIBlockType::GetList(null, array(
             'ID' => $type
         ))->Fetch();
     }
 
+    /**
+     * @param $code
+     * @return array
+     */
     private function findIblock($code) {
         return \CIBlock::GetList(null, array(
             '=CODE' => $code

@@ -139,6 +139,9 @@ class FormBuilder {
         $this->form->setId($formId);
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitFields() {
         global $strError;
         $gw = new \CFormField();
@@ -175,6 +178,9 @@ class FormBuilder {
         }
     }
 
+    /**
+     * @throws BuilderException
+     */
     private function commitStatuses() {
         global $strError;
         $gw = new \CFormStatus();
@@ -189,6 +195,11 @@ class FormBuilder {
         }
     }
 
+    /**
+     * @param $sid
+     * @return array
+     * @throws BuilderException
+     */
     private function findForm($sid) {
         $data = \CForm::GetList($by = 'ID', $order = 'ASC', array(
             'SID' => $sid
@@ -201,6 +212,11 @@ class FormBuilder {
         return $data;
     }
 
+    /**
+     * @param $sid
+     * @return array
+     * @throws BuilderException
+     */
     private function findField($sid) {
         if (!$this->form->getId()) {
             throw new BuilderException("Form doesn't set");
@@ -214,6 +230,11 @@ class FormBuilder {
         return $field;
     }
 
+    /**
+     * @param $title
+     * @return array
+     * @throws BuilderException
+     */
     private function findStatus($title) {
         if (!$this->form->getId()) {
             throw new BuilderException("Form doesn't set");

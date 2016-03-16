@@ -14,6 +14,11 @@ class AgentBuilder {
         $this->agent = null;
     }
 
+    /**
+     * @param $callback
+     * @return Agent
+     * @throws BuilderException
+     */
     public function addAgent($callback) {
         if ($this->agent) {
             throw new BuilderException('reset builder data for continue');
@@ -22,6 +27,11 @@ class AgentBuilder {
         return $this->agent;
     }
 
+    /**
+     * @param $callback
+     * @return Agent
+     * @throws BuilderException
+     */
     public function updateAgent($callback) {
         if ($this->agent) {
             throw new BuilderException('reset builder data for continue');
@@ -31,6 +41,9 @@ class AgentBuilder {
         return $this->agent;
     }
 
+    /**
+     * @throws BuilderException
+     */
     public function commit() {
         global $DB, $APPLICATION;
         $DB->StartTransaction();
@@ -73,6 +86,11 @@ class AgentBuilder {
         return $this->agent;
     }
 
+    /**
+     * @param $callback
+     * @return array
+     * @throws BuilderException
+     */
     private function findAgent($callback) {
         $agent = \CAgent::GetList(null, array(
             'NAME' => $callback,
