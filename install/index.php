@@ -69,25 +69,25 @@ Class ws_migrations extends CModule {
         if ($data['catalog']) {
             $dir = $this->docRoot() . $data['catalog'];
             if (!is_dir($dir) && !$this->createDir($data['catalog'])) {
-                $errors[] = $loc->getDataByPath('error.notCreateDir');
+                $errors[] = $loc->getDataByPath('errors.notCreateDir');
             }
             if (!$errors) {
                 $options->catalogPath = $data['catalog'];
-            }
-            $this->InstallFiles();
-            $this->InstallDB();
-            RegisterModule(self::MODULE_ID);
-            \Bitrix\Main\Loader::includeModule(self::MODULE_ID);
-            \Bitrix\Main\Loader::includeModule('iblock');
-            $this->module()->install();
+                $this->InstallFiles();
+                $this->InstallDB();
+                RegisterModule(self::MODULE_ID);
+                \Bitrix\Main\Loader::includeModule(self::MODULE_ID);
+                \Bitrix\Main\Loader::includeModule('iblock');
+                $this->module()->install();
 
-            foreach ($this->module()->getSubjectHandlers() as $handler) {
-                $handlerClass = get_class($handler);
-                $handlerClassValue = (bool)$data['handlers'][$handlerClass];
-                $handlerClassValue && $this->module()->enableSubjectHandler($handlerClass);
-                !$handlerClassValue && $this->module()->disableSubjectHandler($handlerClass);
+                foreach ($this->module()->getSubjectHandlers() as $handler) {
+                    $handlerClass = get_class($handler);
+                    $handlerClassValue = (bool)$data['handlers'][$handlerClass];
+                    $handlerClassValue && $this->module()->enableSubjectHandler($handlerClass);
+                    !$handlerClassValue && $this->module()->disableSubjectHandler($handlerClass);
+                }
+                $this->createCli();
             }
-            $this->createCli();
         }
         if (!$data || $errors) {
             $APPLICATION->IncludeAdminFile($loc->getDataByPath('title'), __DIR__.'/form.php');
@@ -166,6 +166,9 @@ Class ws_migrations extends CModule {
         $parts = explode('/', $dir);
         $dir = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
         foreach ($parts as $part) {
+            if (!$part) {
+                continue;
+            }
             $dir .= '/'.$part;
             if (!mkdir($dir)) {
                 return false;

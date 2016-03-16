@@ -13,6 +13,9 @@ $fCreateDir = function ($dir) {
     $parts = explode('/', $dir);
     $dir = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
     foreach ($parts as $part) {
+        if (!$part) {
+            continue;
+        }
         $dir .= '/'.$part;
         if (!mkdir($dir)) {
             return false;

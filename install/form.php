@@ -22,7 +22,6 @@ echo BeginNote();
 echo $localization->getDataByPath('description');
 echo EndNote();
 
-$errors && ShowError(implode(', ', $errors));
 $form->Begin(array(
     'FORM_ACTION' => $APPLICATION->GetCurUri()
 ));
