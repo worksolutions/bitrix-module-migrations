@@ -30,6 +30,8 @@ class Console {
     private $defaultOutput;
 
     public function __construct($args) {
+        global $APPLICATION;
+        $APPLICATION->ConvertCharsetArray($args, "UTF-8", LANG_CHARSET);
         $this->out = fopen('php://stdout', 'w');
         array_shift($args);
         $this->params = $args;

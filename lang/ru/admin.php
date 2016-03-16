@@ -138,5 +138,10 @@ return array(
             'group' => 'Группа сущности (обработчик)',
             'dbVersion' => 'Версия платфомы'
         )
-    )
+    ),
+    'cli' => array(
+        'common' => array(
+            'reference-fix' => 'Синхронизация связей'
+        ),
+    ),
 );

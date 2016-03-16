@@ -120,5 +120,10 @@ return array(
             'descriptionMoreLink' => 'more',
             'errorWindow' => 'Error information'
         )
-    )
+    ),
+    'cli' => array(
+        'common' => array(
+            'reference-fix' => 'References fix'
+        ),
+    ),
 );
