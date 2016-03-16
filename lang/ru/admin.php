@@ -128,6 +128,15 @@ return array(
         ),
         'message' => array(
             'nobody' => 'Обновление площадки еще не произошло'
+        ),
+        'serviceLabels' => array(
+            '~reference' => 'HASH',
+            '~property_list_values' => 'VALUES',
+            'Reference fix' => 'Регистрация ссылки сущности со стороней платформы',
+            'Insert reference' => 'Новая ссылка сущности',
+            'reference' => 'HASH',
+            'group' => 'Группа сущности (обработчик)',
+            'dbVersion' => 'Версия платфомы'
         )
     )
 );
