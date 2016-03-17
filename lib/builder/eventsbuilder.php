@@ -2,9 +2,9 @@
 
 namespace WS\Migrations\Builder;
 
-use Bitrix\Main\Mail\Internal\EventMessageTable;
 use WS\Migrations\Builder\Entity\EventMessage;
 use WS\Migrations\Builder\Entity\EventType;
+use WS\Migrations\Entities\EventMessageTable;
 
 class EventsBuilder {
     /** @var  EventType */
