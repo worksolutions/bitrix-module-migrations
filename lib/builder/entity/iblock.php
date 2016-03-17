@@ -38,8 +38,8 @@ class Iblock extends Base {
     const SECTION_CHOOSER_DROPDOWN = 'D';
     const SECTION_CHOOSER_SEARCH_WINDOW = 'P';
 
-    public function __construct($code, $data = false) {
-        $this->code = $code;
+    public function __construct($name, $data = false) {
+        $this->name = $name;
         $this->setSaveData($data);
         $this->dateUpdate = new DateTime();
     }

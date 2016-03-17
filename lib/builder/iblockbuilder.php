@@ -3,6 +3,7 @@
 namespace WS\Migrations\Builder;
 
 use WS\Migrations\Builder\Entity\Iblock;
+use WS\Migrations\Builder\Entity\IblockSection;
 use WS\Migrations\Builder\Entity\IblockType;
 use WS\Migrations\Builder\Entity\Property;
 
@@ -13,6 +14,8 @@ class IblockBuilder {
     private $properties;
     /** @var  IblockType */
     private $iblockType;
+    /** @var  IblockSection[] */
+    private $sections;
 
     public function __construct() {
         \CModule::IncludeModule('iblock');
@@ -22,6 +25,7 @@ class IblockBuilder {
         $this->iblock = null;
         $this->iblockType = null;
         $this->properties = array();
+        $this->sections = array();
     }
 
     /**
@@ -42,7 +46,7 @@ class IblockBuilder {
      * @return IblockType
      * @throws BuilderException
      */
-    public function updateIblockType($type) {
+    public function getIblockType($type) {
         if ($this->iblockType) {
             throw new BuilderException('IblockType already set');
         }
@@ -54,31 +58,31 @@ class IblockBuilder {
     }
 
     /**
-     * @param $code
+     * @param $name
      * @return Iblock
      * @throws \Exception
      */
-    public function addIblock($code) {
+    public function addIblock($name) {
         if ($this->iblock) {
             throw new BuilderException('Iblock already set');
         }
-        $this->iblock = new Iblock($code);
+        $this->iblock = new Iblock($name);
         return $this->iblock;
     }
 
     /**
-     * @param $code
+     * @param $name
      * @return Iblock
      * @throws \Exception
      */
-    public function updateIblock($code) {
+    public function getIblock($name) {
         if ($this->iblock) {
             throw new BuilderException('Iblock already set');
         }
-        if (!$data = $this->findIblock($code)) {
-            throw new BuilderException("Can't find iblock with code {$code}");
+        if (!$data = $this->findIblock($name)) {
+            throw new BuilderException("Can't find iblock with name {$name}");
         }
-        $this->iblock = new Iblock($code, $data);
+        $this->iblock = new Iblock($name, $data);
         return $this->iblock;
     }
 
@@ -97,7 +101,7 @@ class IblockBuilder {
      * @return Property
      * @throws BuilderException
      */
-    public function updateProperty($name) {
+    public function getProperty($name) {
         if (!$this->iblock->getId()) {
             throw new BuilderException("Iblock not initialized");
         }
@@ -107,6 +111,48 @@ class IblockBuilder {
         $prop = new Property($name, $data);
         $this->properties[] = $prop;
         return $prop;
+    }
+
+    /**
+     * @param $name
+     * @return IblockSection
+     * @throws BuilderException
+     */
+    public function addSection($name) {
+        if (!$this->iblock->getId()) {
+            throw new BuilderException("Iblock not initialized");
+        }
+        $args = func_get_args();
+        if (empty($args)) {
+            throw new BuilderException("Missing arguments");
+        }
+        $section = new IblockSection($name);
+        $this->sections[] = $section;
+        return $section;
+    }
+
+    /**
+     * @param $name
+     * @return IblockSection
+     * @throws BuilderException
+     */
+    public function getSection($name) {
+        if (!$this->iblock->getId()) {
+            throw new BuilderException("Iblock not initialized");
+        }
+        if (!$data = $this->findSection($name)) {
+            throw new BuilderException("Can't find section with name {$name}");
+        }
+        $section = new IblockSection($name, $data);
+        $this->sections[] = $section;
+        return $section;
+    }
+
+    /**
+     * @return Iblock
+     */
+    public function getCurrentIblock() {
+        return $this->iblock;
     }
 
     /**
@@ -121,6 +167,9 @@ class IblockBuilder {
             $this->commitIblock();
 
             $this->commitProperties();
+
+            $this->commitSections();
+
         } catch (\Exception $e) {
             $DB->Rollback();
             throw new BuilderException($e->getMessage());
@@ -170,6 +219,43 @@ class IblockBuilder {
         }
     }
 
+    private function commitSections() {
+        if (!$this->iblock->getId()) {
+            throw new BuilderException("Iblock didn't set");
+        }
+        $gw = new \CIBlockSection();
+        foreach ($this->sections as $section) {
+            $this->saveSectionRecursive($section, false, $gw);
+        }
+    }
+
+    /**
+     * @param IblockSection $section
+     * @param $parentSectionId
+     * @param \CIBlockSection $gw
+     * @throws BuilderException
+     */
+    private function saveSectionRecursive($section, $parentSectionId, $gw) {
+        $data = $section->getSaveData();
+        $data['IBLOCK_SECTION_ID'] = $parentSectionId;
+        $data['IBLOCK_ID'] = $this->iblock->getId();
+        if ($section->getId() > 0) {
+            $res = $gw->Update($section->getId(), $data);
+            if (!$res) {
+                throw new BuilderException("Section '{$section->name}' wasn't updated. " . $gw->LAST_ERROR);
+            }
+        } else {
+            $res = $gw->Add($data);
+            if (!$res) {
+                throw new BuilderException("Section '{$section->name}' wasn't created. " . $gw->LAST_ERROR);
+            }
+            $section->setId($res);
+        }
+        foreach ($section->getChildren() as $child) {
+            $this->saveSectionRecursive($child, $section->getId(), $gw);
+        }
+    }
+
     /**
      * @throws BuilderException
      */
@@ -208,40 +294,6 @@ class IblockBuilder {
     }
 
     /**
-     * @return Iblock
-     */
-    public function getIblock() {
-        return $this->iblock;
-    }
-
-    /**
-     * @param $type
-     * @return array
-     */
-    private function findIblockType($type) {
-        return \CIBlockType::GetList(null, array(
-            'ID' => $type
-        ))->Fetch();
-    }
-
-    /**
-     * @param $code
-     * @return array
-     */
-    private function findIblock($code) {
-        return \CIBlock::GetList(null, array(
-            '=CODE' => $code
-        ))->Fetch();
-    }
-
-    private function findProperty($name) {
-        return \CIBlockProperty::GetList(null, array(
-            'NAME' => $name,
-            'IBLOCK_ID' => $this->iblock->getId()
-        ))->Fetch();
-    }
-
-    /**
      * @param Property $property
      * @throws BuilderException
      */
@@ -266,4 +318,38 @@ class IblockBuilder {
 
     }
 
+    /**
+     * @param $type
+     * @return array
+     */
+    private function findIblockType($type) {
+        return \CIBlockType::GetList(null, array(
+            'ID' => $type
+        ))->Fetch();
+    }
+
+    /**
+     * @param $name
+     * @return array
+     */
+    private function findIblock($name) {
+        return \CIBlock::GetList(null, array(
+            '=NAME' => $name
+        ))->Fetch();
+    }
+
+    private function findProperty($name) {
+        return \CIBlockProperty::GetList(null, array(
+            'NAME' => $name,
+            'IBLOCK_ID' => $this->iblock->getId()
+        ))->Fetch();
+    }
+
+    private function findSection($name) {
+        return \CIBlockSection::GetList(null, array(
+            '=NAME' => $name,
+            'SECTION_ID' => false,
+            'IBLOCK_ID' => $this->iblock->getId()
+        ))->Fetch();
+    }
 }
