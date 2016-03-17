@@ -33,12 +33,12 @@ class ApplyCommand extends BaseCommand{
         $this->console
             ->printLine("Applying new fixes started....", Console::OUTPUT_PROGRESS);
 
-        $time = time();
+        $time = microtime(true);
 
         $count = (int)$this->module
             ->applyNewFixes($callback);
 
-        $interval = time() - $time;
+        $interval = round(microtime(true) - $time, 2);
 
         $this->console
             ->printLine("Apply action finished! $count items, time $interval sec", Console::OUTPUT_PROGRESS);

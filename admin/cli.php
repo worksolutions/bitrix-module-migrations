@@ -21,6 +21,7 @@ $getShowProgress = function () use ($console) {
     return function ($data, $type) use ($console, $counter) {
         if ($type == 'setCount') {
             $counter->migrationCount = $data;
+            $counter->start = microtime(true);
         }
         if ($type == 'start') {
             $counter->migrationNumber++;

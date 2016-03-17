@@ -7,6 +7,7 @@ use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
 use WS\Migrations\ChangeDataCollector\Collector;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
+use WS\Migrations\Console\RuntimeFixCounter;
 use WS\Migrations\Diagnostic\DiagnosticTester;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Entities\AppliedChangesLogTable;
@@ -30,7 +31,8 @@ use WS\Migrations\Tests\Starter;
  */
 class Module {
 
-    const FIX_CHANGES_ADD_KEY           = 'add';
+    const FIX_CHANGES_BEFORE_ADD_KEY    = 'beforeAdd';
+    const FIX_CHANGES_AFTER_ADD_KEY     = 'afterAdd';
     const FIX_CHANGES_BEFORE_CHANGE_KEY = 'beforeChange';
     const FIX_CHANGES_AFTER_CHANGE_KEY  = 'afterChange';
     const FIX_CHANGES_BEFORE_DELETE_KEY = 'beforeDelete';
@@ -88,6 +90,10 @@ class Module {
      * @var DiagnosticTester
      */
     private $diagnostic;
+    /**
+     * @var RuntimeFixCounter
+     */
+    private $runtimeFixCounter;
 
     /**
      * @return $this
@@ -300,21 +306,22 @@ class Module {
     protected function handlers() {
         return array(
             IblockHandler::className() => array(
-                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockAdd'),
+                self::FIX_CHANGES_BEFORE_ADD_KEY => array('iblock', 'OnBeforeIBlockAdd'),
+                self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockUpdate'),
                 self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockDelete'),
                 self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockDelete'),
             ),
             IblockPropertyHandler::className() => array(
-                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockPropertyAdd'),
+                self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockPropertyAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockPropertyUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockPropertyUpdate'),
                 self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockPropertyDelete'),
                 self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockPropertyDelete')
             ),
             IblockSectionHandler::className() => array(
-                self::FIX_CHANGES_ADD_KEY => array('iblock', 'OnAfterIBlockSectionAdd'),
+                self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockSectionAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockSectionUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockSectionUpdate'),
                 self::FIX_CHANGES_BEFORE_DELETE_KEY => array('iblock', 'OnBeforeIBlockSectionDelete'),
@@ -498,7 +505,9 @@ class Module {
 
         $result = false;
         switch ($eventKey) {
-            case self::FIX_CHANGES_ADD_KEY:
+            case self::FIX_CHANGES_BEFORE_ADD_KEY:
+                break;
+            case self::FIX_CHANGES_AFTER_ADD_KEY:
                 $process = $this->_getProcessAdd();
                 $fix
                     ->setProcess(get_class($process))
@@ -536,7 +545,7 @@ class Module {
      * @return Collector
      */
     private function _createCollector() {
-        return Collector::createInstance($this->_getFixFilesDir(), $this);
+        return Collector::createInstance($this->_getFixFilesDir());
     }
 
     /**
@@ -605,7 +614,7 @@ class Module {
         $collectors = array();
         /** @var File $file */
         foreach ($files as $file) {
-            $collectors[] = Collector::createByFile($file->getPath(), $this);
+            $collectors[] = Collector::createByFile($file->getPath());
         }
         return $collectors;
     }
@@ -686,10 +695,9 @@ class Module {
         }
     }
 
-
     /**
      * @param $fixes
-     * @param $callback
+     * @param bool|callable|false $callback
      * @return int
      * @throws \Exception
      */
@@ -703,41 +711,15 @@ class Module {
         $this->_disableListen();
         $setupLog = $this->_useSetupLog();
 
-        $fixNames = array();
-        $prevFixName = '';
-        $cnt = 0;
+        $this->runtimeFixCounter = new RuntimeFixCounter();
+        $this->runtimeFixCounter->setFixNameByFixes($fixes);
+        $this->runtimeFixCounter->activeFixName = '';
+        $this->runtimeFixCounter->fixNumber = 0;
+        $this->runtimeFixCounter->time = microtime(true);
+        $applyFixLog = false;
         /** @var CollectorFix $fix */
         foreach ($fixes as $fix) {
-            if ($prevFixName != $fix->getName()) {
-                $cnt++;
-                $prevFixName = $fix->getName();
-            }
-            $fixNames[$fix->getName() . $cnt]++;
-        }
-        $prevFixName = '';
-        $time = microtime(true);
-        /** @var CollectorFix $fix */
-        foreach ($fixes as $fix) {
-
-            if ($prevFixName != $fix->getName() && !empty($prevFixName)) {
-                $data = array(
-                    'count' => count($fixes),
-                    'time' => microtime(true) - $time,
-                    'log' => $applyFixLog,
-                    'error' => ''
-                );
-                is_callable($callback) && $callback($data, 'end');
-            }
-
-            if ($prevFixName != $fix->getName()) {
-                $time = microtime(true);
-                $countFixes = $fixNames[$fix->getName()];
-                $data = array(
-                    'name' => "{$fix->getName()}" . ($countFixes > 1 ? "[{$countFixes}]" : ""),
-                );
-                is_callable($callback) && $callback($data, 'start');
-            }
-            $prevFixName = $fix->getName();
+            $this->runFixCallback($callback, $fix->getName(), $applyFixLog);
             $applyFixLog = new AppliedChangesLogModel();
             try {
                 $applyFixLog->processName = $fix->getProcess();
@@ -765,13 +747,15 @@ class Module {
             }
             $applyFixLog->save();
         }
-        $data = array(
-            'count' => count($fixes),
-            'time' => microtime(true) - $time,
-            'log' => $applyFixLog,
-            'error' => ''
-        );
-        is_callable($callback) && $callback($data, 'end');
+        if (is_callable($callback) && $applyFixLog) {
+            $data = array(
+                'time' => microtime(true) - $this->runtimeFixCounter->time,
+                'log' => $applyFixLog,
+                'error' => ''
+            );
+            $callback($data, 'end');
+        }
+
         $this->_enableListen();
         return count($fixes);
     }
@@ -823,7 +807,9 @@ class Module {
 
     /**
      * Applies all fixes
+     * @param callable|bool $callback
      * @return int
+     * @throws \Exception
      */
     public function applyNewFixes($callback = false) {
         if (is_callable($callback)) {
@@ -888,37 +874,17 @@ class Module {
 
     /**
      * @param AppliedChangesLogModel[] $list
-     * @param $callback
+     * @param callable|bool $callback
      * @return null
      */
     public function rollbackByLogs($list, $callback = false) {
         $this->_disableListen();
-        $count = 0;
-        $time = microtime(true);
-        $callbackLog = false;
-        $migrationsCount = 0;
-        foreach ($list as $log) {
-            if (!$log->success) {
-                continue;
-            }
-            $processName = $log->processName;
-            if ($processName == self::SPECIAL_PROCESS_SCENARIO) {
-                $migrationsCount++;
-            } else {
-                $callbackLog = $log;
-                $count++;
-            }
-        }
-        if ($count) {
-            $migrationsCount++;
-        }
-        is_callable($callback) && $callback($migrationsCount, 'setCount');
-        if ($count) {
-            $callbackData = array(
-                'name' => "References updates" . ($count > 1 ? "[$count]" : "")
-            );
-            is_callable($callback) && $callback($callbackData, 'start');
-        }
+        $this->runtimeFixCounter = new RuntimeFixCounter();
+        $this->runtimeFixCounter->setFixNamesByLogs($list);
+        is_callable($callback) && $callback($this->runtimeFixCounter->migrationCount, 'setCount');
+        $this->runtimeFixCounter->activeFixName = '';
+        $this->runtimeFixCounter->fixNumber = 0;
+        $this->runtimeFixCounter->time = microtime(true);
         foreach ($list as $log) {
             $processName = $log->processName;
             if ($processName == self::SPECIAL_PROCESS_SCENARIO) {
@@ -928,6 +894,7 @@ class Module {
             if (!$log->success) {
                 continue;
             }
+            $this->runFixCallback($callback, $log->description, $log);
             try {
                 $processName = $log->processName;
                 $process = $this->getProcess($processName);
@@ -937,11 +904,10 @@ class Module {
                 continue;
             }
         }
-        if ($count > 0) {
+        if ($this->runtimeFixCounter->fixNumber > 0 && $log) {
             $callbackData = array(
-                'time' => microtime(true) - $time,
-                'log' => $callbackLog,
-                'count' => $count,
+                'time' => microtime(true) - $this->runtimeFixCounter->time,
+                'log' => $log,
                 'error' => '',
             );
             is_callable($callback) && $callback($callbackData, 'end');
@@ -1066,6 +1032,7 @@ class Module {
         foreach ($this->getSubjectHandlers() as $handler) {
             $handler->registerExistsReferences();
         }
+        $this->getDiagnosticTester()->run();
     }
 
     /**
@@ -1122,6 +1089,10 @@ class Module {
         return $files;
     }
 
+    /**
+     * @param bool|callable $callback
+     * @return int
+     */
     public function applyNewScenarios($callback = false) {
         $classes = $this->getNotAppliedScenarios();
         if (!$classes) {
@@ -1167,6 +1138,38 @@ class Module {
         }
         $this->_enableListen();
         return count($classes);
+    }
+
+    /**
+     * @param $callback
+     * @param $fixName
+     * @param $applyFixLog
+     * @return mixed
+     */
+    private function runFixCallback($callback, $fixName, $applyFixLog) {
+        if (!is_callable($callback)) {
+            return false;
+        }
+        $prevFixName = $this->runtimeFixCounter->activeFixName;
+        if ($prevFixName != $fixName && !empty($prevFixName)) {
+            $data = array(
+                'time' => microtime(true) - $this->runtimeFixCounter->time,
+                'log' => $applyFixLog,
+                'error' => ''
+            );
+            $callback($data, 'end');
+        }
+
+        if ($prevFixName != $fixName) {
+            $this->runtimeFixCounter->fixNumber++;
+            $this->runtimeFixCounter->time = microtime(true);
+            $countFixes = $this->runtimeFixCounter->fixNames[$fixName . $this->runtimeFixCounter->fixNumber];
+            $data = array(
+                'name' => "{$fixName}" . ($countFixes > 1 ? "[{$countFixes}]" : ""),
+            );
+            $callback($data, 'start');
+            $this->runtimeFixCounter->activeFixName = $fixName;
+        }
     }
 }
 
