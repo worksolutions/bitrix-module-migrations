@@ -194,7 +194,6 @@ if ($lastSetupLog) {
 }
 $form->EndTab();
 !$fixes && !$scenarios && !$lastSetupLog && $form->bPublicMode = true;
-!$isDiagnosticValid && $form->bPublicMode = true;
 $form->Buttons(array('btnSave' => false, 'btnApply' => false));
 $isDiagnosticValid && ($fixes || $scenarios)
     && $form->sButtonsContent .=

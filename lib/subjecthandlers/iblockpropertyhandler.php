@@ -152,7 +152,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         } else {
             $id = $extId;
         }
-        if (!$dbVersion && !PropertyTable::getById($id)->fetch()) {
+        if ($id && !PropertyTable::getById($id)->fetch()) {
             unset($data['VERSION']);
             $addRes = PropertyTable::add(array(
                 'ID' => $id,

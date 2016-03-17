@@ -68,7 +68,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
         } else {
             $id = $extId;
         }
-        if (!$dbVersion && !SectionTable::getList(array('filter' => array('=ID' => $id)))->fetch()) {
+        if ($id && !SectionTable::getList(array('filter' => array('=ID' => $id)))->fetch()) {
             $dateTime = new DateTime();
             $addRes = SectionTable::add(array(
                 'ID' => $id,

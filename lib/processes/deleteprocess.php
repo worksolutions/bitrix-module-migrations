@@ -41,6 +41,7 @@ class DeleteProcess extends BaseProcess {
         $fix
             ->setOriginalData($this->_beforeChangesSnapshots[$id])
             ->setUpdateData($id);
+        $subjectHandler->registerDelete($id);
         return true;
     }
 

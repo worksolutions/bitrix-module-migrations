@@ -135,7 +135,7 @@ class IblockHandler extends BaseSubjectHandler  {
             $id = $extId;
         }
 
-        if (!$dbVersion && !IblockTable::getById($id)->fetch()) {
+        if ($id && !IblockTable::getById($id)->fetch()) {
             $conn = Application::getConnection();
             $iblockTypeId = $typeData['ID'];
             $conn->queryExecute("INSERT INTO `b_iblock` (`ID`, `IBLOCK_TYPE_ID`, `NAME`, `LID`) VALUES ($id, '$iblockTypeId', 'add', 'ru')");

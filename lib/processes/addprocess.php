@@ -8,7 +8,6 @@ namespace WS\Migrations\Processes;
 use WS\Migrations\ChangeDataCollector\CollectorFix;
 use WS\Migrations\Entities\AppliedChangesLogModel;
 use WS\Migrations\Module;
-use WS\Migrations\Reference\ReferenceItem;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
 
 class AddProcess extends BaseProcess {

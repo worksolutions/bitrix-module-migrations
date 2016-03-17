@@ -71,6 +71,15 @@ class Module {
     private $_listenMode = true;
 
     /**
+     * @var bool
+     */
+    private $_isUsingScenariosUpdate = false;
+
+    private $_usingScenarioName = null;
+
+    private $_usingScenarioCount = 0;
+
+    /**
      * Versions options Cache
      * @var array
      */
@@ -116,6 +125,17 @@ class Module {
      */
     public function hasListen() {
         return (bool)$this->_listenMode;
+    }
+
+    public function isUsingScenariosUpdate() {
+        return $this->_isUsingScenariosUpdate;
+    }
+
+    /**
+     * @return string
+     */
+    public function createUsingScenarioId() {
+        return $this->_usingScenarioName.($this->_usingScenarioCount++);
     }
 
     private function __construct() {
@@ -208,7 +228,12 @@ class Module {
         $referenceAddSubject = self::REFERENCE_SUBJECT_ADD;
         $referenceRemoveSubject = self::REFERENCE_SUBJECT_REMOVE;
 
-        $self->getReferenceController()->onRegister(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceAddSubject) {
+        $refCollector = $self->getReferenceController();
+        $refCollector->onRegister(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceAddSubject, $self, $refCollector) {
+            if ($self->isUsingScenariosUpdate()) {
+                $item->reference = $refCollector->createReferenceStringValue($self->createUsingScenarioId());
+                return;
+            }
             $fSetupReferenceFix($item, $referenceAddSubject);
         });
 
@@ -537,7 +562,9 @@ class Module {
                 $result = $process->afterChange($handler, $fix, $params);
                 break;
         }
-        $result && $collector->registerFix($fix);
+        if ($result && !$this->isUsingScenariosUpdate()) {
+            $collector->registerFix($fix);
+        }
         return true;
     }
 
@@ -913,6 +940,8 @@ class Module {
             is_callable($callback) && $callback($callbackData, 'end');
         }
 
+        $this->_enableListen();
+
         foreach ($list as $log) {
             $processName = $log->processName;
             if ($processName != self::SPECIAL_PROCESS_SCENARIO) {
@@ -939,7 +968,14 @@ class Module {
                 $data = $log->updateData;
                 /** @var ScriptScenario $object */
                 $object = new $class($data, $this->getReferenceController());
+
+                $this->_usingScenarioCount = 0;
+                $this->_isUsingScenariosUpdate = true;
+                $this->_usingScenarioName = get_class($object);
+
                 $object->rollback();
+
+                $this->_isUsingScenariosUpdate = false;
             } catch (\Exception $e) {
                 $error = "Exception:" . $e->getMessage();
             }
@@ -950,7 +986,6 @@ class Module {
             );
             is_callable($callback) && $callback($callbackData, 'end');
         }
-        $this->_enableListen();
     }
 
     /**
@@ -1099,7 +1134,6 @@ class Module {
             return 0;
         }
         $setupLog = $this->_useSetupLog();
-        $this->_disableListen();
         foreach ($classes as $class) {
             $time = microtime(true);
             /** @var ScriptScenario $object */
@@ -1120,10 +1154,17 @@ class Module {
             $this->_useVersion($dbVersion, $versionOwner);
             $error = '';
             try {
+                $this->_usingScenarioCount = 0;
+                $this->_isUsingScenariosUpdate = true;
+                $this->_usingScenarioName = get_class($object);
+
                 $object->commit();
                 $applyFixLog->updateData = $object->getData();
                 $applyFixLog->success = true;
+
+                $this->_isUsingScenariosUpdate = false;
             } catch (\Exception $e) {
+                $this->_isUsingScenariosUpdate = false;
                 $applyFixLog->success = false;
                 $applyFixLog->description .= " Exception:" . $e->getMessage();
                 $error = "Exception:" . $e->getMessage();
@@ -1136,7 +1177,6 @@ class Module {
             );
             is_callable($callback) && $callback($data, 'end');
         }
-        $this->_enableListen();
         return count($classes);
     }
 

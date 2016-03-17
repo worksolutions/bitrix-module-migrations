@@ -35,6 +35,10 @@ abstract class BaseSubjectHandler {
      */
     abstract public function existsIds();
 
+    public function registerDelete($id) {
+        $this->removeReference($id);
+    }
+
     /**
      * @return ReferenceController
      */
@@ -118,7 +122,7 @@ abstract class BaseSubjectHandler {
     /**
      * @param $method
      * @param array $data
-     * @return scalar
+     * @return int
      */
     abstract public function getIdByChangeMethod($method, $data = array());
 

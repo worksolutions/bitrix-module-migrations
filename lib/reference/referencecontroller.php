@@ -40,15 +40,16 @@ class ReferenceController {
      */
     public function registerItem(ReferenceItem $item) {
         !$item->dbVersion && $item->dbVersion = $this->platformVersionValue;
-        !$item->reference && $item->reference = md5($item->dbVersion.$item->group.$item->id);
 
-        $hasRefByVersion = DbVersionReferencesTable::getList(array(
-            'filter' => array(
-                '=REFERENCE' => $item->reference,
-                '=DB_VERSION' => $item->dbVersion
-            )
-        ))->fetch();
-        $hasRefByVersion && DbVersionReferencesTable::delete($hasRefByVersion['ID']);
+        if ($item->reference) {
+            $hasRefByVersion = DbVersionReferencesTable::getList(array(
+                'filter' => array(
+                    '=REFERENCE' => $item->reference,
+                    '=DB_VERSION' => $item->dbVersion
+                )
+            ))->fetch();
+            $hasRefByVersion && DbVersionReferencesTable::delete($hasRefByVersion['ID']);
+        }
 
         $hasItem = DbVersionReferencesTable::getList(array(
             'filter' => array(
@@ -61,14 +62,17 @@ class ReferenceController {
             throw new \Exception('Item '.$item->group.' ('.$item->id.') by version '.$item->dbVersion.' been registered before');
         }
 
+        $onRegister = $this->_onRegister;
+        $onRegister && $item->dbVersion == $this->platformVersionValue && $onRegister($item);
+
+        !$item->reference && $item->reference = $this->createReferenceStringValue($item->dbVersion.$item->group.$item->id);
+
         DbVersionReferencesTable::add(array(
             'REFERENCE' => $item->reference,
             'DB_VERSION' => $item->dbVersion,
             'GROUP' => $item->group,
             'ITEM_ID' => $item->id
         ));
-        $onRegister = $this->_onRegister;
-        $onRegister && $item->dbVersion == $this->platformVersionValue && $onRegister($item);
         return $this;
     }
 
@@ -359,5 +363,9 @@ class ReferenceController {
             $onRemove && $arItem['DB_VERSION'] == $this->platformVersionValue && $onRemove($item);
         }
         return true;
+    }
+
+    public function createReferenceStringValue($id) {
+        return md5($id);
     }
 }
