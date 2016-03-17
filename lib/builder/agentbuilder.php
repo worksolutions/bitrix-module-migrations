@@ -32,7 +32,7 @@ class AgentBuilder {
      * @return Agent
      * @throws BuilderException
      */
-    public function updateAgent($callback) {
+    public function getAgent($callback) {
         if ($this->agent) {
             throw new BuilderException('reset builder data for continue');
         }
@@ -82,7 +82,7 @@ class AgentBuilder {
     /**
      * @return Agent
      */
-    public function getAgent() {
+    public function getCurrentAgent() {
         return $this->agent;
     }
 

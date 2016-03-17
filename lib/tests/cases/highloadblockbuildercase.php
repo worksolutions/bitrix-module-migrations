@@ -87,16 +87,16 @@ class HighLoadBlockBuilderCase extends AbstractCase {
 
         $arIblock = HighloadBlockTable::getList(array(
             'filter' => array(
-                'ID' => $builder->getHighLoadBlock()->getId()
+                'ID' => $builder->getCurrentHighLoadBlock()->getId()
             )
         ))->fetch();
 
         $this->assertNotEmpty($arIblock, "hlblock wasn't created");
-        $this->assertEquals($arIblock['TABLE_NAME'], $builder->getHighLoadBlock()->tableName);
-        $this->assertEquals($arIblock['NAME'], $builder->getHighLoadBlock()->name);
+        $this->assertEquals($arIblock['TABLE_NAME'], $builder->getCurrentHighLoadBlock()->tableName);
+        $this->assertEquals($arIblock['NAME'], $builder->getCurrentHighLoadBlock()->name);
 
         $fields = \CUserTypeEntity::GetList(null, array(
-            'ENTITY_ID' => "HLBLOCK_" . $builder->getHighLoadBlock()->getId(),
+            'ENTITY_ID' => "HLBLOCK_" . $builder->getCurrentHighLoadBlock()->getId(),
         ));
 
         $this->assertEquals($fields->SelectedRowsCount(), 8);
@@ -110,12 +110,12 @@ class HighLoadBlockBuilderCase extends AbstractCase {
     public function testUpdate() {
         $builder = new HighLoadBlockBuilder();
         $builder
-            ->updateHLBlock('test_highloadblock')
+            ->getHLBlock('test_highloadblock')
             ->setName('TestBlock2')
         ;
 
         $prop = $builder
-            ->updateField('uf_test1')
+            ->getField('uf_test1')
             ->setMultiple(true)
             ->setRequired(true)
         ;
@@ -126,15 +126,15 @@ class HighLoadBlockBuilderCase extends AbstractCase {
 
         $arIblock = HighloadBlockTable::getList(array(
             'filter' => array(
-                'ID' => $builder->getHighLoadBlock()->getId()
+                'ID' => $builder->getCurrentHighLoadBlock()->getId()
             )
         ))->fetch();
 
-        $this->assertEquals($arIblock['TABLE_NAME'], $builder->getHighLoadBlock()->tableName);
-        $this->assertEquals($arIblock['NAME'], $builder->getHighLoadBlock()->name);
+        $this->assertEquals($arIblock['TABLE_NAME'], $builder->getCurrentHighLoadBlock()->tableName);
+        $this->assertEquals($arIblock['NAME'], $builder->getCurrentHighLoadBlock()->name);
 
         $res = \CUserFieldEnum::GetList(null, array(
-            'USER_FIELD_ID' => $builder->getHighLoadBlock()->getId(),
+            'USER_FIELD_ID' => $builder->getCurrentHighLoadBlock()->getId(),
             'VALUE' => 'Тест2',
         ))->Fetch();
 

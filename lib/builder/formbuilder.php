@@ -43,7 +43,7 @@ class FormBuilder {
      * @return Form
      * @throws BuilderException
      */
-    public function updateForm($sid) {
+    public function getForm($sid) {
         if ($this->form) {
             throw new BuilderException('Form already set');
         }
@@ -71,7 +71,7 @@ class FormBuilder {
      * @return FormStatus
      * @throws BuilderException
      */
-    public function updateStatus($title) {
+    public function getStatus($title) {
         if (!$this->form) {
             throw new BuilderException("Form doesn't set");
         }
@@ -100,7 +100,7 @@ class FormBuilder {
      * @return FormField
      * @throws BuilderException
      */
-    public function updateField($sid) {
+    public function getField($sid) {
         if (!$this->form) {
             throw new BuilderException("Form doesn't set");
         }
@@ -252,7 +252,7 @@ class FormBuilder {
     /**
      * @return Form
      */
-    public function getForm() {
+    public function getCurrentForm() {
         return $this->form;
     }
 

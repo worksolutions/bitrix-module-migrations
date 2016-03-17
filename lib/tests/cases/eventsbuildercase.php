@@ -88,11 +88,11 @@ class EventsBuilderCase extends AbstractCase {
     public function testUpdate() {
         $builder = new EventsBuilder();
         $builder
-            ->updateEventType('WS_MIGRATION_TEST_EVENT', 'ru')
+            ->getEventType('WS_MIGRATION_TEST_EVENT', 'ru')
             ->setLid('en')
             ->setName('Тестовое событие');
 
-        foreach ($builder->updateEventMessages() as $message) {
+        foreach ($builder->getEventMessages() as $message) {
             if ($message->subject == 'Hello') {
                 $message->remove();
             }

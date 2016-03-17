@@ -41,7 +41,7 @@ class HighLoadBlockBuilder {
      * @return HighLoadBlock
      * @throws BuilderException
      */
-    public function updateHLBlock($tableName) {
+    public function getHLBlock($tableName) {
         if ($this->highLoadBlock) {
             throw new BuilderException('reset builder data for continue');
         }
@@ -65,7 +65,7 @@ class HighLoadBlockBuilder {
      * @return UserField
      * @throws BuilderException
      */
-    public function updateField($code) {
+    public function getField($code) {
         $data = $this->findField($code);
         $field = new UserField($code, $data);
         $this->fields[] = $field;
@@ -109,7 +109,7 @@ class HighLoadBlockBuilder {
     /**
      * @return HighLoadBlock
      */
-    public function getHighLoadBlock() {
+    public function getCurrentHighLoadBlock() {
         return $this->highLoadBlock;
     }
 
@@ -137,7 +137,7 @@ class HighLoadBlockBuilder {
      */
     private function commitFields() {
         global $APPLICATION;
-        if (!$this->getHighLoadBlock()->getId()) {
+        if (!$this->getCurrentHighLoadBlock()->getId()) {
             throw new BuilderException('Set highLoadBlock before');
         }
         $gw = new \CUserTypeEntity();
@@ -146,7 +146,7 @@ class HighLoadBlockBuilder {
                 $res = $gw->Update($field->getId(), $field->getSaveData());
             } else {
                 $res = $gw->Add(array_merge($field->getSaveData(), array(
-                    'ENTITY_ID' => 'HLBLOCK_' . $this->getHighLoadBlock()->getId()
+                    'ENTITY_ID' => 'HLBLOCK_' . $this->getCurrentHighLoadBlock()->getId()
                 )));
                 if ($res) {
                     $field->setId($res);
@@ -195,7 +195,7 @@ class HighLoadBlockBuilder {
         }
         $field = \CUserTypeEntity::GetList(null, array(
             'FIELD_NAME' => $code,
-            'ENTITY_ID' => "HLBLOCK_" . $this->getHighLoadBlock()->getId(),
+            'ENTITY_ID' => "HLBLOCK_" . $this->getCurrentHighLoadBlock()->getId(),
         ))->Fetch();
 
         if (empty($field)) {

@@ -40,7 +40,7 @@ class EventsBuilder {
      * @return EventType
      * @throws BuilderException
      */
-    public function updateEventType($type, $lid) {
+    public function getEventType($type, $lid) {
         if ($this->eventType) {
             throw new BuilderException('EventType already set');
         }
@@ -64,7 +64,7 @@ class EventsBuilder {
      * @return Entity\EventMessage[]
      * @throws BuilderException
      */
-    public function updateEventMessages() {
+    public function getEventMessages() {
         foreach ($this->findMessages() as $data) {
             $this->exitsMessages[] = new EventMessage(false, false, false, $data);
         }
@@ -74,7 +74,7 @@ class EventsBuilder {
     /**
      * @return EventType
      */
-    public function getEventType() {
+    public function getCurrentEventType() {
         return $this->eventType;
     }
 
@@ -137,14 +137,14 @@ class EventsBuilder {
      */
     private function commitNewEventMessages() {
         global $APPLICATION;
-        if (!$this->getEventType()->getId()) {
+        if (!$this->getCurrentEventType()->getId()) {
             throw new BuilderException("EventType doesn't set");
         }
         $gw = new \CEventMessage();
         foreach ($this->newMessages as $message) {
             $id = $gw->Add(array_merge(
                 $message->getSaveData(),
-                array('EVENT_NAME' => $this->getEventType()->eventName)
+                array('EVENT_NAME' => $this->getCurrentEventType()->eventName)
             ));
             if (!$id) {
                throw new BuilderException("EventMessage add failed with error: " . $APPLICATION->GetException()->GetString());
@@ -158,7 +158,7 @@ class EventsBuilder {
      */
     private function commitExistsEventMessages() {
         global $APPLICATION;
-        if (!$this->getEventType()->getId()) {
+        if (!$this->getCurrentEventType()->getId()) {
             throw new BuilderException("EventType doesn't set");
         }
         $gw = new \CEventMessage();
@@ -186,12 +186,12 @@ class EventsBuilder {
      * @throws \Bitrix\Main\ArgumentException
      */
     private function findMessages() {
-        if (!$this->getEventType()->getId()) {
+        if (!$this->getCurrentEventType()->getId()) {
             throw new BuilderException("EventType doesn't set");
         }
         $res = EventMessageTable::getList(array(
             'filter' => array(
-                'EVENT_NAME' => $this->getEventType()->eventName
+                'EVENT_NAME' => $this->getCurrentEventType()->eventName
             )
         ));
         return $res->fetchAll();

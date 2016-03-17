@@ -73,7 +73,7 @@ class FormBuilderCase extends AbstractCase {
         $builder->commit();
 
         $form = \CForm::GetList($by, $order, array(
-            'ID' => $builder->getForm()->getId(),
+            'ID' => $builder->getCurrentForm()->getId(),
         ), $isFiltered)->Fetch();
 
         $this->assertNotEmpty($form);
@@ -82,7 +82,7 @@ class FormBuilderCase extends AbstractCase {
         $this->assertNotEmpty($form['NAME'], 'TestForm');
         $this->assertNotEmpty($form['USE_CAPTCHA'], 'Y');
 
-        $res = \CFormField::GetList($builder->getForm()->getId(), 'ALL', $by, $order, array(), $isFiltered);
+        $res = \CFormField::GetList($builder->getCurrentForm()->getId(), 'ALL', $by, $order, array(), $isFiltered);
 
         $this->assertEquals($res->SelectedRowsCount(), 2);
         while ($item = $res->fetch()) {
@@ -101,7 +101,7 @@ class FormBuilderCase extends AbstractCase {
             }
         }
 
-        $res = \CFormStatus::GetList($builder->getForm()->getId(), $by, $order, array(), $isFiltered)->Fetch();
+        $res = \CFormStatus::GetList($builder->getCurrentForm()->getId(), $by, $order, array(), $isFiltered)->Fetch();
         $this->assertEquals($res['TITLE'], 'status');
         $this->assertEquals($res['DEFAULT_VALUE'], 'Y');
     }
@@ -110,11 +110,11 @@ class FormBuilderCase extends AbstractCase {
     public function testUpdate() {
         $builder = new FormBuilder();
         $builder
-            ->updateForm('TestForm')
+            ->getForm('TestForm')
             ->setName('MyTestForm');
 
         $field = $builder
-            ->updateField('testQuestion')
+            ->getField('testQuestion')
             ->setActive(true)
             ->setRequired(false);
 
@@ -125,20 +125,20 @@ class FormBuilderCase extends AbstractCase {
             ->setValue('val1');
 
         $builder
-            ->updateStatus('status')
+            ->getStatus('status')
             ->setDescription('test22')
             ->setArGroupCanDelete(array(2, 3));
 
         $builder->commit();
 
         $form = \CForm::GetList($by, $order, array(
-            'ID' => $builder->getForm()->getId(),
+            'ID' => $builder->getCurrentForm()->getId(),
         ), $isFiltered)->Fetch();
 
         $this->assertNotEmpty($form);
         $this->assertNotEmpty($form['NAME'], 'MyTestForm');
 
-        $res = \CFormField::GetList($builder->getForm()->getId(), 'ALL', $by, $order, array(), $isFiltered);
+        $res = \CFormField::GetList($builder->getCurrentForm()->getId(), 'ALL', $by, $order, array(), $isFiltered);
 
         $this->assertEquals($res->SelectedRowsCount(), 2);
         while ($item = $res->fetch()) {
@@ -152,7 +152,7 @@ class FormBuilderCase extends AbstractCase {
             }
         }
 
-        $res = \CFormStatus::GetList($builder->getForm()->getId(), $by, $order, array(), $isFiltered)->Fetch();
+        $res = \CFormStatus::GetList($builder->getCurrentForm()->getId(), $by, $order, array(), $isFiltered)->Fetch();
         $this->assertEquals($res['DESCRIPTION'], 'test22');
     }
 
