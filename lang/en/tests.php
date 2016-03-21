@@ -73,6 +73,36 @@ return array(
             'description' => '',
             'errors' => array(
             )
-        )
+        ),
+        \WS\Migrations\Tests\Cases\IblockBuilderCase::className() => array(
+            'name' => 'IblockBuilder test',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
+        \WS\Migrations\Tests\Cases\HighLoadBlockBuilderCase::className() => array(
+            'name' => 'HighLoadBlockBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
+        \WS\Migrations\Tests\Cases\AgentBuilderCase::className() => array(
+            'name' => 'AgentBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
+        \WS\Migrations\Tests\Cases\EventsBuilderCase::className() => array(
+            'name' => 'EventsBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
+        \WS\Migrations\Tests\Cases\FormBuilderCase::className() => array(
+            'name' => 'FormBuilder',
+            'description' => '',
+            'errors' => array(
+            )
+        ),
     )
 );
