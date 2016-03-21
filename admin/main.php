@@ -65,7 +65,7 @@ $module = \WS\Migrations\Module::getInstance();
 
 CAdminMessage::ShowMessage(array(
     'MESSAGE' => $localization->getDataByPath('platformVersion.'.($platformVersion->isValid() ? 'ok' : 'error'))
-        .' <a href="/bitrix/admin/ws_migrations.php?q=changeversion">'.($platformVersion->getOwner() ?: $platformVersion->getValue()).'</a>',
+        .' <a href="/bitrix/admin/ws_migrations.php?q=changeversion&lang=' . LANGUAGE_ID . '">'.($platformVersion->getOwner() ?: $platformVersion->getValue()).'</a>',
     'TYPE' => $platformVersion->isValid() ? 'OK' : 'ERROR',
     'HTML' => true,
 ));
@@ -84,7 +84,7 @@ $form->SetShowSettings(false);
 if (!$isDiagnosticValid) {
     $form->BeginPrologContent();
     $mess =  $localization->message('diagnostic', array(
-        ':url:' => '/bitrix/admin/ws_migrations.php?q=diagnostic'
+        ':url:' => '/bitrix/admin/ws_migrations.php?q=diagnostic&lang=' . LANGUAGE_ID
     ));
     $adminMessage = new CAdminMessage(array('HTML' => "Y", 'MESSAGE' => $mess));
     echo $adminMessage->Show();
@@ -212,7 +212,7 @@ $lastSetupLog
         $chLink.on("click", function () {
             (new BX.CDialog({
                 'title': "<?=$localization->message("newChangesTitle")?>",
-                'content_url': '/bitrix/admin/ws_migrations.php?q=newChangesList',
+                'content_url': '/bitrix/admin/ws_migrations.php?q=newChangesList&lang=<?=LANGUAGE_ID;?>',
                 'width': 900,
                 'height': 130,
                 'buttons': [BX.CAdminDialog.btnClose],
@@ -224,7 +224,7 @@ $lastSetupLog
             var id = $(this).data('id');
             (new BX.CDialog({
                 'title': "<?=$localization->message("errorWindow")?>",
-                'content_url': '/bitrix/admin/ws_migrations.php?q=applyError&id='+id,
+                'content_url': '/bitrix/admin/ws_migrations.php?q=applyError&id='+id + '&lang=<?=LANGUAGE_ID;?>',
                 'width': 900,
                 'buttons': [BX.CAdminDialog.btnClose],
                 'resizable': false

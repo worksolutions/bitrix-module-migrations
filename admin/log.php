@@ -74,7 +74,7 @@ while ($rowData = $rsData->NavNext()) {
         array(
             "ICON" => "view",
             "TEXT" => $localization->message('messages.view'),
-            "ACTION" => $lAdmin->ActionRedirect("ws_migrations.php?q=detail&label=".$rowData['label'].'&type=applied'),
+            "ACTION" => $lAdmin->ActionRedirect("ws_migrations.php?q=detail&label=".$rowData['label'].'&type=applied'. '&lang=' . LANGUAGE_ID),
             "DEFAULT" => true
         )
     ));
@@ -96,7 +96,7 @@ $lAdmin->DisplayList();
             var id = $(this).data('id');
             (new BX.CDialog({
                 'title': "<?=$localization->message("messages.errorWindow")?>",
-                'content_url': '/bitrix/admin/ws_migrations.php?q=applyError&id='+id,
+                'content_url': '/bitrix/admin/ws_migrations.php?q=applyError&id='+id + '&lang=' . LANGUAGE_ID,
                 'width': 900,
                 'buttons': [BX.CAdminDialog.btnClose],
                 'resizable': false
