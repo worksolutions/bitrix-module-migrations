@@ -119,7 +119,7 @@ class IblockBuilder {
      * @throws BuilderException
      */
     public function addSection($name) {
-        if (!$this->iblock->getId()) {
+        if (!$this->iblock) {
             throw new BuilderException("Iblock not initialized");
         }
         $args = func_get_args();
@@ -127,6 +127,11 @@ class IblockBuilder {
             throw new BuilderException("Missing arguments");
         }
         $section = new IblockSection($name);
+        array_shift($args);
+        $root = $section;
+        foreach ($args as $sectionName) {
+            $root = $root->addChild($sectionName);
+        }
         $this->sections[] = $section;
         return $section;
     }
@@ -137,13 +142,20 @@ class IblockBuilder {
      * @throws BuilderException
      */
     public function getSection($name) {
-        if (!$this->iblock->getId()) {
-            throw new BuilderException("Iblock not initialized");
+        $args = func_get_args();
+        if (empty($args)) {
+            throw new BuilderException("Missing arguments");
         }
         if (!$data = $this->findSection($name)) {
             throw new BuilderException("Can't find section with name {$name}");
         }
         $section = new IblockSection($name, $data);
+
+        array_shift($args);
+        $root = $section;
+        foreach ($args as $sectionName) {
+            $root = $root->getChild($sectionName);
+        }
         $this->sections[] = $section;
         return $section;
     }
@@ -220,6 +232,9 @@ class IblockBuilder {
     }
 
     private function commitSections() {
+        if (!$this->sections) {
+            return;
+        }
         if (!$this->iblock->getId()) {
             throw new BuilderException("Iblock didn't set");
         }

@@ -69,6 +69,8 @@ class IblockBuilderCase extends AbstractCase {
             ->addProperty('Картинка')
             ->setType(Property::TYPE_FILE)
             ;
+
+        $iblockBuilder->addSection('Три', 'Тысячи', 'Чертей');
         $iblockBuilder->commit();
 
         $arType = \CIBlockType::GetList(null, array(
@@ -112,6 +114,14 @@ class IblockBuilderCase extends AbstractCase {
                 $this->assertEquals($props[$property['NAME']]['MULTIPLE'], $property['MULTIPLE']);
             }
         }
+        $res = \CIBlockSection::GetList(array(), array(
+            'IBLOCK_ID' => $iblockBuilder->getCurrentIblock()->getId()
+        ));
+
+        $this->assertEquals(3, $res->SelectedRowsCount());
+        while($item = $res->Fetch()) {
+            $this->assertTrue(in_array($item['NAME'], array('Три', 'Тысячи', 'Чертей')));
+        }
 
     }
 
@@ -152,6 +162,8 @@ class IblockBuilderCase extends AbstractCase {
             ->setType(Property::TYPE_STRING)
             ->setCode('pic')
         ;
+        $iblockBuilder->getSection('Три', 'Тысячи', 'Чертей')->setName('Четыре');
+
         $iblockBuilder->commit();
 
         $arIblock = \CIBlock::GetList(null, array(
@@ -189,6 +201,14 @@ class IblockBuilderCase extends AbstractCase {
             }
         }
 
+        $res = \CIBlockSection::GetList(array(), array(
+            'IBLOCK_ID' => $iblockBuilder->getCurrentIblock()->getId()
+        ));
+
+        $this->assertEquals(3, $res->SelectedRowsCount());
+        while($item = $res->Fetch()) {
+            $this->assertTrue(in_array($item['NAME'], array('Четыре', 'Тысячи', 'Чертей')));
+        }
     }
 
 }
