@@ -86,7 +86,11 @@ class ReferenceController {
      * @return bool
      */
     public function removeItemById($id, $group, $dbVersion = null) {
-        $item = $this->getItemById($id, $group, $dbVersion);
+        try {
+            $item = $this->getItemById($id, $group, $dbVersion);
+        } catch (\Exception $e) {
+            return false;
+        }
         if (!$item) {
             return false;
         }
@@ -351,7 +355,8 @@ class ReferenceController {
         }
         $dbRes = DbVersionReferencesTable::getList(array(
             'filter' => array(
-                '=REFERENCE' => $item->reference
+                '=REFERENCE' => $item->reference,
+                "=DB_VERSION" => $dbVersion
             )
         ));
         $onRemove = $this->_onRemove;

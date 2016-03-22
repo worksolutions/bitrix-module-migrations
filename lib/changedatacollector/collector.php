@@ -8,6 +8,11 @@ namespace WS\Migrations\ChangeDataCollector;
 use Bitrix\Main\IO\File;
 
 class Collector {
+
+    const ORDER_PRIORITY_HIGH = "high";
+    const ORDER_PRIORITY_MIDDLE = "middle";
+    const ORDER_PRIORITY_LOW = "low";
+
     /**
      * @var File
      */
@@ -16,11 +21,13 @@ class Collector {
     /**
      * @var CollectorFix[]
      */
-    private $_fixes;
+    private $_fixes = array();
 
     private $_label;
 
     private $_storable = true;
+
+
 
     private function __construct(File $file) {
         $this->_file = $file;
@@ -68,8 +75,8 @@ class Collector {
         return new CollectorFix($this->_label);
     }
 
-    public function registerFix(CollectorFix $fix) {
-        $this->_fixes[] = $fix;
+    public function registerFix(CollectorFix $fix, $priority = self::ORDER_PRIORITY_MIDDLE) {
+        $this->_fixes[$priority][] = $fix;
         return $this;
     }
 
@@ -129,7 +136,12 @@ class Collector {
      * @return CollectorFix[]
      */
     public function getFixes() {
-        return $this->_fixes;
+        $res = array_merge(
+            $this->_fixes[self::ORDER_PRIORITY_HIGH] ?: array(),
+            $this->_fixes[self::ORDER_PRIORITY_MIDDLE] ?: array(),
+            $this->_fixes[self::ORDER_PRIORITY_LOW] ?: array()
+        );
+        return $res;
     }
 
     /**
@@ -137,7 +149,7 @@ class Collector {
      * @return CollectorFix[]
      */
     public function getUsesFixed() {
-        return array_filter($this->_fixes, function (CollectorFix $fix) {
+        return array_filter($this->getFixes(), function (CollectorFix $fix) {
             return $fix->isUses();
         });
     }

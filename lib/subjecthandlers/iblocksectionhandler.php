@@ -5,7 +5,6 @@
 
 namespace WS\Migrations\SubjectHandlers;
 
-
 use Bitrix\Iblock\SectionTable;
 use Bitrix\Main\DB\Exception;
 use Bitrix\Main\Type\Date;
@@ -69,6 +68,13 @@ class IblockSectionHandler extends BaseSubjectHandler {
             $id = $extId;
         }
         if ($id && !SectionTable::getList(array('filter' => array('=ID' => $id)))->fetch()) {
+            $arSec = SectionTable::getList(array(
+                'limit' => 1,
+                'order' => array(
+                    'RIGHT_MARGIN' => 'desc'
+                )
+            ))->fetch();
+            $margin = $arSec['RIGHT_MARGIN'] ?: 0;
             $dateTime = new DateTime();
             $addRes = SectionTable::add(array(
                 'ID' => $id,
@@ -76,6 +82,9 @@ class IblockSectionHandler extends BaseSubjectHandler {
                 'TIMESTAMP_X' => $dateTime->format('Y-m-d H:i:s'),
                 'NAME' => $data['NAME'],
                 'DESCRIPTION_TYPE' => $data['DESCRIPTION_TYPE'],
+                'LEFT_MARGIN' => $margin + 1,
+                'RIGHT_MARGIN' => $margin + 2,
+                'DEPTH_LEVEL' => 1
             ));
             if (!$addRes->isSuccess()) {
                 throw new \Exception('Не удалось возобновить секцию(раздел) текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));

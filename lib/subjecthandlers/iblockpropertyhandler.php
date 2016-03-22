@@ -77,15 +77,24 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         }
         $currentValues = PropertyEnumerationTable::getList(array('filter' => array('=PROPERTY_ID' => $propertyId)))->fetchAll();
         foreach ($currentValues as $value) {
-            !in_array($value['ID'], $useValuesIds) && PropertyEnumerationTable::delete(array('ID' => $value['ID'], 'PROPERTY_ID' => $value['PROPERTY_ID']));
+            if (in_array($value['ID'], $useValuesIds)) {
+                continue;
+            }
+            PropertyEnumerationTable::delete(array('ID' => $value['ID'], 'PROPERTY_ID' => $value['PROPERTY_ID']));
+            $this->getReferenceController()->removeReference($value['ID'], ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES);
         }
 
         $enum = new \CIBlockPropertyEnum();
         foreach ($addValues as $value) {
-            unset($value['ID']);
             $valueReference = $value['~reference'];
             unset($value['~reference']);
-            $enumElementId = $enum->Add($value);
+            if ($value['ID'] && !PropertyEnumerationTable::getById(array('ID' => $value['ID'], 'PROPERTY_ID' => $value['PROPERTY_ID']))->fetch()) {
+                $enumElementId = $value['ID'];
+                PropertyEnumerationTable::add($value);
+            } else {
+                unset($value['ID']);
+                $enumElementId = $enum->Add($value);
+            }
             if (!$enumElementId) {
                 throw new \Exception('Add property list value. Property not save. '.var_export($value, true));
             }
@@ -186,9 +195,15 @@ class IblockPropertyHandler extends BaseSubjectHandler {
     public function delete($id, $dbVersion = null) {
         $dbVersion && $id = $this->getCurrentVersionId($id, $dbVersion);
         !$dbVersion && !$this->hasCurrentReference($id) && $this->registerCurrentVersionId($id);
+        $enumValues = PropertyEnumerationTable::getList(array('filter' => array('=PROPERTY_ID' => $id)))->fetchAll();
         $res = new ApplyResult();
         $res->setSuccess((bool)\CIBlockProperty::Delete($id));
-        $res->isSuccess() && $this->removeReference($id);
+        if ($res->isSuccess()) {
+            $res->isSuccess() && $this->removeReference($id);
+            foreach ($enumValues as $enumValue) {
+                $this->getReferenceController()->removeReference($enumValue['ID'], ReferenceController::GROUP_IBLOCK_PROPERTY_LIST_VALUES);
+            }
+        }
         return $res;
     }
 

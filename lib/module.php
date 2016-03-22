@@ -16,6 +16,7 @@ use WS\Migrations\Processes\AddProcess;
 use WS\Migrations\Processes\BaseProcess;
 use WS\Migrations\Processes\DeleteProcess;
 use WS\Migrations\Processes\UpdateProcess;
+use WS\Migrations\Reference\OwnReferenceCleaner;
 use WS\Migrations\Reference\ReferenceController;
 use WS\Migrations\Reference\ReferenceItem;
 use WS\Migrations\SubjectHandlers\BaseSubjectHandler;
@@ -209,7 +210,7 @@ class Module {
         $self->_referenceController = new ReferenceController($self->getPlatformVersion()->getValue());
         $fixRefProcess = self::SPECIAL_PROCESS_FIX_REFERENCE;
 
-        $fSetupReferenceFix = function (ReferenceItem $item, $subject) use ($self, $fixRefProcess) {
+        $fSetupReferenceFix = function (ReferenceItem $item, $subject, $priority) use ($self, $fixRefProcess) {
             $collector = $self->getDutyCollector();
             $fix = $collector->createFix();
             $fix
@@ -222,7 +223,7 @@ class Module {
                     'dbVersion' => $item->dbVersion,
                     'id' => $item->id
                 ));
-            $collector->registerFix($fix);
+            $collector->registerFix($fix, $priority);
         };
 
         $referenceAddSubject = self::REFERENCE_SUBJECT_ADD;
@@ -234,11 +235,11 @@ class Module {
                 $item->reference = $refCollector->createReferenceStringValue($self->createUsingScenarioId());
                 return;
             }
-            $fSetupReferenceFix($item, $referenceAddSubject);
+            $fSetupReferenceFix($item, $referenceAddSubject, Collector::ORDER_PRIORITY_MIDDLE);
         });
 
         $self->getReferenceController()->onRemove(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceRemoveSubject) {
-            $fSetupReferenceFix($item, $referenceRemoveSubject);
+            $fSetupReferenceFix($item, $referenceRemoveSubject, Collector::ORDER_PRIORITY_LOW);
         });
     }
 
@@ -339,6 +340,7 @@ class Module {
                 self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockDelete'),
             ),
             IblockPropertyHandler::className() => array(
+                self::FIX_CHANGES_BEFORE_ADD_KEY => array('iblock', 'OnBeforeIBlockPropertyAdd'),
                 self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockPropertyAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockPropertyUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockPropertyUpdate'),
@@ -346,6 +348,7 @@ class Module {
                 self::FIX_CHANGES_AFTER_DELETE_KEY => array('iblock', 'OnIBlockPropertyDelete')
             ),
             IblockSectionHandler::className() => array(
+                self::FIX_CHANGES_BEFORE_ADD_KEY => array('iblock', 'OnBeforeIBlockSectionAdd'),
                 self::FIX_CHANGES_AFTER_ADD_KEY => array('iblock', 'OnAfterIBlockSectionAdd'),
                 self::FIX_CHANGES_BEFORE_CHANGE_KEY => array('iblock', 'OnBeforeIBlockSectionUpdate'),
                 self::FIX_CHANGES_AFTER_CHANGE_KEY => array('iblock', 'OnAfterIBlockSectionUpdate'),
@@ -563,7 +566,7 @@ class Module {
                 break;
         }
         if ($result && !$this->isUsingScenariosUpdate()) {
-            $collector->registerFix($fix);
+            $collector->registerFix($fix, $this->getFixPriority($process, $handler));
         }
         return true;
     }
@@ -792,6 +795,18 @@ class Module {
     }
 
     /**
+     * @param BaseProcess $process
+     * @param BaseSubjectHandler $handler
+     * @return string
+     */
+    private function getFixPriority(BaseProcess $process, BaseSubjectHandler $handler) {
+        if ($process instanceof DeleteProcess && $handler instanceof IblockHandler) {
+            return Collector::ORDER_PRIORITY_LOW;
+        }
+        return Collector::ORDER_PRIORITY_MIDDLE;
+    }
+
+    /**
      * Apply references by records another versions
      */
     public function applyAnotherReferences() {
@@ -895,7 +910,8 @@ class Module {
         if (!$setupLog) {
             return null;
         }
-        $this->rollbackByLogs($setupLog->getAppliedLogs() ?: array(), $callback);
+        $logs = $setupLog->getAppliedLogs() ?: array();
+        $this->rollbackByLogs(array_reverse($logs), $callback);
         $setupLog->delete();
     }
 
@@ -1004,8 +1020,7 @@ class Module {
      * @return string
      */
     public function getVersionOwner() {
-        $options = self::getOptions();
-        return $options->owner;
+        return $this->getPlatformVersion()->getValue();
     }
 
     /**
