@@ -14,6 +14,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 require_once(__DIR__."/../include.php");
 require_once(__DIR__."/../prolog.php");
 
+global $USER;
+$USER->Authorize(1);
+
 $console = new Console($argv);
 
 $getShowProgress = function () use ($console) {
