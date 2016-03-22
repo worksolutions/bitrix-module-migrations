@@ -50,19 +50,19 @@ $fCreateUrlFromEntity = function ($type, $id) {
         case 'iblock':
             $arIblock = CIBlock::GetArrayByID($id);
             $type = $arIblock['IBLOCK_TYPE_ID'];
-            $urlTemplate = '/bitrix/admin/iblock_edit.php?type='.$type.'&ID='.$id;
+            $urlTemplate = '/bitrix/admin/iblock_edit.php?type='.$type.'&ID='.$id. '&lang=' . LANGUAGE_ID;
             break;
         case 'iblockProperty':
             $arProperty = CIBlockProperty::GetByID($id)->Fetch();
             $iblockId = $arProperty['IBLOCK_ID'];
             $arIblock = CIBlock::GetArrayByID($iblockId);
             $type = $arIblock['IBLOCK_TYPE_ID'];
-            $urlTemplate = '/bitrix/admin/iblock_edit.php?type='.$type.'&ID='.$iblockId;
+            $urlTemplate = '/bitrix/admin/iblock_edit.php?type='.$type.'&ID='.$iblockId. '&lang=' . LANGUAGE_ID;
             break;
         case 'iblockSection':
             $arSection = CIBlockSection::GetByID($id)->Fetch();
             $iblockId = $arSection['IBLOCK_ID'];
-            $urlTemplate = '/bitrix/admin/iblock_section_edit.php?IBLOCK_ID='.$iblockId.'&ID='.$id;
+            $urlTemplate = '/bitrix/admin/iblock_section_edit.php?IBLOCK_ID='.$iblockId.'&ID='.$id. '&lang=' . LANGUAGE_ID;
             break;
     }
     return $urlTemplate;

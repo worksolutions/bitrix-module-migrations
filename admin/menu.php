@@ -4,7 +4,7 @@ if (!$USER->isAdmin()) {
     return array();
 }
 $loc = \WS\Migrations\Module::getInstance()->getLocalization('menu');
-$inputUri = '/bitrix/admin/ws_migrations.php?q=';
+$inputUri = '/bitrix/admin/ws_migrations.php?lang=' . LANGUAGE_ID . '&q=';
 return array(
     array(
         'parent_menu' => 'global_menu_settings',

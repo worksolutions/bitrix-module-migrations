@@ -130,8 +130,8 @@ $fSection = function ($label) use ($serviceLabels, $localization) {
     <tr class="heading">
         <td colspan="2">
             <?=$label?>
-            <a href="#" style="text-decoration: none; border-bottom: 1px dashed;" class="show">показать данные</a>
-            <a href="#" style="text-decoration: none; border-bottom: 1px dashed; display: none;" class="hide">скрыть данные</a>
+            <a href="#" style="text-decoration: none; border-bottom: 1px dashed;" class="show"><?=$localization->getDataByPath('message.show')?></a>
+            <a href="#" style="text-decoration: none; border-bottom: 1px dashed; display: none;" class="hide"><?=$localization->getDataByPath('message.hide')?></a>
         </td>
     </tr>
     <?php

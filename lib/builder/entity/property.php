@@ -2,6 +2,7 @@
 
 namespace WS\Migrations\Builder\Entity;
 use Bitrix\Main\Type\DateTime;
+use WS\Migrations\Builder\BuilderException;
 
 /**
  * Class Property
@@ -55,10 +56,13 @@ class Property extends Base {
     const USER_TYPE_E_AUTOCOMPLETE = 'E:EAutocomplete';
     const USER_TYPE_DIRECTORY = 'S:directory';
     const USER_TYPE_SEQUENCE = 'N:Sequence';
+    /** @var  EnumVariant[] */
+    private $enumVariants;
 
     public function __construct($name, $data = array()) {
         $this->name = $name;
         $this->dateUpdate = new DateTime();
+        $this->enumVariants = array();
         $this->setSaveData($data);
     }
 
@@ -128,6 +132,7 @@ class Property extends Base {
     public function setType($propertyType, $userType = false) {
         $this->propertyType = $propertyType;
         if (!$userType) {
+            $this->userType = '';
             return $this;
         }
         $type = explode(':', $userType);
@@ -275,4 +280,73 @@ class Property extends Base {
         return $this;
     }
 
+    /**
+     * @return int
+     */
+    public function getId() {
+        return $this->id;
+    }
+
+    /**
+     * @param $name
+     * @return EnumVariant
+     */
+    public function addEnum($name) {
+        $variant = new EnumVariant($name);
+        $this->enumVariants[] = $variant;
+        return $variant;
+    }
+
+    /**
+     * @param $name
+     * @return EnumVariant
+     */
+    public function updateEnum($name) {
+        $data = $this->findEnum($name);
+        $variant = new EnumVariant($name, $data);
+        $this->enumVariants[] = $variant;
+        return $variant;
+    }
+
+    /**
+     * @param $name
+     * @return UserField
+     */
+    public function removeEnum($name) {
+        $data = $this->findEnum($name);
+        $variant = new EnumVariant($name, $data);
+        $variant->del = 'Y';
+        $this->enumVariants[] = $variant;
+        return $this;
+    }
+
+    private function findEnum($name) {
+        if (!$this->getId()) {
+            throw new BuilderException('Save Property before update enum');
+        }
+        $res = \CIBlockPropertyEnum::GetList(null, array(
+            'PROPERTY_ID' => $this->id,
+            'VALUE' => $name,
+        ))->Fetch();
+        if (empty($res)) {
+            throw new BuilderException('Enum for update not found');
+        }
+        return $res;
+    }
+
+    /**
+     * @return EnumVariant[]
+     */
+    public function getEnumVariants() {
+        return $this->enumVariants;
+    }
+
+    /**
+     * @param int $id
+     * @return Property
+     */
+    public function setId($id) {
+        $this->id = $id;
+        return $this;
+    }
 }

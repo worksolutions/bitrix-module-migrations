@@ -48,7 +48,7 @@ while ($rowData = $rsData->NavNext()) {
         array(
             "ICON" => "view",
             "TEXT" => $localization->message('message.view'),
-            "ACTION" => $lAdmin->ActionRedirect("ws_migrations.php?q=detail&label=".$rowData['label'].'&type=new'),
+            "ACTION" => $lAdmin->ActionRedirect("ws_migrations.php?q=detail&label=".$rowData['label'].'&type=new'. '&lang=' . LANGUAGE_ID),
             "DEFAULT" => true
         )
     ));

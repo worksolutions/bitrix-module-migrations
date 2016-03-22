@@ -1,51 +1,98 @@
 <?php
-/**
- * @author Maxim Sokolovsky <sokolovsky@worksolutions.ru>
- */
 
-namespace Domain\Migrations;
+namespace WS\Migrations\Builder;
 
 use Bitrix\Highloadblock\HighloadBlockTable;
+use WS\Migrations\Builder\Entity\HighLoadBlock;
+use WS\Migrations\Builder\Entity\UserField;
 
 class HighLoadBlockBuilder {
-
-    private $fieldsGateway;
-
-    /**
-     * @var int
-     */
-    private $iblockId;
+    /** @var  HighLoadBlock */
+    private $highLoadBlock;
+    /** @var  UserField[] */
+    private $fields;
 
     public function __construct() {
         \CModule::IncludeModule('iblock');
         \CModule::IncludeModule('highloadblock');
-        $this->fieldsGateway = new \CUserTypeEntity();
+    }
+
+    public function reset() {
+        $this->highLoadBlock = null;
+        $this->fields = array();
     }
 
     /**
      * @param $name
      * @param $tableName
-     * @return $this
-     * @throws \Bitrix\Main\SystemException
-     * @throws \Exception
+     * @return HighLoadBlock
+     * @throws BuilderException
      */
-    public function createTable($name, $tableName) {
-        $hbRes = HighloadBlockTable::add(array(
-            'NAME'       => $name,
-            'TABLE_NAME' => $tableName
-        ));
-        if (!$hbRes->isSuccess()){
-            throw new \Exception('Cant create block by table name `'.$tableName.'` '.implode(', ', $hbRes->getErrorMessages()));
+    public function addHLBlock($name, $tableName) {
+        if ($this->highLoadBlock) {
+            throw new BuilderException('reset builder data for continue');
         }
-        $this->iblockId = $hbRes->getId();
-        return $this;
+        $this->highLoadBlock = new HighLoadBlock($name, $tableName);
+        return $this->highLoadBlock;
     }
 
     /**
      * @param $tableName
-     * @return $this
-     * @throws \Bitrix\Main\SystemException
-     * @throws \Exception
+     * @return HighLoadBlock
+     * @throws BuilderException
+     */
+    public function getHLBlock($tableName) {
+        if ($this->highLoadBlock) {
+            throw new BuilderException('reset builder data for continue');
+        }
+        $block = $this->findTable($tableName);
+        $this->highLoadBlock = new HighLoadBlock($block['NAME'], $tableName, $block['ID']);
+        return $this->highLoadBlock;
+    }
+
+    /**
+     * @param $code
+     * @return UserField
+     */
+    public function addField($code) {
+        $field = new UserField($code);
+        $this->fields[] = $field;
+        return $field;
+    }
+
+    /**
+     * @param $code
+     * @return UserField
+     * @throws BuilderException
+     */
+    public function getField($code) {
+        $data = $this->findField($code);
+        $field = new UserField($code, $data);
+        $this->fields[] = $field;
+        return $field;
+    }
+
+    /**
+     * @throws BuilderException
+     */
+    public function commit() {
+        global $DB;
+        $DB->StartTransaction();
+        try {
+            $this->commitHighLoadBlock();
+            $this->commitFields();
+        } catch (BuilderException $e) {
+            $DB->Rollback();
+            throw new BuilderException($e->getMessage());
+        }
+        $DB->Commit();
+    }
+
+    /**
+     * @param $tableName
+     * @return array|false
+     * @throws BuilderException
+     * @throws \Bitrix\Main\ArgumentException
      */
     public function findTable($tableName) {
         $hbRes = HighloadBlockTable::getList(array(
@@ -54,81 +101,107 @@ class HighLoadBlockBuilder {
             )
         ));
         if (!($table = $hbRes->fetch())){
-            throw new \Exception('Cant find block by table name `$tableName` '.implode(', ', $hbRes->getErrorMessages()));
+            throw new BuilderException('Cant find block by table name `'.$tableName.'` ');
         }
-        $this->iblockId = $table['ID'];
-        return $this;
+        return $table;
     }
 
     /**
-     * @param $name
-     * @param $type
-     * @param $label
-     * @return $this
-     * @throws \Exception
+     * @return HighLoadBlock
      */
-    public function createSimpleField($name, $type, $label) {
-        if (!$this->getIblockId()) {
-            throw new \Exception('Set iblock id before');
-        }
-        $default = array(
-            "XML_ID"         => "",
-            "SORT"           => "",
-            "MULTIPLE"       => "N",
-            "MANDATORY"      => "N",
-            "SHOW_FILTER"    => "Y",
-            "SHOW_IN_LIST"   => "Y",
-            "EDIT_IN_LIST"   => "Y",
-            "IS_SEARCHABLE"  => "N",
-            "SETTINGS"        => "",
-            "ERROR_MESSAGE"     => "",
-            "HELP_MESSAGE"      => "",
-        );
-        $res = $this->fieldsGateway->Add(array_merge($default, array(
-            "ENTITY_ID"      => "HLBLOCK_" . $this->getIblockId(),
-            "FIELD_NAME"     => $name,
-            "USER_TYPE_ID"   => $type,
-            "EDIT_FORM_LABEL" => array(
-                "ru" => $label
-            ),
-            "LIST_COLUMN_LABEL" => array(
-                "ru" => $label
-            ),
-            "LIST_FILTER_LABEL" => array(
-                "ru" => $label
-            ),
-        )));
-        return $this;
+    public function getCurrentHighLoadBlock() {
+        return $this->highLoadBlock;
     }
 
     /**
-     * @return int
+     * @throws BuilderException
+     * @throws \Bitrix\Main\SystemException
      */
-    public function getIblockId() {
-        return $this->iblockId;
+    private function commitHighLoadBlock() {
+        if (!$this->highLoadBlock->getId()) {
+            $hbRes = HighloadBlockTable::add($this->highLoadBlock->getSaveData());
+        } else {
+            $hbRes = HighloadBlockTable::update(
+                $this->highLoadBlock->getId(),
+                $this->highLoadBlock->getSaveData()
+            );
+        }
+        if (!$hbRes->isSuccess()) {
+            throw new BuilderException($this->highLoadBlock->tableName . ' ' . implode(', ', $hbRes->getErrorMessages()));
+        }
+        $this->highLoadBlock->setId($hbRes->getId());
     }
 
     /**
-     * @param $value
-     * @throws \Exception
+     * @throws BuilderException
      */
-    public function setIblockId($value) {
-        if ($this->iblockId) {
-            throw new \Exception('Iblock id was exist');
+    private function commitFields() {
+        global $APPLICATION;
+        if (!$this->getCurrentHighLoadBlock()->getId()) {
+            throw new BuilderException('Set highLoadBlock before');
         }
-        $this->iblockId = $value;
+        $gw = new \CUserTypeEntity();
+        foreach ($this->fields as $field) {
+            if ($field->getId() > 0) {
+                $res = $gw->Update($field->getId(), $field->getSaveData());
+            } else {
+                $res = $gw->Add(array_merge($field->getSaveData(), array(
+                    'ENTITY_ID' => 'HLBLOCK_' . $this->getCurrentHighLoadBlock()->getId()
+                )));
+                if ($res) {
+                    $field->setId($res);
+                }
+            }
+
+            if (!$res) {
+                throw new BuilderException($APPLICATION->GetException()->GetString());
+            }
+
+            $this->commitEnum($field);
+        }
     }
 
-    public function removeSimpleField($name) {
-        if (!$this->getIblockId()) {
-            throw new \Exception('Set iblock id before');
+    /**
+     * @param UserField $field
+     * @throws BuilderException
+     */
+    private function commitEnum($field) {
+        global $APPLICATION;
+        $obEnum = new \CUserFieldEnum;
+        $values = array();
+        foreach ($field->getEnumVariants() as $key => $variant) {
+            $key = 'n' . $key;
+            if ($variant->getId() > 0) {
+                $key = $variant->getId();
+            }
+            $values[$key] = $variant->getSaveData();
         }
-        $field = $this->fieldsGateway->GetList(array(), array(
-            'FIELD_NAME' => $name,
-            "ENTITY_ID"      => "HLBLOCK_" . $this->getIblockId(),
+        if (empty($values)) {
+            return;
+        }
+        if (!$obEnum->SetEnumValues($field->getId(), $values)) {
+            throw new BuilderException($APPLICATION->GetException()->GetString());
+        }
+    }
+
+    /**
+     * @param $code
+     * @return array
+     * @throws BuilderException
+     */
+    private function findField($code) {
+        if (!$this->highLoadBlock) {
+            throw new BuilderException('set higloadBlock for continue');
+        }
+        $field = \CUserTypeEntity::GetList(null, array(
+            'FIELD_NAME' => $code,
+            'ENTITY_ID' => "HLBLOCK_" . $this->getCurrentHighLoadBlock()->getId(),
         ))->Fetch();
-        $this->fieldsGateway->Delete($field['ID']);
 
-        return $this;
+        if (empty($field)) {
+            throw new BuilderException('Field for update not found');
+        }
+        return $field;
     }
+
 }

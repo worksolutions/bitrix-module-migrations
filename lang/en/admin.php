@@ -11,119 +11,139 @@ return array(
         'errorList' => 'Unsuccessful applied migrations',
         'appliedList' => 'Successful applied migrations',
         'btnRollback' => 'Undo last change',
+        'btnApply' => 'Apply',
         'lastSetup' => array(
             'sectionName' => 'Last update :time: - :user:'
         ),
         'common' => array(
             'listEmpty' => 'List is empty',
+            'reference-fix' => 'References synchronizing',
             'pageEmpty' => 'Data for update don`t exists yet'
         ),
         'newChangesDetail' => 'Changes list',
         'newChangesTitle' => 'New changes',
-        'errorWindow' => 'Error info'
-    ),
-    'changeversion' => array(
-        'title' => 'Change version of the database',
-        'version' => 'The current version of the database',
-        'setup' => 'setup',
-        'owner' => 'Owner',
-        'button_change' => 'Change',
-        'description' => "
-        In applying the \"Clean dump\", please change the version of the database, the current project will change the version that will function independently.
-        ",
-        'dialog' => array(
-            'title' => 'Owner is set name'
-        ),
-        'otherVersions' => array(
-            'tab' => 'Other versions'
+        'errorWindow' => 'Error info',
+        'diagnostic' => 'Errors <a href=":url:"> </a> diagnosis, the use of the migration is possible only after the correction',
+        'platformVersion' => array(
+            'ok' => 'Platform version',
+            'error' => 'Incorrect platform version'
         )
     ),
-    'detail' => array(
-        'title' => '#date. #source. Deployer - #deployer',
-        'tabs' => array(
-            'diff' => 'Diff',
-            'final' => 'Final data',
-            'merge' => 'Before changes data'
+    'changeversion' => array(
+        'pageTitle' => 'Platform versions',
+        'title' => 'Current platform version',
+        'version' => 'HASH',
+        'setup' => 'setup',
+        'owner' => 'Signature',
+        'button_change' => 'Change HASH',
+        'description' => "Each project area has a unique identifier (HASH) to synchronize data.",
+        'dialog' => array(
+            'title' => 'Set the name of the project owner\'s version'
         ),
-        'message' => array(
-            'nobody' => 'Nobody'
+        'otherVersions' => array(
+            'tab' => 'Other versions of the project'
         )
     ),
     'newChangesList' => array(
         'fields' => array(
-            'date' => 'Created',
+            'date' => 'Date create',
             'description' => 'Description',
             'source' => 'Source',
         ),
         'message' => array(
-            "ago" => '\a\g\o',
-            'view' => 'View'
+            "ago" => 'back',
+            'view' => 'detail'
         )
     ),
     'applyError' => array(
         'message' => 'Message',
         'data' => 'Data',
-        'trace' => 'Trace',
+        'trace' => 'Call stack',
         'error' => array(
-            'modelNotExists' => 'Model by id=:id: not exists'
+            'modelNotExists' => 'Data for record id =: id: does not exist'
         )
     ),
     'entitiesVersions' => array(
-        'title' => 'Versions of data',
+        'title' => 'References list',
         'fields' => array(
-            'reference' => 'Reference',
-            'versions' => 'Id by versions',
-            'destination' => 'Entity'
+            'reference' => 'HASH',
+            'versions' => 'Other versions Ids',
+            'destination' => 'Reference'
         ),
         'messages' => array(
             'pages' => 'Pages'
         ),
         'subjects' => array(
-            'iblock' => 'Iblock',
-            'iblockProperty' => 'Iblock Property',
-            'iblockSection' => 'Iblock Section',
+            'iblock' => 'Information block',
+            'iblockProperty' => 'Information block property',
+            'iblockSection' => 'Information block section',
         )
     ),
     'createScenario' => array(
-        'title' => 'Scenario',
+        'title' => 'The script scenario',
         'field' => array(
-            'name' => 'Name',
+            'name' => 'Title',
             'description' => 'Description'
         ),
-        'path-to-file' => 'Migration class places in file #path#',
-        'save-file-error' => 'File has not saved'
+        'path-to-file' => 'Class file migration is #path#',
+        'save-file-error' => 'An error occured save file',
+        'button' => array(
+            'create' => 'Create migration scenario'
+        )
     ),
     'diagnostic' => array(
-        'title' => 'Diagnostic',
-        'description' => 'Diagnostic state, tips of problem',
+        'title' => 'Platform diagnostic',
+        'description' => 'Diagnostics status, problem-solving tips',
         'last' => array(
-            'description' => 'Errors',
+            'description' => 'Description',
             'result' => 'Result',
             'success' => 'Success',
-            'fail' => 'Error'
+            'fail' => 'Fail'
         ),
-        'run' => 'Start diagnostic',
+        'run' => 'Run diagnostic',
     ),
     'log' => array(
-        'title' => 'Changes log',
+        'title' => 'Updates log',
         'fields' => array(
             'updateDate' => 'Date',
-            'description' => 'Update description',
+            'description' => 'Update features',
             'source' => 'Source',
-            'dispatcher' => 'Updated'
+            'dispatcher' => 'Update by'
         ),
         'messages' => array(
-            'InsertReference' => 'Insert another platform reference',
-            'view' => 'Changes analyse',
+            'InsertReference' => 'Insert other reference',
+            'view' => 'Analysis of changes',
             'pages' => 'Pages',
-            'actualization' => 'Actualize',
-            'descriptionMoreLink' => 'more',
+            'actualization' => 'Actualization sources',
+            'descriptionMoreLink' => 'detail',
             'errorWindow' => 'Error information'
+        )
+    ),
+    'detail' => array(
+        'title' => '#date. #source. Update by - #deployer',
+        'tabs' => array(
+            'diff' => 'Features',
+            'final' => 'Update result',
+            'merge' => 'Data before update'
+        ),
+        'message' => array(
+            'nobody' => 'The site is not updated',
+            'show' => 'show data',
+            'hide' => 'hide data',
+        ),
+        'serviceLabels' => array(
+            '~reference' => 'HASH',
+            '~property_list_values' => 'VALUES',
+            'Reference fix' => 'Register links with the essence of the platform',
+            'Insert reference' => 'The new entity reference',
+            'reference' => 'HASH',
+            'group' => 'Group entity ( the handler )',
+            'dbVersion' => 'Platform version'
         )
     ),
     'cli' => array(
         'common' => array(
-            'reference-fix' => 'References fix'
+            'reference-fix' => 'References synchronizing'
         ),
     ),
 );
