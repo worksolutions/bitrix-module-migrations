@@ -233,7 +233,6 @@ class Module {
         $refCollector->onRegister(function (ReferenceItem $item) use ($fSetupReferenceFix, $referenceAddSubject, $self, $refCollector) {
             if ($self->isUsingScenariosUpdate()) {
                 $item->reference = $refCollector->createReferenceStringValue($self->createUsingScenarioId());
-                return;
             }
             $fSetupReferenceFix($item, $referenceAddSubject, Collector::ORDER_PRIORITY_MIDDLE);
         });
