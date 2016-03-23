@@ -2,7 +2,7 @@
 
 ### Работа со скриптами миграций
 
-Если стандартного функционала не хватает для поддержки версий (копий) проекта в актуальном состоянии, `модуль миграций` предоставляет
+Часто стандартного функционала автоматических миграций не хватает для поддержки версий (копий) проекта в актуальном состоянии, `модуль миграций` предоставляет
 функционал создания "гибкой миграции" путем определения сценария миграции программистом. Так же имеется набор классов для быстрого и удобного
 создания новых данных.
 
@@ -13,9 +13,11 @@
 
 ###### Создание сценария. Ввод названия
 
-![Создание сценария. Ввод названия](data/create_scenario.png)
+![Создание сценария. Ввод названия](../data/create_scenario.png)
 
 Название можно задавать кириллицей. После появляется сообщение с информацией о местонахождении файла класса
+
+![Создание сценария. Ввод названия](../data/update_scenario.png)
 
 #### 2. Редактирование. Определение алгоритма исполнения скрипта
 
@@ -23,7 +25,51 @@
 
 ###### Сценарий. Редактирование класса
 
-![Сценарий. Редактирование класса](data/scenario_code.png)
+```php
+<?php
+
+/**
+ * Class definition update migrations scenario actions
+ **/
+class ws_m_1458654949_pervoe_migrirovanie_na_platformu extends \WS\Migrations\ScriptScenario {
+
+    /**
+     * Name of scenario
+     **/
+    static public function name() {
+        return "Первое мигрирование на платформу";
+    }
+
+    /**
+     * Description of scenario
+     **/
+    static public function description() {
+        return "";
+    }
+
+    /**
+     * @return array First element is hash, second is owner name
+     */
+    public function version() {
+        return array("0b293915ef769882aa400eb10cfa2540", "Master");
+    }
+
+    /**
+     * Write action by apply scenario. Use method `setData` for save need rollback data
+     **/
+    public function commit() {
+        // my code
+    }
+
+    /**
+     * Write action by rollback scenario. Use method `getData` for getting commit saved data
+     **/
+    public function rollback() {
+        // my code
+    }
+}
+```
+
 
 В нем предназначены для модификации два метода:
 * `commit` - содержит алгоритм применения миграции
@@ -40,6 +86,34 @@
 
 ###### Применение сценариев миграций
 
-![Применение сценариев миграций](data/main.png)
+![Применение сценариев миграций](../data/main.png)
 
 Данные по сценариям миграций так же попадают в журнал изменений. В анализе изменений можно просмотреть промежуточную информацию.
+
+#### Классы упрощения работы с предметной областью
+
+Для сценариев миграций существуют классы (билдеры) позволяющие гибко и быстро создавать новые сущности данных
+
+Работа с билдерами строится следующим образом
+
+```php
+<?php
+
+    $ibBuilder = new \WS\Migrations\Builder\IblockBuilder();
+    $ibBuilder->getIblock("Каталог товаров");
+
+    $ibBuilder
+        ->getSection("Бытовая техника")
+        ->setName("Техника для дома");
+    
+    // сохранение изменений в базу данных
+    $ibBuilder->commit();
+```
+
+Перечень классов:
+
+* \WS\Migrations\Builder\IblockBuilder
+* \WS\Migrations\Builder\HighLoadBlockBuilder
+* \WS\Migrations\Builder\FormBuilder
+* \WS\Migrations\Builder\EventsBuilder
+* \WS\Migrations\Builder\AgentBuilder
