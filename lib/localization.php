@@ -20,9 +20,6 @@ class Localization {
      * @return Options
      */
     private function getData() {
-        if (!$this->data) {
-            $this->data = new Options(include $this->getOptionParam('path'));
-        }
         return $this->data;
     }
 
