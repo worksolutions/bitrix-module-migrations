@@ -13,7 +13,7 @@ if ($_POST['rollback']) {
     $apply = true;
 }
 
-$diagnosticTester = $module->getDiagnosticTester();
+$diagnosticTester = $module->useDiagnostic();
 
 if ($_POST['apply'] && $diagnosticTester->run()) {
     $module->applyNewFixes();

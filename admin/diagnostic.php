@@ -4,7 +4,7 @@ $context = Bitrix\Main\Context::getCurrent();
 /** @var \Bitrix\Main\HttpRequest $request */
 $request = $context->getRequest();
 
-$tester = \WS\Migrations\Module::getInstance()->getDiagnosticTester();
+$tester = \WS\Migrations\Module::getInstance()->useDiagnostic();
 if ($request->isPost()) {
     $post = $request->getPostList()->toArray();
     $run = (bool)$post['run'];

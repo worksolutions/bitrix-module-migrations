@@ -23,7 +23,7 @@ class ApplyCommand extends BaseCommand{
             }
         }
         $diagnosticTester = $this->module
-            ->getDiagnosticTester();
+            ->useDiagnostic();
 
         if (!$diagnosticTester->run()) {
             $this->console

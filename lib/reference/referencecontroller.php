@@ -110,6 +110,41 @@ class ReferenceController {
         return $deleteResult->isSuccess();
     }
 
+    /**
+     * removes all reference by item id
+     *
+     * @param int $itemId
+     * @param string $group
+     * @param string|null $dbVersion
+     * @return bool
+     *
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
+     */
+    public function removeReference($itemId, $group, $dbVersion = null) {
+        $item = $this->getItemById($itemId, $group, $dbVersion);
+        if (!$item) {
+            return false;
+        }
+        $dbRes = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                '=REFERENCE' => $item->reference,
+                "=DB_VERSION" => $dbVersion
+            )
+        ));
+        $onRemove = $this->_onRemove;
+        while ($arItem = $dbRes->fetch()) {
+            $deleteResult = DbVersionReferencesTable::delete($arItem['ID']);
+            if (!$deleteResult->isSuccess()) {
+                return false;
+            }
+            $onRemove && $arItem['DB_VERSION'] == $this->platformVersionValue && $onRemove($item);
+        }
+        return true;
+    }
+
+
+
     private function _initItemByDBData(array $data) {
         $item = new ReferenceItem();
         $item->reference = $data['REFERENCE'];
@@ -122,19 +157,22 @@ class ReferenceController {
     /**
      * @param string $reference
      * @param string $group
+     * @param null $rightDbVersion
      * @return bool
      * @throws \Bitrix\Main\ArgumentException
      */
-    public function tryCreateItemByReference($reference, $group) {
+    public function tryCreateItemByReference($reference, $group, $rightDbVersion = null) {
         try {
             $this->getItemCurrentVersionByReference($reference);
             return true;
         } catch (\Exception $e) {
+            $filter = array(
+                '=REFERENCE' => $reference,
+                '=GROUP' => $group
+            );
+            $rightDbVersion && $filter['DB_VERSION'] = $rightDbVersion;
             $dbResItems = DbVersionReferencesTable::getList(array(
-                'filter' => array(
-                    '=REFERENCE' => $reference,
-                    '=GROUP' => $group
-                )
+                'filter' => $filter
             ));
             $itemId = null;
             while ($arItem = $dbResItems->fetch()) {
@@ -337,40 +375,49 @@ class ReferenceController {
         return $res;
     }
 
-    /**
-     * removes reference by item id
-     *
-     * @param int $itemId
-     * @param string $group
-     * @param string|null $dbVersion
-     * @return bool
-     *
-     * @throws \Bitrix\Main\ArgumentException
-     * @throws \Exception
-     */
-    public function removeReference($itemId, $group, $dbVersion = null) {
-        $item = $this->getItemById($itemId, $group, $dbVersion);
-        if (!$item) {
-            return false;
-        }
-        $dbRes = DbVersionReferencesTable::getList(array(
-            'filter' => array(
-                '=REFERENCE' => $item->reference,
-                "=DB_VERSION" => $dbVersion
-            )
-        ));
-        $onRemove = $this->_onRemove;
-        while ($arItem = $dbRes->fetch()) {
-            $deleteResult = DbVersionReferencesTable::delete($arItem['ID']);
-            if (!$deleteResult->isSuccess()) {
-                return false;
-            }
-            $onRemove && $arItem['DB_VERSION'] == $this->platformVersionValue && $onRemove($item);
-        }
-        return true;
-    }
-
     public function createReferenceStringValue($id) {
         return md5($id);
+    }
+
+    /**
+     * @param string $dbVersion
+     */
+    public function fitVersion($dbVersion) {
+        $stableVersionItems = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                "=DB_VERSION" => $dbVersion
+            )
+        ))->fetchAll();
+        $currentVersionItems = DbVersionReferencesTable::getList(array(
+            'filter' => array(
+                "=DB_VERSION" => $this->platformVersionValue
+            )
+        ))->fetchAll();
+
+
+        foreach ($stableVersionItems as $stableVersionItem) {
+            foreach ($currentVersionItems as & $currentVersionItem) {
+                if ($currentVersionItem['REFERENCE'] != $stableVersionItem['REFERENCE']) {
+                    continue;
+                }
+                if ($currentVersionItem['ITEM_ID'] == $stableVersionItem['ITEM_ID']) {
+                    unset($currentVersionItem);
+                    break;
+                }
+
+                $this->removeItemById($currentVersionItem['ITEM_ID'], $currentVersionItem['GROUP']);
+
+                $stableVersionItem['DB_VERSION'] = $this->platformVersionValue;
+                $item = $this->_initItemByDBData($stableVersionItem);
+                $this->registerItem($item);
+                unset($currentVersionItem);
+                break;
+            }
+        }
+
+        $restOfCurrentVersionItems = array_filter($currentVersionItems);
+        foreach ($restOfCurrentVersionItems as $restItem) {
+            $this->removeItemById($restItem['ITEM_ID'], $restItem['GROUP']);
+        }
     }
 }

@@ -189,7 +189,7 @@ class Module {
                     $handlerClass = array_shift($params);
                     $eventKey = array_shift($params);
                     try {
-                        $diagnostic = $module->getDiagnosticTester();
+                        $diagnostic = $module->useDiagnostic();
                         if (!$diagnostic->hasRun()) {
                             $diagnostic->run();
                         }
@@ -313,13 +313,20 @@ class Module {
     /**
      * @return DiagnosticTester
      */
-    public function getDiagnosticTester() {
+    public function useDiagnostic() {
         if (!$this->diagnostic) {
             $handlers = array();
             foreach ($this->getSubjectHandlers() as $handler) {
                 $this->isEnableSubjectHandler(get_class($handler)) && $handlers[] = $handler;
             }
             $this->diagnostic = new DiagnosticTester($handlers, $this);
+
+            $dbVersion = $this->getOptions()->dbPlatformVersion;
+            if ($dbVersion && $dbVersion != $this->getPlatformVersion()->getValue()) {
+                $this->getReferenceController()->fitVersion($dbVersion);
+                $this->getOptions()->dbPlatformVersion = $this->getPlatformVersion()->getValue();
+            }
+            !$dbVersion && ($this->getOptions()->dbPlatformVersion = $this->getPlatformVersion()->getValue());
         }
         return $this->diagnostic;
     }
@@ -508,7 +515,7 @@ class Module {
 
         $isValid = $this->getPlatformVersion()->isValid();
         if ($isValid) {
-            $isValid = $this->getDiagnosticTester()
+            $isValid = $this->useDiagnostic()
                 ->getLastResult()
                 ->isSuccess();
         }
@@ -1065,6 +1072,7 @@ class Module {
     public function runRefreshVersion() {
         $platformVersion = $this->getPlatformVersion();
         $platformVersion->refresh();
+        $this->getOptions()->dbPlatformVersion = $platformVersion->getValue();
         $registerResult = $this->getReferenceController()->setupNewVersion($platformVersion->getValue());
         if (!$registerResult) {
             return false;
@@ -1081,7 +1089,7 @@ class Module {
         foreach ($this->getSubjectHandlers() as $handler) {
             $handler->registerExistsReferences();
         }
-        $this->getDiagnosticTester()->run();
+        $this->useDiagnostic()->run();
     }
 
     /**
