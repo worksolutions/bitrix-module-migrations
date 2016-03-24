@@ -87,7 +87,7 @@ class IblockSectionHandler extends BaseSubjectHandler {
                 'DEPTH_LEVEL' => 1
             ));
             if (!$addRes->isSuccess()) {
-                throw new \Exception('Не удалось возобновить секцию(раздел) текущей версии. ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
+                throw new \Exception('Can`t create section ' . implode(', ', $addRes->getErrorMessages())."\n".var_export($data, true));
             }
         }
         unset($data['CREATED_BY'], $data['MODIFIED_BY']);
