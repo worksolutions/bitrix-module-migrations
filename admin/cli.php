@@ -17,6 +17,7 @@ require_once(__DIR__."/../prolog.php");
 global $USER;
 $USER->Authorize(1);
 
+$module = \WS\Migrations\Module::getInstance();
 $console = new Console($argv);
 
 $getShowProgress = function () use ($console) {
@@ -48,6 +49,7 @@ try {
     $console->printLine("");
     $command = $console->getCommand();
     $command->execute($getShowProgress());
+    $module->commitDutyChanges();
 } catch (\WS\Migrations\Console\ConsoleException $e) {
     $console->printLine($e->getMessage());
 }
