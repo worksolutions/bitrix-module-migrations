@@ -88,7 +88,7 @@ class IblockPropertyHandler extends BaseSubjectHandler {
         foreach ($addValues as $value) {
             $valueReference = $value['~reference'];
             unset($value['~reference']);
-            if ($value['ID'] && !PropertyEnumerationTable::getById(array('ID' => $value['ID'], 'PROPERTY_ID' => $value['PROPERTY_ID']))->fetch()) {
+            if ($value['ID'] && !PropertyEnumerationTable::getList(array('filter' => array('ID' => $value['ID'])))->fetch()) {
                 $enumElementId = $value['ID'];
                 PropertyEnumerationTable::add($value);
             } else {
