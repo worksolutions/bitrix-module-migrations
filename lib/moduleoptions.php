@@ -35,19 +35,7 @@ final class ModuleOptions {
     }
 
     private function _getFromDb($name) {
-        $cacheConfig = Configuration::getValue("cache_flags");
-        Configuration::setValue("cache_flags", array(
-            array (
-                'value' =>
-                    array (
-                        'config_options' => 0,
-                        'site_domain' => 0,
-                    ),
-                'readonly' => false
-            )
-        ));
         $value = \COption::GetOptionString($this->_moduleName, $name);
-        Configuration::setValue("cache_flags", $cacheConfig);
         return unserialize($value);
     }
 
