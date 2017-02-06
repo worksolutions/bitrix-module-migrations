@@ -15,8 +15,8 @@ if ($_POST['save'] != "" && $_POST['name']) {
     $templateContent = file_get_contents(__DIR__.'/../data/scenarioTemplate.tpl');
     $arReplace = array(
         '#class_name#' => $className = 'ws_m_'.time().'_'.CUtil::translit($name, LANGUAGE_ID),
-        '#name#' => $name,
-        '#description#' => $description,
+        '#name#' => addslashes($name),
+        '#description#' => addslashes($description),
         '#db_version#' => $module->getPlatformVersion()->getValue(),
         '#owner#' => $module->getPlatformVersion()->getOwner()
     );
